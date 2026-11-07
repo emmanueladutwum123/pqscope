@@ -32,3 +32,7 @@ a citation. Tests check recorded key, ciphertext and signature sizes against the
 library and [CIRCL](https://github.com/cloudflare/circl).
 
 See [docs/CHANGELOG.md](docs/CHANGELOG.md) for progress.
+
+## License
+
+Apache-2.0. See [LICENSE](LICENSE).
