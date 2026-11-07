@@ -1,0 +1,304 @@
+# Python rule pack. Symbols are fully qualified module paths; the engine
+# resolves `import x as y` and `from x import y as z`, so aliases still match.
+# Every rule cites the API documentation it relies on in `source`.
+version: 1
+lang: python
+rules:
+  # --- pyca/cryptography: RSA ---
+  - id: py.cryptography.rsa.generate
+    call: cryptography.hazmat.primitives.asymmetric.rsa.generate_private_key
+    asset: {primitive: signature, algorithm: RSA}
+    params_from: ["kwarg[key_size]", "arg[1]"]
+    confidence: 0.95
+    source: https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/
+    notes: Reported as signature; an RSA key's later use is not tracked.
+  - id: py.cryptography.rsa.pss
+    ref: cryptography.hazmat.primitives.asymmetric.padding.PSS
+    asset: {primitive: signature, algorithm: RSA}
+    confidence: 0.9
+    source: https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/#cryptography.hazmat.primitives.asymmetric.padding.PSS
+  - id: py.cryptography.rsa.oaep
+    ref: cryptography.hazmat.primitives.asymmetric.padding.OAEP
+    asset: {primitive: pke, algorithm: RSA}
+    confidence: 0.9
+    source: https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/#cryptography.hazmat.primitives.asymmetric.padding.OAEP
+  - id: py.cryptography.rsa.pkcs1v15
+    ref: cryptography.hazmat.primitives.asymmetric.padding.PKCS1v15
+    asset: {primitive: signature, algorithm: RSA}
+    confidence: 0.8
+    source: https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/#cryptography.hazmat.primitives.asymmetric.padding.PKCS1v15
+    notes: PKCS1v15 padding serves both signing and encryption; reported as signature.
+
+  # --- pyca/cryptography: elliptic curves ---
+  - id: py.cryptography.ec.generate
+    call: cryptography.hazmat.primitives.asymmetric.ec.generate_private_key
+    asset: {primitive: signature, algorithm: ECDSA}
+    params_from: ["kwarg[curve]", "arg[0]"]
+    params_map:
+      cryptography.hazmat.primitives.asymmetric.ec.SECP256R1: P-256
+      cryptography.hazmat.primitives.asymmetric.ec.SECP384R1: P-384
+      cryptography.hazmat.primitives.asymmetric.ec.SECP521R1: P-521
+      cryptography.hazmat.primitives.asymmetric.ec.SECP224R1: P-224
+    confidence: 0.85
+    source: https://cryptography.io/en/latest/hazmat/primitives/asymmetric/ec/#cryptography.hazmat.primitives.asymmetric.ec.generate_private_key
+    notes: An EC key may later be used for ECDH; reported as ECDSA.
+  - id: py.cryptography.ec.ecdsa
+    ref: cryptography.hazmat.primitives.asymmetric.ec.ECDSA
+    asset: {primitive: signature, algorithm: ECDSA}
+    confidence: 0.95
+    source: https://cryptography.io/en/latest/hazmat/primitives/asymmetric/ec/#cryptography.hazmat.primitives.asymmetric.ec.ECDSA
+  - id: py.cryptography.ec.ecdh
+    ref: cryptography.hazmat.primitives.asymmetric.ec.ECDH
+    asset: {primitive: key-agreement, algorithm: ECDH}
+    confidence: 0.95
+    source: https://cryptography.io/en/latest/hazmat/primitives/asymmetric/ec/#cryptography.hazmat.primitives.asymmetric.ec.ECDH
+  - id: py.cryptography.ed25519
+    ref: [cryptography.hazmat.primitives.asymmetric.ed25519.Ed25519PrivateKey, cryptography.hazmat.primitives.asymmetric.ed25519.Ed25519PublicKey]
+    asset: {primitive: signature, algorithm: EdDSA, params: Ed25519}
+    confidence: 0.95
+    source: https://cryptography.io/en/latest/hazmat/primitives/asymmetric/ed25519/
+  - id: py.cryptography.ed448
+    ref: [cryptography.hazmat.primitives.asymmetric.ed448.Ed448PrivateKey, cryptography.hazmat.primitives.asymmetric.ed448.Ed448PublicKey]
+    asset: {primitive: signature, algorithm: EdDSA, params: Ed448}
+    confidence: 0.95
+    source: https://cryptography.io/en/latest/hazmat/primitives/asymmetric/ed448/
+  - id: py.cryptography.x25519
+    ref: [cryptography.hazmat.primitives.asymmetric.x25519.X25519PrivateKey, cryptography.hazmat.primitives.asymmetric.x25519.X25519PublicKey]
+    asset: {primitive: key-agreement, algorithm: X25519, params: X25519}
+    confidence: 0.95
+    source: https://cryptography.io/en/latest/hazmat/primitives/asymmetric/x25519/
+  - id: py.cryptography.x448
+    ref: [cryptography.hazmat.primitives.asymmetric.x448.X448PrivateKey, cryptography.hazmat.primitives.asymmetric.x448.X448PublicKey]
+    asset: {primitive: key-agreement, algorithm: X448, params: X448}
+    confidence: 0.95
+    source: https://cryptography.io/en/latest/hazmat/primitives/asymmetric/x448/
+
+  # --- pyca/cryptography: DSA and DH ---
+  - id: py.cryptography.dsa.generate
+    call: cryptography.hazmat.primitives.asymmetric.dsa.generate_private_key
+    asset: {primitive: signature, algorithm: DSA}
+    params_from: ["kwarg[key_size]", "arg[0]"]
+    confidence: 0.95
+    source: https://cryptography.io/en/latest/hazmat/primitives/asymmetric/dsa/
+  - id: py.cryptography.dh.parameters
+    call: cryptography.hazmat.primitives.asymmetric.dh.generate_parameters
+    asset: {primitive: key-agreement, algorithm: DH}
+    params_from: ["kwarg[key_size]", "arg[1]"]
+    confidence: 0.95
+    source: https://cryptography.io/en/latest/hazmat/primitives/asymmetric/dh/
+
+  # --- pyca/cryptography: hashes ---
+  - id: py.cryptography.hash.md5
+    ref: cryptography.hazmat.primitives.hashes.MD5
+    asset: {primitive: hash, algorithm: MD5, params: MD5}
+    confidence: 0.95
+    source: https://cryptography.io/en/latest/hazmat/primitives/cryptographic-hashes/
+  - id: py.cryptography.hash.sha1
+    ref: cryptography.hazmat.primitives.hashes.SHA1
+    asset: {primitive: hash, algorithm: SHA-1, params: SHA-1}
+    confidence: 0.95
+    source: https://cryptography.io/en/latest/hazmat/primitives/cryptographic-hashes/
+  - id: py.cryptography.hash.sha256
+    ref: cryptography.hazmat.primitives.hashes.SHA256
+    asset: {primitive: hash, algorithm: SHA-2, params: SHA-256}
+    confidence: 0.95
+    source: https://cryptography.io/en/latest/hazmat/primitives/cryptographic-hashes/
+  - id: py.cryptography.hash.sha384
+    ref: cryptography.hazmat.primitives.hashes.SHA384
+    asset: {primitive: hash, algorithm: SHA-2, params: SHA-384}
+    confidence: 0.95
+    source: https://cryptography.io/en/latest/hazmat/primitives/cryptographic-hashes/
+  - id: py.cryptography.hash.sha512
+    ref: cryptography.hazmat.primitives.hashes.SHA512
+    asset: {primitive: hash, algorithm: SHA-2, params: SHA-512}
+    confidence: 0.95
+    source: https://cryptography.io/en/latest/hazmat/primitives/cryptographic-hashes/
+
+  # --- pyca/cryptography: ciphers ---
+  - id: py.cryptography.aes
+    ref: cryptography.hazmat.primitives.ciphers.algorithms.AES
+    asset: {primitive: cipher, algorithm: AES}
+    confidence: 0.95
+    source: https://cryptography.io/en/latest/hazmat/primitives/symmetric-encryption/
+    notes: Key length is chosen at run time, so params stay unknown.
+  - id: py.cryptography.3des
+    ref: [cryptography.hazmat.primitives.ciphers.algorithms.TripleDES, cryptography.hazmat.decrepit.ciphers.algorithms.TripleDES]
+    asset: {primitive: cipher, algorithm: 3DES, params: 3-key}
+    confidence: 0.95
+    source: https://cryptography.io/en/latest/hazmat/decrepit/ciphers/
+  - id: py.cryptography.rc4
+    ref: [cryptography.hazmat.primitives.ciphers.algorithms.ARC4, cryptography.hazmat.decrepit.ciphers.algorithms.ARC4]
+    asset: {primitive: cipher, algorithm: RC4}
+    confidence: 0.95
+    source: https://cryptography.io/en/latest/hazmat/decrepit/ciphers/
+  - id: py.cryptography.chacha20poly1305
+    ref: cryptography.hazmat.primitives.ciphers.aead.ChaCha20Poly1305
+    asset: {primitive: cipher, algorithm: ChaCha20-Poly1305, params: ChaCha20-Poly1305}
+    confidence: 0.95
+    source: https://cryptography.io/en/latest/hazmat/primitives/aead/
+
+  # --- hashlib ---
+  - id: py.hashlib.md5
+    ref: hashlib.md5
+    asset: {primitive: hash, algorithm: MD5, params: MD5}
+    confidence: 0.9
+    source: https://docs.python.org/3/library/hashlib.html
+    notes: Calls passing usedforsecurity=False are still reported.
+  - id: py.hashlib.sha1
+    ref: hashlib.sha1
+    asset: {primitive: hash, algorithm: SHA-1, params: SHA-1}
+    confidence: 0.9
+    source: https://docs.python.org/3/library/hashlib.html
+  - id: py.hashlib.sha256
+    ref: hashlib.sha256
+    asset: {primitive: hash, algorithm: SHA-2, params: SHA-256}
+    confidence: 0.95
+    source: https://docs.python.org/3/library/hashlib.html
+  - id: py.hashlib.sha512
+    ref: hashlib.sha512
+    asset: {primitive: hash, algorithm: SHA-2, params: SHA-512}
+    confidence: 0.95
+    source: https://docs.python.org/3/library/hashlib.html
+  - id: py.hashlib.new
+    call: hashlib.new
+    params_from: ["arg[0]", "kwarg[name]"]
+    select:
+      md5: {primitive: hash, algorithm: MD5, params: MD5}
+      sha1: {primitive: hash, algorithm: SHA-1, params: SHA-1}
+      sha256: {primitive: hash, algorithm: SHA-2, params: SHA-256}
+      sha384: {primitive: hash, algorithm: SHA-2, params: SHA-384}
+      sha512: {primitive: hash, algorithm: SHA-2, params: SHA-512}
+      sha3_256: {primitive: hash, algorithm: SHA-3, params: SHA3-256}
+      sha3_512: {primitive: hash, algorithm: SHA-3, params: SHA3-512}
+    confidence: 0.9
+    source: https://docs.python.org/3/library/hashlib.html#hashlib.new
+    notes: A name that cannot be resolved statically produces no finding.
+  - id: py.hmac.new
+    call: hmac.new
+    asset: {primitive: mac, algorithm: HMAC}
+    params_from: ["kwarg[digestmod]", "arg[2]"]
+    params_map:
+      hashlib.sha1: SHA-1
+      hashlib.sha256: SHA-256
+      hashlib.sha384: SHA-384
+      hashlib.sha512: SHA-512
+      sha1: SHA-1
+      sha256: SHA-256
+      sha384: SHA-384
+      sha512: SHA-512
+    confidence: 0.95
+    source: https://docs.python.org/3/library/hmac.html#hmac.new
+
+  # --- PyCryptodome (Crypto and Cryptodome namespaces) ---
+  - id: py.pycryptodome.rsa
+    call: [Crypto.PublicKey.RSA.generate, Cryptodome.PublicKey.RSA.generate]
+    asset: {primitive: signature, algorithm: RSA}
+    params_from: ["kwarg[bits]", "arg[0]"]
+    confidence: 0.95
+    source: https://pycryptodome.readthedocs.io/en/latest/src/public_key/rsa.html
+  - id: py.pycryptodome.ecc
+    call: [Crypto.PublicKey.ECC.generate, Cryptodome.PublicKey.ECC.generate]
+    params_from: ["kwarg[curve]"]
+    select:
+      p256: {primitive: signature, algorithm: ECDSA, params: P-256}
+      p-256: {primitive: signature, algorithm: ECDSA, params: P-256}
+      nist p-256: {primitive: signature, algorithm: ECDSA, params: P-256}
+      secp256r1: {primitive: signature, algorithm: ECDSA, params: P-256}
+      prime256v1: {primitive: signature, algorithm: ECDSA, params: P-256}
+      p384: {primitive: signature, algorithm: ECDSA, params: P-384}
+      p-384: {primitive: signature, algorithm: ECDSA, params: P-384}
+      secp384r1: {primitive: signature, algorithm: ECDSA, params: P-384}
+      p521: {primitive: signature, algorithm: ECDSA, params: P-521}
+      p-521: {primitive: signature, algorithm: ECDSA, params: P-521}
+      secp521r1: {primitive: signature, algorithm: ECDSA, params: P-521}
+      ed25519: {primitive: signature, algorithm: EdDSA, params: Ed25519}
+      ed448: {primitive: signature, algorithm: EdDSA, params: Ed448}
+    confidence: 0.9
+    source: https://pycryptodome.readthedocs.io/en/latest/src/public_key/ecc.html
+  - id: py.pycryptodome.des
+    ref: [Crypto.Cipher.DES, Cryptodome.Cipher.DES]
+    asset: {primitive: cipher, algorithm: DES, params: "56"}
+    confidence: 0.95
+    source: https://pycryptodome.readthedocs.io/en/latest/src/cipher/des.html
+  - id: py.pycryptodome.des3
+    ref: [Crypto.Cipher.DES3, Cryptodome.Cipher.DES3]
+    asset: {primitive: cipher, algorithm: 3DES, params: 3-key}
+    confidence: 0.95
+    source: https://pycryptodome.readthedocs.io/en/latest/src/cipher/des3.html
+  - id: py.pycryptodome.arc4
+    ref: [Crypto.Cipher.ARC4, Cryptodome.Cipher.ARC4]
+    asset: {primitive: cipher, algorithm: RC4}
+    confidence: 0.95
+    source: https://pycryptodome.readthedocs.io/en/latest/src/cipher/arc4.html
+  - id: py.pycryptodome.md5
+    ref: [Crypto.Hash.MD5, Cryptodome.Hash.MD5]
+    asset: {primitive: hash, algorithm: MD5, params: MD5}
+    confidence: 0.95
+    source: https://pycryptodome.readthedocs.io/en/latest/src/hash/md5.html
+
+  # --- paramiko ---
+  - id: py.paramiko.rsa
+    call: [paramiko.RSAKey.generate, paramiko.rsakey.RSAKey.generate]
+    asset: {primitive: signature, algorithm: RSA}
+    params_from: ["kwarg[bits]", "arg[0]"]
+    confidence: 0.95
+    source: https://docs.paramiko.org/en/stable/api/keys.html
+  - id: py.paramiko.ecdsa
+    ref: [paramiko.ECDSAKey, paramiko.ecdsakey.ECDSAKey]
+    asset: {primitive: signature, algorithm: ECDSA}
+    confidence: 0.9
+    source: https://docs.paramiko.org/en/stable/api/keys.html
+  - id: py.paramiko.ed25519
+    ref: [paramiko.Ed25519Key, paramiko.ed25519key.Ed25519Key]
+    asset: {primitive: signature, algorithm: EdDSA, params: Ed25519}
+    confidence: 0.9
+    source: https://docs.paramiko.org/en/stable/api/keys.html
+
+  # --- PyNaCl ---
+  - id: py.nacl.signing
+    ref: [nacl.signing.SigningKey, nacl.signing.VerifyKey]
+    asset: {primitive: signature, algorithm: EdDSA, params: Ed25519}
+    confidence: 0.95
+    source: https://pynacl.readthedocs.io/en/latest/signing/
+  - id: py.nacl.box
+    ref: [nacl.public.PrivateKey, nacl.public.PublicKey, nacl.public.Box]
+    asset: {primitive: key-agreement, algorithm: X25519, params: X25519}
+    confidence: 0.95
+    source: https://pynacl.readthedocs.io/en/latest/public/
+
+  # --- liboqs-python ---
+  - id: py.oqs.kem
+    call: oqs.KeyEncapsulation
+    params_from: ["arg[0]", "kwarg[alg_name]"]
+    select:
+      ML-KEM-512: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-512}
+      ML-KEM-768: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-768}
+      ML-KEM-1024: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-1024}
+    confidence: 0.95
+    source: https://github.com/open-quantum-safe/liboqs-python
+    notes: Pre-standard Kyber names are not mapped to ML-KEM.
+  - id: py.oqs.sig
+    call: oqs.Signature
+    params_from: ["arg[0]", "kwarg[alg_name]"]
+    select:
+      ML-DSA-44: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-44}
+      ML-DSA-65: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-65}
+      ML-DSA-87: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-87}
+    confidence: 0.95
+    source: https://github.com/open-quantum-safe/liboqs-python
+
+  # --- ssl (method on an SSLContext, matched by name with a raw query) ---
+  - id: py.ssl.set-ecdh-curve
+    query: |
+      (call
+        function: (attribute attribute: (identifier) @method (#eq? @method "set_ecdh_curve"))
+        arguments: (argument_list . (_) @curve)) @match
+    asset: {primitive: key-agreement, algorithm: ECDH}
+    params_from: capture[curve]
+    params_map:
+      prime256v1: P-256
+      secp384r1: P-384
+      secp521r1: P-521
+    confidence: 0.75
+    source: https://docs.python.org/3/library/ssl.html#ssl.SSLContext.set_ecdh_curve
+    notes: Matched by method name only, since the receiver's type is not resolved.

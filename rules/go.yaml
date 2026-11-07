@@ -1,0 +1,264 @@
+# Go rule pack. Symbols are fully qualified as <import path>.<name>; the engine
+# resolves aliased imports, so `import r "crypto/rsa"` still matches.
+# Every rule cites the API documentation it relies on in `source`.
+version: 1
+lang: go
+rules:
+  # --- RSA ---
+  - id: go.rsa.generate
+    call: crypto/rsa.GenerateKey
+    asset: {primitive: signature, algorithm: RSA}
+    params_from: arg[1]
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/rsa#GenerateKey
+    notes: Reported as signature; an RSA key's later use is not tracked.
+  - id: go.rsa.generate-multiprime
+    call: crypto/rsa.GenerateMultiPrimeKey
+    asset: {primitive: signature, algorithm: RSA}
+    params_from: arg[2]
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/rsa#GenerateMultiPrimeKey
+  - id: go.rsa.sign
+    ref: [crypto/rsa.SignPKCS1v15, crypto/rsa.SignPSS, crypto/rsa.VerifyPKCS1v15, crypto/rsa.VerifyPSS]
+    asset: {primitive: signature, algorithm: RSA}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/rsa#SignPSS
+  - id: go.rsa.encrypt
+    ref: [crypto/rsa.EncryptOAEP, crypto/rsa.DecryptOAEP, crypto/rsa.EncryptPKCS1v15, crypto/rsa.DecryptPKCS1v15, crypto/rsa.DecryptPKCS1v15SessionKey]
+    asset: {primitive: pke, algorithm: RSA}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/rsa#EncryptOAEP
+
+  # --- ECDSA ---
+  - id: go.ecdsa.generate
+    call: crypto/ecdsa.GenerateKey
+    asset: {primitive: signature, algorithm: ECDSA}
+    params_from: arg[0]
+    params_map:
+      crypto/elliptic.P224: P-224
+      crypto/elliptic.P256: P-256
+      crypto/elliptic.P384: P-384
+      crypto/elliptic.P521: P-521
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/ecdsa#GenerateKey
+  - id: go.ecdsa.sign
+    ref: [crypto/ecdsa.Sign, crypto/ecdsa.SignASN1, crypto/ecdsa.Verify, crypto/ecdsa.VerifyASN1]
+    asset: {primitive: signature, algorithm: ECDSA}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/ecdsa#SignASN1
+
+  # --- ECDH and X25519 ---
+  - id: go.ecdh.p256
+    ref: crypto/ecdh.P256
+    asset: {primitive: key-agreement, algorithm: ECDH, params: P-256}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/ecdh#P256
+  - id: go.ecdh.p384
+    ref: crypto/ecdh.P384
+    asset: {primitive: key-agreement, algorithm: ECDH, params: P-384}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/ecdh#P384
+  - id: go.ecdh.p521
+    ref: crypto/ecdh.P521
+    asset: {primitive: key-agreement, algorithm: ECDH, params: P-521}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/ecdh#P521
+  - id: go.ecdh.x25519
+    ref: crypto/ecdh.X25519
+    asset: {primitive: key-agreement, algorithm: X25519, params: X25519}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/ecdh#X25519
+  - id: go.x.curve25519
+    ref: [golang.org/x/crypto/curve25519.X25519, golang.org/x/crypto/curve25519.ScalarMult, golang.org/x/crypto/curve25519.ScalarBaseMult]
+    asset: {primitive: key-agreement, algorithm: X25519, params: X25519}
+    confidence: 0.95
+    source: https://pkg.go.dev/golang.org/x/crypto/curve25519#X25519
+
+  # --- EdDSA ---
+  - id: go.ed25519
+    ref: [crypto/ed25519.GenerateKey, crypto/ed25519.NewKeyFromSeed, crypto/ed25519.Sign, crypto/ed25519.Verify, crypto/ed25519.VerifyWithOptions]
+    asset: {primitive: signature, algorithm: EdDSA, params: Ed25519}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/ed25519
+
+  # --- DSA ---
+  - id: go.dsa.parameters
+    call: crypto/dsa.GenerateParameters
+    asset: {primitive: signature, algorithm: DSA}
+    params_from: arg[2]
+    params_map:
+      crypto/dsa.L1024N160: "1024"
+      crypto/dsa.L2048N224: "2048"
+      crypto/dsa.L2048N256: "2048"
+      crypto/dsa.L3072N256: "3072"
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/dsa#GenerateParameters
+  - id: go.dsa.use
+    ref: [crypto/dsa.GenerateKey, crypto/dsa.Sign, crypto/dsa.Verify]
+    asset: {primitive: signature, algorithm: DSA}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/dsa
+
+  # --- ML-KEM and hybrids ---
+  - id: go.mlkem.768
+    ref: [crypto/mlkem.GenerateKey768, crypto/mlkem.NewDecapsulationKey768, crypto/mlkem.NewEncapsulationKey768]
+    asset: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-768}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/mlkem#GenerateKey768
+  - id: go.mlkem.1024
+    ref: [crypto/mlkem.GenerateKey1024, crypto/mlkem.NewDecapsulationKey1024, crypto/mlkem.NewEncapsulationKey1024]
+    asset: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-1024}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/mlkem#GenerateKey1024
+  - id: go.tls.x25519mlkem768
+    ref: crypto/tls.X25519MLKEM768
+    asset: {primitive: kem, algorithm: Hybrid, params: X25519MLKEM768}
+    confidence: 0.9
+    source: https://pkg.go.dev/crypto/tls#CurveID
+  - id: go.tls.secp256r1mlkem768
+    ref: crypto/tls.SecP256r1MLKEM768
+    asset: {primitive: kem, algorithm: Hybrid, params: SecP256r1MLKEM768}
+    confidence: 0.9
+    source: https://pkg.go.dev/crypto/tls#CurveID
+  - id: go.tls.secp384r1mlkem1024
+    ref: crypto/tls.SecP384r1MLKEM1024
+    asset: {primitive: kem, algorithm: Hybrid, params: SecP384r1MLKEM1024}
+    confidence: 0.9
+    source: https://pkg.go.dev/crypto/tls#CurveID
+
+  # --- TLS curve preferences ---
+  - id: go.tls.x25519
+    ref: crypto/tls.X25519
+    asset: {primitive: key-agreement, algorithm: X25519, params: X25519}
+    confidence: 0.9
+    source: https://pkg.go.dev/crypto/tls#CurveID
+  - id: go.tls.p256
+    ref: crypto/tls.CurveP256
+    asset: {primitive: key-agreement, algorithm: ECDH, params: P-256}
+    confidence: 0.9
+    source: https://pkg.go.dev/crypto/tls#CurveID
+  - id: go.tls.p384
+    ref: crypto/tls.CurveP384
+    asset: {primitive: key-agreement, algorithm: ECDH, params: P-384}
+    confidence: 0.9
+    source: https://pkg.go.dev/crypto/tls#CurveID
+  - id: go.tls.p521
+    ref: crypto/tls.CurveP521
+    asset: {primitive: key-agreement, algorithm: ECDH, params: P-521}
+    confidence: 0.9
+    source: https://pkg.go.dev/crypto/tls#CurveID
+
+  # --- ML-DSA via CIRCL (no stdlib ML-DSA as of Go 1.26) ---
+  - id: go.circl.mldsa44
+    ref: [github.com/cloudflare/circl/sign/mldsa/mldsa44.GenerateKey, github.com/cloudflare/circl/sign/mldsa/mldsa44.NewKeyFromSeed, github.com/cloudflare/circl/sign/mldsa/mldsa44.SignTo, github.com/cloudflare/circl/sign/mldsa/mldsa44.Verify]
+    asset: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-44}
+    confidence: 0.95
+    source: https://pkg.go.dev/github.com/cloudflare/circl/sign/mldsa/mldsa44
+  - id: go.circl.mldsa65
+    ref: [github.com/cloudflare/circl/sign/mldsa/mldsa65.GenerateKey, github.com/cloudflare/circl/sign/mldsa/mldsa65.NewKeyFromSeed, github.com/cloudflare/circl/sign/mldsa/mldsa65.SignTo, github.com/cloudflare/circl/sign/mldsa/mldsa65.Verify]
+    asset: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-65}
+    confidence: 0.95
+    source: https://pkg.go.dev/github.com/cloudflare/circl/sign/mldsa/mldsa65
+  - id: go.circl.mldsa87
+    ref: [github.com/cloudflare/circl/sign/mldsa/mldsa87.GenerateKey, github.com/cloudflare/circl/sign/mldsa/mldsa87.NewKeyFromSeed, github.com/cloudflare/circl/sign/mldsa/mldsa87.SignTo, github.com/cloudflare/circl/sign/mldsa/mldsa87.Verify]
+    asset: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-87}
+    confidence: 0.95
+    source: https://pkg.go.dev/github.com/cloudflare/circl/sign/mldsa/mldsa87
+
+  # --- Certificate and SSH algorithm identifiers ---
+  - id: go.x509.rsa
+    ref: [crypto/x509.MD5WithRSA, crypto/x509.SHA1WithRSA, crypto/x509.SHA256WithRSA, crypto/x509.SHA384WithRSA, crypto/x509.SHA512WithRSA, crypto/x509.SHA256WithRSAPSS, crypto/x509.SHA384WithRSAPSS, crypto/x509.SHA512WithRSAPSS]
+    asset: {primitive: signature, algorithm: RSA}
+    confidence: 0.9
+    source: https://pkg.go.dev/crypto/x509#SignatureAlgorithm
+  - id: go.x509.ecdsa
+    ref: [crypto/x509.ECDSAWithSHA1, crypto/x509.ECDSAWithSHA256, crypto/x509.ECDSAWithSHA384, crypto/x509.ECDSAWithSHA512]
+    asset: {primitive: signature, algorithm: ECDSA}
+    confidence: 0.9
+    source: https://pkg.go.dev/crypto/x509#SignatureAlgorithm
+  - id: go.x509.ed25519
+    ref: crypto/x509.PureEd25519
+    asset: {primitive: signature, algorithm: EdDSA, params: Ed25519}
+    confidence: 0.9
+    source: https://pkg.go.dev/crypto/x509#SignatureAlgorithm
+  - id: go.x.ssh.rsa
+    ref: golang.org/x/crypto/ssh.KeyAlgoRSA
+    asset: {primitive: signature, algorithm: RSA}
+    confidence: 0.9
+    source: https://pkg.go.dev/golang.org/x/crypto/ssh#pkg-constants
+  - id: go.x.ssh.ecdsa256
+    ref: golang.org/x/crypto/ssh.KeyAlgoECDSA256
+    asset: {primitive: signature, algorithm: ECDSA, params: P-256}
+    confidence: 0.9
+    source: https://pkg.go.dev/golang.org/x/crypto/ssh#pkg-constants
+  - id: go.x.ssh.ed25519
+    ref: golang.org/x/crypto/ssh.KeyAlgoED25519
+    asset: {primitive: signature, algorithm: EdDSA, params: Ed25519}
+    confidence: 0.9
+    source: https://pkg.go.dev/golang.org/x/crypto/ssh#pkg-constants
+
+  # --- Hashes and MACs ---
+  - id: go.md5
+    ref: [crypto/md5.New, crypto/md5.Sum, crypto.MD5]
+    asset: {primitive: hash, algorithm: MD5, params: MD5}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/md5
+  - id: go.sha1
+    ref: [crypto/sha1.New, crypto/sha1.Sum, crypto.SHA1]
+    asset: {primitive: hash, algorithm: SHA-1, params: SHA-1}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/sha1
+  - id: go.sha256
+    ref: [crypto/sha256.New, crypto/sha256.Sum256, crypto.SHA256]
+    asset: {primitive: hash, algorithm: SHA-2, params: SHA-256}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/sha256
+  - id: go.sha384
+    ref: [crypto/sha512.New384, crypto/sha512.Sum384, crypto.SHA384]
+    asset: {primitive: hash, algorithm: SHA-2, params: SHA-384}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/sha512#New384
+  - id: go.sha512
+    ref: [crypto/sha512.New, crypto/sha512.Sum512, crypto.SHA512]
+    asset: {primitive: hash, algorithm: SHA-2, params: SHA-512}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/sha512
+  - id: go.hmac
+    call: crypto/hmac.New
+    asset: {primitive: mac, algorithm: HMAC}
+    params_from: arg[0]
+    params_map:
+      crypto/sha1.New: SHA-1
+      crypto/sha256.New: SHA-256
+      crypto/sha512.New384: SHA-384
+      crypto/sha512.New: SHA-512
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/hmac#New
+
+  # --- Symmetric ciphers ---
+  - id: go.aes
+    ref: crypto/aes.NewCipher
+    asset: {primitive: cipher, algorithm: AES}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/aes#NewCipher
+    notes: Key length is chosen at run time, so params stay unknown.
+  - id: go.chacha20poly1305
+    ref: [golang.org/x/crypto/chacha20poly1305.New, golang.org/x/crypto/chacha20poly1305.NewX]
+    asset: {primitive: cipher, algorithm: ChaCha20-Poly1305, params: ChaCha20-Poly1305}
+    confidence: 0.95
+    source: https://pkg.go.dev/golang.org/x/crypto/chacha20poly1305
+  - id: go.des
+    ref: crypto/des.NewCipher
+    asset: {primitive: cipher, algorithm: DES, params: "56"}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/des#NewCipher
+  - id: go.3des
+    ref: crypto/des.NewTripleDESCipher
+    asset: {primitive: cipher, algorithm: 3DES, params: 3-key}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/des#NewTripleDESCipher
+  - id: go.rc4
+    ref: crypto/rc4.NewCipher
+    asset: {primitive: cipher, algorithm: RC4}
+    confidence: 0.95
+    source: https://pkg.go.dev/crypto/rc4#NewCipher
