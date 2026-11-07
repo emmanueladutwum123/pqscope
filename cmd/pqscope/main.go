@@ -32,12 +32,11 @@ func newRootCmd() *cobra.Command {
 		SilenceUsage:  true,
 		SilenceErrors: false,
 	}
-	root.AddCommand(newVersionCmd())
+	root.AddCommand(newVersionCmd(), newScanCmd())
 	for _, stub := range []struct {
 		name, short string
 		milestone   int
 	}{
-		{"scan", "Scan a path for cryptographic assets", 2},
 		{"report", "Render findings as terminal, HTML, CBOM or SARIF output", 3},
 		{"policy", "Evaluate a CBOM against a policy", 4},
 		{"net", "Probe network endpoints for negotiated key exchange", 6},
