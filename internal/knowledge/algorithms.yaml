@@ -129,6 +129,19 @@ entries:
   - {<<: *ffdh, id: DH-3072, params: "3072", aliases: [ffdhe3072], classical_bits: 128, sizes: {public_key: 384, shared_secret: 384}}
   - {<<: *ffdh, id: MQV, algorithm: MQV, params: unknown, aliases: [ecmqv, fhmqv], classical_bits: 0, sizes: {}, sources: [sp800-56a, ir8547], notes: Strength depends on the underlying group.}
 
+  # --- DSA (FIPS 186-5 no longer approves DSA for signature generation) ---
+  - &dsa
+    id: DSA-1024
+    algorithm: DSA
+    params: "1024"
+    primitives: [signature]
+    classical_bits: 80
+    quantum: vulnerable
+    replacement: {signature: {civilian: ML-DSA-65, cnsa2: ML-DSA-87}}
+    sources: [fips186-5, sp800-57, ir8547]
+  - {<<: *dsa, id: DSA-2048, params: "2048", classical_bits: 112}
+  - {<<: *dsa, id: DSA-3072, params: "3072", classical_bits: 128}
+
   # --- ML-KEM ---
   - &mlkem
     id: ML-KEM-512
@@ -274,7 +287,8 @@ entries:
   - {<<: *sha2, id: SHA-512, params: SHA-512, aliases: [SHA512], classical_bits: 256}
   - {<<: *sha2, id: SHA3-256, algorithm: SHA-3, params: SHA3-256, aliases: [], classical_bits: 128, sources: [fips202, sp800-57, ir8547]}
   - {<<: *sha2, id: SHA3-512, algorithm: SHA-3, params: SHA3-512, aliases: [], classical_bits: 256, sources: [fips202, sp800-57, ir8547]}
-  - id: HMAC-SHA-256
+  - &hmac
+    id: HMAC-SHA-256
     algorithm: HMAC
     params: SHA-256
     aliases: [HMAC-SHA256]
@@ -282,3 +296,6 @@ entries:
     classical_bits: 256
     quantum: weakened
     sources: [fips198-1, sp800-57]
+  - {<<: *hmac, id: HMAC-SHA-1, params: SHA-1, aliases: [HMAC-SHA1], classical_bits: 128, notes: "SHA-1 collisions do not break HMAC-SHA-1, which SP 800-131A still allows.", sources: [fips198-1, sp800-57, sp800-131a]}
+  - {<<: *hmac, id: HMAC-SHA-384, params: SHA-384, aliases: [HMAC-SHA384]}
+  - {<<: *hmac, id: HMAC-SHA-512, params: SHA-512, aliases: [HMAC-SHA512]}
