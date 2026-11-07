@@ -1,0 +1,6 @@
+kind: positive
+description: "TLS config preferring hybrid ML-KEM, then classical groups"
+expect:
+  - {file: main.go, line: 9, algorithm: Hybrid, params: "X25519MLKEM768", primitive: kem}
+  - {file: main.go, line: 10, algorithm: X25519, params: "X25519", primitive: key-agreement}
+  - {file: main.go, line: 11, algorithm: ECDH, params: "P-256", primitive: key-agreement}

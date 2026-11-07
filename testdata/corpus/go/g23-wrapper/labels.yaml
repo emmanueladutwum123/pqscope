@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Key size passed through a wrapper function"
+expect:
+  - {file: main.go, line: 9, algorithm: RSA, params: "2048", primitive: signature}

@@ -1,0 +1,7 @@
+kind: positive
+description: "pyca/cryptography symmetric ciphers"
+expect:
+  - {file: main.py, line: 6, algorithm: 3DES, params: "3-key", primitive: cipher}
+  - {file: main.py, line: 7, algorithm: RC4, params: "unknown", primitive: cipher}
+  - {file: main.py, line: 8, algorithm: AES, params: "unknown", primitive: cipher}
+  - {file: main.py, line: 9, algorithm: ChaCha20-Poly1305, params: "ChaCha20-Poly1305", primitive: cipher}

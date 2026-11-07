@@ -1,0 +1,5 @@
+kind: positive
+description: "PyCryptodome RSA and 3DES"
+expect:
+  - {file: main.py, line: 4, algorithm: RSA, params: "2048", primitive: signature}
+  - {file: main.py, line: 5, algorithm: 3DES, params: "3-key", primitive: cipher}

@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Key size held in a module constant"
+expect:
+  - {file: main.py, line: 7, algorithm: RSA, params: "3072", primitive: signature}

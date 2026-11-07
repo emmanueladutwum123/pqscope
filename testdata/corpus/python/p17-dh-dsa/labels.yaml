@@ -1,0 +1,5 @@
+kind: positive
+description: "Finite-field DH and DSA"
+expect:
+  - {file: main.py, line: 3, algorithm: DH, params: "2048", primitive: key-agreement}
+  - {file: main.py, line: 4, algorithm: DSA, params: "3072", primitive: signature}

@@ -1,0 +1,5 @@
+kind: positive
+description: "HMAC-SHA-256 with the digest passed as a module function"
+expect:
+  - {file: main.py, line: 6, algorithm: HMAC, params: "SHA-256", primitive: mac}
+  - {file: main.py, line: 6, algorithm: SHA-2, params: "SHA-256", primitive: hash}

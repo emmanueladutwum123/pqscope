@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Hash function imported by name"
+expect:
+  - {file: main.py, line: 5, algorithm: MD5, params: "MD5", primitive: hash}

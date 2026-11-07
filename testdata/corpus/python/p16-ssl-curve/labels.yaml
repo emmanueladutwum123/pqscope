@@ -1,0 +1,4 @@
+kind: positive
+description: "ssl context pinned to a classical ECDH curve"
+expect:
+  - {file: main.py, line: 4, algorithm: ECDH, params: "P-256", primitive: key-agreement}

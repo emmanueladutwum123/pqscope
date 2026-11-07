@@ -1,0 +1,6 @@
+kind: positive
+description: "SSH client host key algorithm preferences"
+expect:
+  - {file: main.go, line: 8, algorithm: EdDSA, params: "Ed25519", primitive: signature}
+  - {file: main.go, line: 9, algorithm: ECDSA, params: "P-256", primitive: signature}
+  - {file: main.go, line: 10, algorithm: RSA, params: "unknown", primitive: signature}

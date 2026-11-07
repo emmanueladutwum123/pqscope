@@ -1,0 +1,4 @@
+kind: hard-negative
+description: "Legacy hash behind if False; live SHA-256 still labeled"
+expect:
+  - {file: main.py, line: 6, algorithm: SHA-2, params: "SHA-256", primitive: hash}

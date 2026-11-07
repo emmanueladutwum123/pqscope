@@ -1,0 +1,3 @@
+kind: hard-negative
+description: "Internal package that happens to be named rsa"
+expect: []

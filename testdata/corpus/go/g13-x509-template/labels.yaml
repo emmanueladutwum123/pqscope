@@ -1,0 +1,5 @@
+kind: positive
+description: "Certificate templates choosing signature algorithms"
+expect:
+  - {file: main.go, line: 6, algorithm: RSA, params: "unknown", primitive: signature}
+  - {file: main.go, line: 10, algorithm: ECDSA, params: "unknown", primitive: signature}

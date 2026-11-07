@@ -1,0 +1,3 @@
+kind: hard-negative
+description: "Local function named md5 without a hashlib import"
+expect: []

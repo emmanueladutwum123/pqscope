@@ -1,0 +1,5 @@
+kind: positive
+description: "DSA parameter and key generation"
+expect:
+  - {file: main.go, line: 10, algorithm: DSA, params: "2048", primitive: signature}
+  - {file: main.go, line: 12, algorithm: DSA, params: "unknown", primitive: signature}

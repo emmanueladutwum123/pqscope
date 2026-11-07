@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Hash selected through crypto.Hash"
+expect:
+  - {file: main.go, line: 6, algorithm: SHA-2, params: "SHA-512", primitive: hash}

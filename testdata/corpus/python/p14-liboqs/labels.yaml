@@ -1,0 +1,5 @@
+kind: positive
+description: "liboqs-python ML-KEM and ML-DSA"
+expect:
+  - {file: main.py, line: 3, algorithm: ML-KEM, params: "ML-KEM-768", primitive: kem}
+  - {file: main.py, line: 6, algorithm: ML-DSA, params: "ML-DSA-65", primitive: signature}

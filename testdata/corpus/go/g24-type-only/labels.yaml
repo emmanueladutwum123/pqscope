@@ -1,0 +1,5 @@
+kind: hard-positive
+description: "RSA used only through a typed parameter's method"
+expect:
+  - {file: main.go, line: 10, algorithm: RSA, params: "unknown", primitive: signature}
+  - {file: main.go, line: 10, algorithm: SHA-2, params: "SHA-256", primitive: hash}

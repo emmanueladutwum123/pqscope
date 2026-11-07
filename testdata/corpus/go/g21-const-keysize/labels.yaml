@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Key size held in a package constant"
+expect:
+  - {file: main.go, line: 11, algorithm: RSA, params: "3072", primitive: signature}

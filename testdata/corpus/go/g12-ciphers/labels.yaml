@@ -1,0 +1,7 @@
+kind: positive
+description: "Legacy and modern block and stream ciphers"
+expect:
+  - {file: main.go, line: 10, algorithm: DES, params: "56", primitive: cipher}
+  - {file: main.go, line: 11, algorithm: 3DES, params: "3-key", primitive: cipher}
+  - {file: main.go, line: 12, algorithm: RC4, params: "unknown", primitive: cipher}
+  - {file: main.go, line: 13, algorithm: AES, params: "unknown", primitive: cipher}

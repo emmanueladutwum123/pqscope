@@ -1,0 +1,7 @@
+kind: positive
+description: "hashlib constructors and hashlib.new"
+expect:
+  - {file: main.py, line: 5, algorithm: MD5, params: "MD5", primitive: hash}
+  - {file: main.py, line: 6, algorithm: SHA-1, params: "SHA-1", primitive: hash}
+  - {file: main.py, line: 7, algorithm: SHA-2, params: "SHA-256", primitive: hash}
+  - {file: main.py, line: 8, algorithm: SHA-2, params: "SHA-512", primitive: hash}

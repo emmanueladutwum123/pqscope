@@ -1,0 +1,5 @@
+kind: hard-positive
+description: "RSA identified only by its padding, with type hints"
+expect:
+  - {file: main.py, line: 6, algorithm: RSA, params: "unknown", primitive: signature}
+  - {file: main.py, line: 6, algorithm: SHA-2, params: "SHA-256", primitive: hash}

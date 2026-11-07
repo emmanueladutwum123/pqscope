@@ -1,0 +1,3 @@
+kind: hard-negative
+description: "Key material in a string literal"
+expect: []

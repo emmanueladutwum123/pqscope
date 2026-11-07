@@ -1,0 +1,7 @@
+kind: positive
+description: "RSA-OAEP encryption and decryption"
+expect:
+  - {file: main.go, line: 10, algorithm: RSA, params: "unknown", primitive: pke}
+  - {file: main.go, line: 10, algorithm: SHA-2, params: "SHA-256", primitive: hash}
+  - {file: main.go, line: 14, algorithm: RSA, params: "unknown", primitive: pke}
+  - {file: main.go, line: 14, algorithm: SHA-2, params: "SHA-256", primitive: hash}

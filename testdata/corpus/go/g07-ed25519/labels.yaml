@@ -1,0 +1,6 @@
+kind: positive
+description: "Ed25519 key generation, signing and verification"
+expect:
+  - {file: main.go, line: 6, algorithm: EdDSA, params: "Ed25519", primitive: signature}
+  - {file: main.go, line: 8, algorithm: EdDSA, params: "Ed25519", primitive: signature}
+  - {file: main.go, line: 9, algorithm: EdDSA, params: "Ed25519", primitive: signature}

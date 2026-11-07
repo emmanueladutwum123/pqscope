@@ -1,0 +1,5 @@
+kind: positive
+description: "golang.org/x/crypto X25519 and ChaCha20-Poly1305"
+expect:
+  - {file: main.go, line: 9, algorithm: X25519, params: "X25519", primitive: key-agreement}
+  - {file: main.go, line: 14, algorithm: ChaCha20-Poly1305, params: "ChaCha20-Poly1305", primitive: cipher}

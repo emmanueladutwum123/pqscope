@@ -1,0 +1,6 @@
+kind: positive
+description: "RSA-PSS signature over a SHA-256 digest"
+expect:
+  - {file: main.go, line: 11, algorithm: SHA-2, params: "SHA-256", primitive: hash}
+  - {file: main.go, line: 12, algorithm: RSA, params: "unknown", primitive: signature}
+  - {file: main.go, line: 12, algorithm: SHA-2, params: "SHA-256", primitive: hash}

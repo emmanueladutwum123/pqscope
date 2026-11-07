@@ -1,0 +1,5 @@
+kind: positive
+description: "X25519 key exchange"
+expect:
+  - {file: main.py, line: 3, algorithm: X25519, params: "X25519", primitive: key-agreement}
+  - {file: main.py, line: 4, algorithm: X25519, params: "X25519", primitive: key-agreement}

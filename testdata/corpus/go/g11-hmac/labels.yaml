@@ -1,0 +1,5 @@
+kind: positive
+description: "HMAC-SHA-256 with the hash passed as a function value"
+expect:
+  - {file: main.go, line: 9, algorithm: HMAC, params: "SHA-256", primitive: mac}
+  - {file: main.go, line: 9, algorithm: SHA-2, params: "SHA-256", primitive: hash}

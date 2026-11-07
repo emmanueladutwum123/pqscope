@@ -1,0 +1,5 @@
+kind: positive
+description: "paramiko SSH keys"
+expect:
+  - {file: main.py, line: 3, algorithm: RSA, params: "3072", primitive: signature}
+  - {file: main.py, line: 4, algorithm: EdDSA, params: "Ed25519", primitive: signature}

@@ -1,0 +1,4 @@
+kind: hard-negative
+description: "Legacy hash behind if false; live SHA-256 still labeled"
+expect:
+  - {file: main.go, line: 13, algorithm: SHA-2, params: "SHA-256", primitive: hash}

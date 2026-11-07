@@ -1,0 +1,5 @@
+kind: positive
+description: "ML-KEM-768 and ML-KEM-1024 from the standard library"
+expect:
+  - {file: main.go, line: 6, algorithm: ML-KEM, params: "ML-KEM-768", primitive: kem}
+  - {file: main.go, line: 9, algorithm: ML-KEM, params: "ML-KEM-1024", primitive: kem}

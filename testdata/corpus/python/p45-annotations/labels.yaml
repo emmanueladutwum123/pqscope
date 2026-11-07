@@ -1,0 +1,3 @@
+kind: hard-negative
+description: "RSA types used only in annotations"
+expect: []

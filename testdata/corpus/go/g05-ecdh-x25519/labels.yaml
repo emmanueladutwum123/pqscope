@@ -1,0 +1,4 @@
+kind: positive
+description: "X25519 key agreement through crypto/ecdh"
+expect:
+  - {file: main.go, line: 9, algorithm: X25519, params: "X25519", primitive: key-agreement}

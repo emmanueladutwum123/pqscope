@@ -1,0 +1,4 @@
+kind: positive
+description: "RSA key generation with a literal key size"
+expect:
+  - {file: main.go, line: 9, algorithm: RSA, params: "2048", primitive: signature}

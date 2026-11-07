@@ -1,0 +1,7 @@
+kind: positive
+description: "Mixed hash functions"
+expect:
+  - {file: main.go, line: 10, algorithm: MD5, params: "MD5", primitive: hash}
+  - {file: main.go, line: 11, algorithm: SHA-1, params: "SHA-1", primitive: hash}
+  - {file: main.go, line: 13, algorithm: SHA-2, params: "SHA-384", primitive: hash}
+  - {file: main.go, line: 14, algorithm: SHA-2, params: "SHA-512", primitive: hash}

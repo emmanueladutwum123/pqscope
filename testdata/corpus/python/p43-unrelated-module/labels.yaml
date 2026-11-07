@@ -1,0 +1,3 @@
+kind: hard-negative
+description: "Project module that shadows a crypto library name"
+expect: []

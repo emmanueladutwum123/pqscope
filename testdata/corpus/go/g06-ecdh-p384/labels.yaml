@@ -1,0 +1,4 @@
+kind: positive
+description: "ECDH over P-384, curve chosen in a chained call"
+expect:
+  - {file: main.go, line: 9, algorithm: ECDH, params: "P-384", primitive: key-agreement}

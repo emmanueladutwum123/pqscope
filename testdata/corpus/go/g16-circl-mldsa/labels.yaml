@@ -1,0 +1,5 @@
+kind: positive
+description: "ML-DSA-65 through CIRCL"
+expect:
+  - {file: main.go, line: 6, algorithm: ML-DSA, params: "ML-DSA-65", primitive: signature}
+  - {file: main.go, line: 11, algorithm: ML-DSA, params: "ML-DSA-65", primitive: signature}

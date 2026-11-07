@@ -1,0 +1,6 @@
+kind: positive
+description: "EC key generated for ECDH, not ECDSA"
+expect:
+  - {file: main.py, line: 3, algorithm: ECDH, params: "P-256", primitive: key-agreement}
+  - {file: main.py, line: 4, algorithm: ECDH, params: "P-256", primitive: key-agreement}
+  - {file: main.py, line: 5, algorithm: ECDH, params: "unknown", primitive: key-agreement}

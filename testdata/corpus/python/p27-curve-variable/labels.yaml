@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Curve object held in a module constant"
+expect:
+  - {file: main.py, line: 4, algorithm: ECDSA, params: "P-256", primitive: signature}

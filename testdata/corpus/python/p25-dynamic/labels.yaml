@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Hash constructor looked up dynamically"
+expect:
+  - {file: main.py, line: 3, algorithm: MD5, params: "MD5", primitive: hash}

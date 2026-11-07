@@ -1,0 +1,7 @@
+kind: positive
+description: "ECDSA P-256 key generation and signing"
+expect:
+  - {file: main.go, line: 11, algorithm: ECDSA, params: "P-256", primitive: signature}
+  - {file: main.go, line: 12, algorithm: SHA-2, params: "SHA-256", primitive: hash}
+  - {file: main.go, line: 13, algorithm: ECDSA, params: "unknown", primitive: signature}
+  - {file: main.go, line: 14, algorithm: ECDSA, params: "unknown", primitive: signature}

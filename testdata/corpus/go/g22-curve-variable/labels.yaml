@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Curve chosen through a local variable"
+expect:
+  - {file: main.go, line: 11, algorithm: ECDSA, params: "P-521", primitive: signature}
