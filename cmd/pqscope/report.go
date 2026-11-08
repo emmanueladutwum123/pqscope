@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -111,7 +112,14 @@ func (o outputs) write(db *knowledge.DB, s *source.Scanner, findings []model.Fin
 			meta[r.ID] = sarif.Rule{Description: r.Description, Notes: r.Notes, HelpURI: r.Source}
 		}
 		for typ, desc := range reconcile.Types {
-			meta["reconcile."+typ] = sarif.Rule{Description: desc, HelpURI: "https://github.com/emmanueladutwum123/pqscope/blob/main/docs/reconcile.md"}
+			meta["reconcile."+typ] = sarif.Rule{Description: desc, HelpURI: docsURL + "reconcile.md"}
+		}
+		for _, f := range findings {
+			if _, ok := meta[f.RuleID]; !ok {
+				if r, ok := layerRule(f.RuleID); ok {
+					meta[f.RuleID] = r
+				}
+			}
 		}
 		err := writeFile(o.sarif, func(w io.Writer) error {
 			return sarif.Write(w, db, findings, sarif.Options{ToolVersion: version, Rules: meta})
@@ -147,4 +155,30 @@ func writeFile(path string, write func(io.Writer) error) error {
 		return err
 	}
 	return os.Rename(tmp.Name(), path)
+}
+
+const docsURL = "https://github.com/emmanueladutwum123/pqscope/blob/main/docs/"
+
+// layerRule describes the rules of the non-source layers, whose IDs are
+// "<layer>.<what>": config.nginx, binary.import, deps.circl, network.tls.
+func layerRule(id string) (sarif.Rule, bool) {
+	layer, what, ok := strings.Cut(id, ".")
+	if !ok {
+		return sarif.Rule{}, false
+	}
+	switch layer {
+	case "config":
+		return sarif.Rule{Description: "Cryptography in configuration or key material (" + what + ")",
+			HelpURI: docsURL + "layers.md#configuration-and-key-material-config"}, true
+	case "binary":
+		return sarif.Rule{Description: "Cryptography in a binary, found by " + what,
+			HelpURI: docsURL + "layers.md#binaries-binary"}, true
+	case "deps":
+		return sarif.Rule{Description: "Algorithms a dependency provides (" + what + "); available, not necessarily used",
+			HelpURI: docsURL + "layers.md#dependencies-deps"}, true
+	case "network":
+		return sarif.Rule{Description: "Cryptography a live endpoint negotiates or offers (" + what + ")",
+			HelpURI: docsURL + "scanning.md"}, true
+	}
+	return sarif.Rule{}, false
 }
