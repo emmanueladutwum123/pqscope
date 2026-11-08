@@ -1,0 +1,9 @@
+# Opt-out list for the project's published measurement runs (measure/rq2.sh).
+#
+# One host name, .domain suffix, IP address or CIDR range per line; # starts a
+# comment. pqscope net never connects to a host whose name matches, or any of
+# whose resolved addresses falls in a listed range.
+#
+# To be added, open an issue titled "opt-out" at
+# https://github.com/emmanueladutwum123/pqscope/issues (see docs/scanning.md).
+# Entries are published here, so list nothing you want kept private.

@@ -15,6 +15,8 @@ import (
 	"io"
 	"math"
 	"net/url"
+	"path"
+	"path/filepath"
 	"slices"
 
 	"github.com/emmanueladutwum123/pqscope/internal/knowledge"
@@ -45,6 +47,10 @@ type Rule struct {
 type Options struct {
 	ToolVersion string
 	Rules       map[string]Rule // keyed by rule ID
+	// PathPrefix is prepended to every file path, so that paths relative to
+	// a scanned subdirectory become relative to the repository root, which is
+	// what code scanning resolves them against. Empty leaves them as they are.
+	PathPrefix string
 }
 
 // Log is a SARIF log, limited to the fields pqscope writes.
@@ -204,7 +210,7 @@ func Build(db *knowledge.DB, findings []model.Finding, opts Options) *Log {
 	results := make([]Result, 0, len(findings))
 	for _, f := range findings {
 		id := cmp.Or(f.RuleID, fallbackRuleID(f.Location.Layer))
-		results = append(results, result(db, f, id, index[id]))
+		results = append(results, result(db, f, id, index[id], opts.PathPrefix))
 	}
 	return &Log{Schema: schemaURL, Version: Version, Runs: []Run{{Tool: Tool{Driver: driver}, Results: results}}}
 }
@@ -216,7 +222,7 @@ func Write(w io.Writer, db *knowledge.DB, findings []model.Finding, opts Options
 	return enc.Encode(Build(db, findings, opts))
 }
 
-func result(db *knowledge.DB, f model.Finding, ruleID string, ruleIndex int) Result {
+func result(db *knowledge.DB, f model.Finding, ruleID string, ruleIndex int, prefix string) Result {
 	a := f.Asset
 	name := db.Name(a)
 	detail := a.Primitive
@@ -233,7 +239,7 @@ func result(db *knowledge.DB, f model.Finding, ruleID string, ruleIndex int) Res
 	if f.Location.Layer == model.LayerNetwork {
 		loc.LogicalLocations = []LogicalLocation{{FullyQualifiedName: f.Location.Path, Kind: "endpoint"}}
 	} else {
-		pl := &PhysicalLocation{ArtifactLocation: ArtifactLocation{URI: fileURI(f.Location.Path), URIBaseID: SrcRoot}}
+		pl := &PhysicalLocation{ArtifactLocation: ArtifactLocation{URI: fileURI(withPrefix(prefix, f.Location.Path)), URIBaseID: SrcRoot}}
 		if f.Location.Line > 0 {
 			pl.Region = &Region{StartLine: f.Location.Line}
 			if f.Evidence != "" {
@@ -264,6 +270,16 @@ func result(db *knowledge.DB, f model.Finding, ruleID string, ruleIndex int) Res
 			Tags:       []string{"quantum:" + a.Quantum},
 		},
 	}
+}
+
+// withPrefix joins a slash-separated prefix and a relative path. A prefix of
+// "" or "." changes nothing.
+func withPrefix(prefix, p string) string {
+	prefix = path.Clean(filepath.ToSlash(prefix))
+	if prefix == "." || prefix == "" {
+		return p
+	}
+	return path.Join(prefix, p)
 }
 
 // fileURI turns a slash-separated relative path into a relative URI

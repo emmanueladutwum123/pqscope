@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+### Milestone 12: measurement runs and the GitHub Action
+
+- Add the GitHub Action (`action.yml` at the repository root, where the Marketplace requires
+  it). It builds pqscope from the tagged source, scans, uploads SARIF to code scanning, and
+  optionally gates on a policy. It is a composite action rather than the Docker action the
+  spec sketched, because a Docker action can't call `upload-sarif` itself. CI runs it on
+  itself on every push. See [action.md](action.md).
+- Add `pqscope scan --sarif-root`, which prefixes SARIF paths when the scanned directory is a
+  subdirectory. This fixes the milestone 3 limit where code scanning couldn't locate those
+  files.
+- Add `internal/measure` and `pqscope measure`:
+  - `rq2-targets` and `rq2`: CISA's federal `.gov` list in; endpoint classification, AS
+    mapping and Wilson 95% intervals by branch, agency and AS out;
+  - `rq3-select` and `rq3`: OpenSSF Criticality Score in; dedupe by root commit, size cap,
+    then prevalence by layer and exposure out.
+
+  Analysis fails on incomplete or duplicated scan records.
+- Add `measure/rq2.sh` and `measure/rq3.sh`, which run the measurements and publish
+  `paper/data/rq2_*` and `rq3_*` with raw evidence under `paper/data/raw/`. Add
+  `measure/exclude.txt`, the opt-out list `docs/scanning.md` promises. See
+  [measurement.md](measurement.md).
+
 ### Milestone 11: migration-cost benchmarks
 
 - Add `internal/bench` and `pqscope bench`. They time keygen, encap/decap and sign/verify (mean,

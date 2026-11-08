@@ -157,3 +157,25 @@ func TestLevel(t *testing.T) {
 		}
 	}
 }
+
+// A scan of a subdirectory writes paths relative to it; PathPrefix makes them
+// relative to the repository root. Endpoints are not files and keep their name.
+func TestPathPrefix(t *testing.T) {
+	db := testDB(t)
+	src := finding(t, db, "RSA-2048", "signature", model.Location{Layer: model.LayerSource, Path: "cmd/main.go", Line: 9})
+	net := finding(t, db, "X25519", "key-agreement", model.Location{Layer: model.LayerNetwork, Path: "example.org:443"})
+	for prefix, want := range map[string]string{"": "cmd/main.go", ".": "cmd/main.go", "services/api/": "services/api/cmd/main.go", "./svc": "svc/cmd/main.go"} {
+		run := encode(t, db, []model.Finding{src, net}, Options{PathPrefix: prefix}).Runs[0]
+		var got, endpoint string
+		for _, r := range run.Results {
+			if l := r.Locations[0]; l.PhysicalLocation != nil {
+				got = l.PhysicalLocation.ArtifactLocation.URI
+			} else {
+				endpoint = l.LogicalLocations[0].FullyQualifiedName
+			}
+		}
+		if got != want || endpoint != "example.org:443" {
+			t.Errorf("prefix %q: uri %q endpoint %q, want %q", prefix, got, endpoint, want)
+		}
+	}
+}

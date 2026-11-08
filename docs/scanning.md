@@ -19,7 +19,8 @@ to.
 1. Open an issue at <https://github.com/emmanueladutwum123/pqscope/issues> with the title
    `opt-out`, listing your hostnames, IP addresses or CIDR ranges. The list is published in
    the repository, so don't include anything you want kept private.
-2. Your entries go on the project's exclude list. That list is applied to every
+2. Your entries go on the project's exclude list,
+   [`measure/exclude.txt`](../measure/exclude.txt). That list is applied to every
    measurement run the project publishes, through `--exclude`, which is checked against
    host names and every resolved address.
 

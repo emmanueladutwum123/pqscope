@@ -1,0 +1,105 @@
+name: pqscope post-quantum readiness scan
+description: Find quantum-vulnerable cryptography in source, dependencies, configuration, keys and binaries, and report it to code scanning.
+author: Emmanuel Adutwum
+branding:
+  icon: shield
+  color: purple
+
+inputs:
+  path:
+    description: Directory to scan, relative to the repository root.
+    default: "."
+  layers:
+    description: Comma-separated layers to scan (source, config, deps, binary).
+    default: source,config,deps,binary
+  sarif:
+    description: Where to write the SARIF log.
+    default: pqscope.sarif
+  cbom:
+    description: Where to write a CycloneDX 1.6 CBOM. Empty to skip.
+    default: ""
+  upload:
+    description: Upload the SARIF log to GitHub code scanning (needs `security-events write`).
+    default: "true"
+  category:
+    description: Code scanning category, to keep several pqscope runs apart.
+    default: pqscope
+  policy:
+    description: Policy for the gate (nist-ir-8547-2026 or cnsa-2.0).
+    default: nist-ir-8547-2026
+  fail-on:
+    description: >-
+      Fail the step when any asset reaches this policy status (deprecated-2030, disallowed-2035,
+      disallowed-now, broken-now). Empty, the default, reports without failing.
+    default: ""
+
+outputs:
+  sarif:
+    description: Path of the SARIF log.
+    value: ${{ steps.scan.outputs.sarif }}
+  findings:
+    description: Number of findings.
+    value: ${{ steps.scan.outputs.findings }}
+
+runs:
+  using: composite
+  steps:
+    # Go is installed for the build; later steps of the calling job see it on PATH.
+    - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      with:
+        go-version-file: ${{ github.action_path }}/go.mod
+        cache: false
+
+    - name: Build pqscope
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      env:
+        REF: ${{ github.action_ref }}
+      run: |
+        go build -trimpath -ldflags "-X main.version=${REF:-dev}" -o "$RUNNER_TEMP/pqscope-bin/pqscope" ./cmd/pqscope
+        "$RUNNER_TEMP/pqscope-bin/pqscope" version
+
+    - name: Scan
+      id: scan
+      shell: bash
+      env:
+        SCAN_PATH: ${{ inputs.path }}
+        LAYERS: ${{ inputs.layers }}
+        SARIF: ${{ inputs.sarif }}
+        CBOM: ${{ inputs.cbom }}
+      run: |
+        findings="$RUNNER_TEMP/pqscope-findings.json"
+        args=(scan "$SCAN_PATH" --layers "$LAYERS" --sarif "$SARIF" --sarif-root "$SCAN_PATH" --json)
+        if [ -n "$CBOM" ]; then args+=(-o "$CBOM"); fi
+        "$RUNNER_TEMP/pqscope-bin/pqscope" "${args[@]}" > "$findings"
+        count=$(python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1]))))' "$findings")
+        echo "pqscope: $count findings in $SCAN_PATH"
+        {
+          echo "sarif=$SARIF"
+          echo "findings=$count"
+          echo "findings-file=$findings"
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Upload to code scanning
+      if: inputs.upload == 'true'
+      uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+      with:
+        sarif_file: ${{ inputs.sarif }}
+        category: ${{ inputs.category }}
+
+    - name: Policy
+      shell: bash
+      env:
+        POLICY: ${{ inputs.policy }}
+        FAIL_ON: ${{ inputs.fail-on }}
+        FINDINGS: ${{ steps.scan.outputs.findings-file }}
+      run: |
+        if [ -z "$FAIL_ON" ]; then
+          # Report only: show the verdicts. Exit 1 (gate failed) is ignored;
+          # exit 2 (could not evaluate) still fails the step.
+          code=0
+          "$RUNNER_TEMP/pqscope-bin/pqscope" policy --policy "$POLICY" --fail-on broken-now "$FINDINGS" || code=$?
+          [ "$code" -le 1 ]
+        else
+          "$RUNNER_TEMP/pqscope-bin/pqscope" policy --policy "$POLICY" --fail-on "$FAIL_ON" "$FINDINGS"
+        fi

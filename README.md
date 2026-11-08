@@ -9,7 +9,7 @@ layers to expose gaps between what a system declares and what it actually deploy
 
 ## Status
 
-Milestone 11 of 13. All five discovery layers work, and their findings are reconciled:
+Milestone 12 of 13. All five discovery layers work, and their findings are reconciled:
 
 - **source:** Go, Python, Java, C/C++ and JavaScript/TypeScript code;
 - **config:** nginx, Apache, sshd, openssl.cnf, Kubernetes, and certificates and keys;
@@ -17,7 +17,7 @@ Milestone 11 of 13. All five discovery layers work, and their findings are recon
 - **binary:** ELF, PE and Mach-O crypto imports, Go build info and functions;
 - **network:** `pqscope net` probes TLS and SSH endpoints.
 
-Every command works: `version`, `scan`, `report`, `policy`, `net`, `eval` and `bench`.
+Every command works: `version`, `scan`, `report`, `policy`, `net`, `eval`, `bench` and `measure`.
 
 ```sh
 $ pqscope scan ./server
@@ -44,6 +44,17 @@ pqscope scan . -o cbom.json --sarif pqscope.sarif --html report.html
 pqscope scan . --json > findings.json      # lossless findings
 pqscope report findings.json --html report.html
 ```
+
+## GitHub Action
+
+```yaml
+- uses: emmanueladutwum123/pqscope@v1
+  with:
+    fail-on: disallowed-2035   # optional gate; omit to report only
+```
+
+Scans the repository, uploads the results to code scanning, and optionally fails the build on a
+policy. See [docs/action.md](docs/action.md).
 
 ## Policies and CI gating
 
@@ -97,6 +108,15 @@ ClientHello size and handshake latency, classical against hybrid, on loopback an
 emulated delay and loss (`tc netem` in Docker). Sizes are cross-checked against the knowledge
 DB and OpenSSL 3.5. It writes `paper/data/rq4_*.csv`, including the hardware, kernel and Go
 version they were measured on. See [docs/bench.md](docs/bench.md).
+
+## Measurements
+
+`measure/rq2.sh` probes the apex and `www.` of every federal `.gov` domain with standard TLS
+handshakes. It reports how many negotiate hybrid post-quantum key exchange, by agency and
+hosting provider. `measure/rq3.sh` scans the top 100 distinct projects by OpenSSF Criticality
+Score for quantum-vulnerable cryptography, by layer and exposure. Both publish their raw
+evidence with the tables. See [docs/measurement.md](docs/measurement.md), and
+[docs/scanning.md](docs/scanning.md) for what the probes send and how to opt out.
 
 ## Dependencies and configuration
 

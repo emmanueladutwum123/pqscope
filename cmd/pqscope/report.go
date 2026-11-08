@@ -88,12 +88,13 @@ func readFindings(stdin io.Reader, path string) ([]model.Finding, error) {
 
 // outputs holds the file outputs shared by scan and report.
 type outputs struct {
-	cbom, sarif, html string
+	cbom, sarif, html, sarifRoot string
 }
 
 func (o *outputs) register(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&o.cbom, "output", "o", "", "write a CycloneDX 1.6 CBOM to `file`")
 	cmd.Flags().StringVar(&o.sarif, "sarif", "", "write a SARIF 2.1.0 log to `file`")
+	cmd.Flags().StringVar(&o.sarifRoot, "sarif-root", "", "prefix SARIF file paths with `dir`, the scanned path relative to the repository root, so code scanning finds the files")
 	cmd.Flags().StringVar(&o.html, "html", "", "write a self-contained HTML report to `file`")
 }
 
@@ -122,7 +123,7 @@ func (o outputs) write(db *knowledge.DB, s *source.Scanner, findings []model.Fin
 			}
 		}
 		err := writeFile(o.sarif, func(w io.Writer) error {
-			return sarif.Write(w, db, findings, sarif.Options{ToolVersion: version, Rules: meta})
+			return sarif.Write(w, db, findings, sarif.Options{ToolVersion: version, Rules: meta, PathPrefix: o.sarifRoot})
 		})
 		if err != nil {
 			return err

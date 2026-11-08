@@ -62,3 +62,45 @@ jobs:
           code=0
           ./bin/pqscope policy "$RUNNER_TEMP/classical.cdx.json" || code=$?
           test "$code" -eq 1
+
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Action reports without failing by default
+        id: report
+        uses: ./
+        with:
+          path: testdata/policy/classical
+          sarif: classical.sarif
+          upload: "false"
+      - name: Outputs and repository-relative SARIF paths
+        env:
+          FINDINGS: ${{ steps.report.outputs.findings }}
+          SARIF: ${{ steps.report.outputs.sarif }}
+        run: |
+          test "$FINDINGS" -gt 0
+          python3 - "$SARIF" <<'PY'
+          import json, sys
+          uris = [l["physicalLocation"]["artifactLocation"]["uri"]
+                  for r in json.load(open(sys.argv[1]))["runs"][0]["results"] for l in r["locations"] if "physicalLocation" in l]
+          assert uris and all(u.startswith("testdata/policy/classical/") for u in uris), uris
+          PY
+      - name: Gate passes on post-quantum code
+        uses: ./
+        with:
+          path: testdata/policy/pq-only
+          upload: "false"
+          fail-on: disallowed-2035
+      - name: Gate fails on classical code
+        id: gate
+        continue-on-error: true
+        uses: ./
+        with:
+          path: testdata/policy/classical
+          upload: "false"
+          fail-on: disallowed-2035
+      - name: The failing gate failed
+        env:
+          OUTCOME: ${{ steps.gate.outcome }}
+        run: test "$OUTCOME" = failure
