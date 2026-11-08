@@ -32,6 +32,13 @@ jobs:
         run: make integration
         env:
           PQSCOPE_REQUIRE_DOCKER: "1"
+      - name: Benchmark pipeline, with sizes cross-checked against OpenSSL 3.5 (few iterations)
+        run: |
+          NETEM_N=3 NETEM_N_LOSS=3 bench/run.sh "$RUNNER_TEMP/bench"
+          test -s "$RUNNER_TEMP/bench/openssl/version.txt"
+          go run ./cmd/pqscope bench --quick --runs "$RUNNER_TEMP/bench" --out "$RUNNER_TEMP/rq4"
+          grep -q '^openssl,version,' "$RUNNER_TEMP/rq4/rq4_environment.csv"
+          test "$(grep -c '^docker-linux,' "$RUNNER_TEMP/rq4/rq4_tls.csv")" -eq 36
 
   test:
     runs-on: ubuntu-latest

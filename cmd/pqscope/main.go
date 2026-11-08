@@ -15,10 +15,6 @@ import (
 // version is set at build time with -ldflags "-X main.version=...".
 var version = "dev"
 
-// errNotImplemented is returned by commands that do not exist yet, so that a
-// script can never mistake a stub for a clean scan.
-var errNotImplemented = errors.New("not implemented")
-
 // Exit codes. A failed policy gate is distinct from an error, so CI can tell
 // "found disallowed crypto" from "could not run".
 const (
@@ -48,27 +44,8 @@ func newRootCmd() *cobra.Command {
 		SilenceUsage:  true,
 		SilenceErrors: false,
 	}
-	root.AddCommand(newVersionCmd(), newScanCmd(), newReportCmd(), newPolicyCmd(), newNetCmd(), newEvalCmd())
-	for _, stub := range []struct {
-		name, short string
-		milestone   int
-	}{
-		{"bench", "Run migration-cost benchmarks", 11},
-	} {
-		root.AddCommand(newStubCmd(stub.name, stub.short, stub.milestone))
-	}
+	root.AddCommand(newVersionCmd(), newScanCmd(), newReportCmd(), newPolicyCmd(), newNetCmd(), newEvalCmd(), newBenchCmd())
 	return root
-}
-
-func newStubCmd(name, short string, milestone int) *cobra.Command {
-	return &cobra.Command{
-		Use:                name,
-		Short:              fmt.Sprintf("%s (not implemented yet)", short),
-		DisableFlagParsing: true,
-		RunE: func(*cobra.Command, []string) error {
-			return fmt.Errorf("%s: %w (planned for milestone %d)", name, errNotImplemented, milestone)
-		},
-	}
 }
 
 func newVersionCmd() *cobra.Command {

@@ -1,7 +1,7 @@
 GOLANGCI_LINT_VERSION := v2.15.0
 STATICCHECK_VERSION := v0.8.2
 
-.PHONY: all build test integration eval eval-score paper-data fmt-check vet staticcheck golangci-lint lint clean
+.PHONY: all build test integration eval eval-score bench paper-data fmt-check vet staticcheck golangci-lint lint clean
 
 all: lint test build
 
@@ -15,7 +15,7 @@ test:
 # openssl 3.5+ if present). Set PQSCOPE_REQUIRE_DOCKER=1 to fail, not skip,
 # without Docker.
 integration:
-	go test -race -tags integration -count=1 -timeout 15m ./internal/discover/network/
+	go test -race -tags integration -count=1 -timeout 15m ./internal/discover/network/ ./internal/bench/
 
 # RQ1 evaluation: runs the competitors (pinned third-party images and
 # packages) and the network corpus servers in Docker, scores everything
@@ -30,7 +30,15 @@ eval-score:
 	go run ./cmd/pqscope eval --corpus testdata/corpus --runs eval/out --out paper/data
 	python3 eval/score.py paper/data
 
-paper-data: eval
+# RQ4 migration costs: OpenSSL size cross-check and tc netem TLS runs in
+# Docker (bench/run.sh), then primitive and loopback TLS benchmarks on this
+# machine, writing paper/data/rq4_*.csv. Takes several minutes; close other
+# programs first, since the machine's load is in the numbers.
+bench:
+	bench/run.sh bench/out
+	go run ./cmd/pqscope bench --runs bench/out --out paper/data --revision "$$(git describe --always --dirty)"
+
+paper-data: eval bench
 
 fmt-check:
 	@unformatted="$$(gofmt -l .)"; \
@@ -38,7 +46,7 @@ fmt-check:
 
 vet:
 	go vet ./...
-	go vet -tags integration ./internal/discover/network/
+	go vet -tags integration ./internal/discover/network/ ./internal/bench/
 
 staticcheck:
 	go run honnef.co/go/tools/cmd/staticcheck@$(STATICCHECK_VERSION) -tags integration ./...

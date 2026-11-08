@@ -112,7 +112,7 @@ func TestPolicyErrorsExitTwo(t *testing.T) {
 		{[]string{"policy", "--policy", "pci-dss", findings}, "bundled policies: cnsa-2.0, nist-ir-8547-2026"},
 		{[]string{"policy", "--fail-on", "compliant", findings}, "--fail-on"},
 		{[]string{"policy"}, "accepts 1 arg"},
-		{[]string{"bench"}, "not implemented"},
+		{[]string{"bench", "extra"}, `unknown command "extra"`},
 	}
 	for _, tt := range tests {
 		_, stderr, code := run(t, tt.args...)
@@ -166,7 +166,7 @@ func TestPolicyStdin(t *testing.T) {
 }
 
 func TestExitCode(t *testing.T) {
-	if exitCode(nil) != 0 || exitCode(errPolicyFailed) != 1 || exitCode(errNotImplemented) != 2 {
+	if exitCode(nil) != 0 || exitCode(errPolicyFailed) != 1 || exitCode(errors.New("could not run")) != 2 {
 		t.Error("exit code mapping")
 	}
 }

@@ -93,22 +93,6 @@ func TestScanMissingPath(t *testing.T) {
 	}
 }
 
-func TestStubsFailRatherThanReportCleanScan(t *testing.T) {
-	tests := []struct {
-		args []string
-	}{
-		{[]string{"bench"}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.args[0], func(t *testing.T) {
-			_, err := execute(tt.args...)
-			if !errors.Is(err, errNotImplemented) {
-				t.Fatalf("error = %v, want errNotImplemented", err)
-			}
-		})
-	}
-}
-
 func readFile(t *testing.T, path string) []byte {
 	t.Helper()
 	data, err := os.ReadFile(path)

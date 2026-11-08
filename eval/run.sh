@@ -58,7 +58,9 @@ fi
 competitors() {
 # Competitors scan a copy of the corpus without its answer key: labels.yaml,
 # READMEs and the network server definitions.
-STAGE="$OUT/corpus-stage"
+# The leading underscore keeps the go tool (go vet ./..., go mod tidy) from
+# treating the staged corpus's Go files as packages of this module.
+STAGE="$OUT/_corpus-stage"
 rm -rf "$STAGE" && mkdir -p "$STAGE"
 rsync -a --exclude labels.yaml --exclude README.md --exclude server.env --exclude server.sh "$CORPUS/" "$STAGE/"
 # local: the network stage still needs the server definitions in $CORPUS.

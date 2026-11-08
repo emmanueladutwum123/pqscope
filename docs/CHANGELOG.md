@@ -2,6 +2,42 @@
 
 ## Unreleased
 
+### Milestone 11: migration-cost benchmarks
+
+- Add `internal/bench` and `pqscope bench`. They time keygen, encap/decap and sign/verify (mean,
+  p50, p99, min, max, sample count) for:
+  - X25519 and P-256;
+  - RSA-2048 and RSA-3072;
+  - ECDSA P-256;
+  - ML-KEM-512, -768 and -1024, in CIRCL, plus -768 and -1024 in the standard library;
+  - ML-DSA-44, -65 and -87;
+  - SLH-DSA-128s and -128f;
+  - the X25519MLKEM768 hybrid, composed as `crypto/tls` does.
+
+  Every primitive is checked before it is timed. Wire sizes are measured from real outputs.
+- Add a TLS benchmark. It measures ClientHello and ServerHello record sizes, bytes each way, the
+  negotiated group and handshake latency for classical X25519, hybrid X25519MLKEM768 and Go
+  default clients against a `crypto/tls` server.
+- Add `bench/run.sh`. In alpine containers pinned by digest, it:
+  - produces OpenSSL 3.5 keys, ciphertexts and signatures for the size cross-check;
+  - runs the TLS benchmark (`bench/netem`, built without cgo) under six `tc netem` profiles:
+    loopback, MTU 1500, 2, 40 and 150 ms added RTT, and 40 ms with 1% loss.
+- `pqscope bench` writes `paper/data/rq4_{primitives,sizes,tls,environment}.csv`. It fails if
+  any measured size disagrees with the knowledge DB or OpenSSL.
+- `rq4_environment.csv` records, for the host and the container, the CPU, memory, kernel, CPU
+  governor, Go, CIRCL, OpenSSL, Docker and netem versions, and the pqscope revision.
+- Add `make bench`. `make paper-data` now runs it too.
+- CI's integration job runs the whole pipeline with a few iterations, so the OpenSSL size
+  cross-check runs on every push.
+- Fix: `eval/run.sh` stages the corpus in `eval/out/_corpus-stage`. Before, the staged copy's Go
+  files looked like packages of this module to `go vet ./...` and `go mod tidy` after a local
+  `make eval`.
+- Remove the "not implemented" stub machinery; every command now exists.
+
+Known limits: see [bench.md](bench.md#known-limits). The latencies come from one machine
+(an Apple M2 laptop, with netem runs in Docker Desktop's Linux VM) and one run. The TLS numbers
+are Go's TLS stack only, with an ECDSA certificate.
+
 ### Milestone 10: evaluation harness and a 202-case corpus
 
 - Grow the corpus to 202 cases across all five layers:
@@ -35,13 +71,15 @@ turning off the source, config, deps, binary or network layer lowers recall to 0
 
 Known limits:
 
-- **Competitors not run yet.** The committed `paper/data` has no competitor rows. Running the
-  competitors needs permission to download and execute third-party code, which this environment
-  refused, so `rq1_tools.csv` lists them as not run. Running `make eval` on a machine with Docker
-  fills them in.
-- **Adapters untested on real output.** They are tested on synthetic output in each tool's
-  documented format. pqc-audit's report schema is undocumented, so its adapter reads any objects
-  with a path and an algorithm. Check the adapters against real output on the first run.
+- **Competitor runs, added after this milestone.** The first `make eval` exposed harness bugs,
+  fixed before any competitor numbers were committed:
+  - competitors could read the answer key (`labels.yaml`); they now scan a staged copy without it;
+  - CBOMkit merged same-named files into two modules; it now runs once per case;
+  - pqc-audit's findings exit code was read as a failure;
+  - several tools' path and algorithm names were misparsed.
+
+  `paper/data/rq1_*` now has every competitor except Keylens. pqc-audit's report schema is
+  undocumented, so its adapter reads any objects with a path and an algorithm.
 - **One author for rules and labels.** pqscope's scores measure consistency with the labeling
   convention.
 - **One honest network miss.** When a server sends a HelloRetryRequest, pqscope doesn't report

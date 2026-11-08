@@ -9,7 +9,7 @@ layers to expose gaps between what a system declares and what it actually deploy
 
 ## Status
 
-Milestone 10 of 13. All five discovery layers work, and their findings are reconciled:
+Milestone 11 of 13. All five discovery layers work, and their findings are reconciled:
 
 - **source:** Go, Python, Java, C/C++ and JavaScript/TypeScript code;
 - **config:** nginx, Apache, sshd, openssl.cnf, Kubernetes, and certificates and keys;
@@ -17,9 +17,7 @@ Milestone 10 of 13. All five discovery layers work, and their findings are recon
 - **binary:** ELF, PE and Mach-O crypto imports, Go build info and functions;
 - **network:** `pqscope net` probes TLS and SSH endpoints.
 
-`version`, `scan`, `report`, `policy` and `net` work.
-The other commands exit non-zero with a "not implemented" error, so a stub can't be mistaken
-for a clean scan.
+Every command works: `version`, `scan`, `report`, `policy`, `net`, `eval` and `bench`.
 
 ```sh
 $ pqscope scan ./server
@@ -90,6 +88,16 @@ each pinned) against a labeled corpus of 202 cases covering all five layers. It 
 `paper/data/rq1_*.csv`, and an independent script recomputes every summary number from the
 per-item outcomes. See [eval/README.md](eval/README.md).
 
+## Migration-cost benchmarks
+
+`make bench` measures what migrating costs. It times key generation, encapsulation and
+decapsulation, signing and verification for X25519, P-256, RSA-2048/3072, ML-KEM, ML-DSA,
+SLH-DSA and the X25519MLKEM768 hybrid, and measures their wire sizes. It also measures TLS 1.3
+ClientHello size and handshake latency, classical against hybrid, on loopback and under
+emulated delay and loss (`tc netem` in Docker). Sizes are cross-checked against the knowledge
+DB and OpenSSL 3.5. It writes `paper/data/rq4_*.csv`, including the hardware, kernel and Go
+version they were measured on. See [docs/bench.md](docs/bench.md).
+
 ## Dependencies and configuration
 
 `scan` also reads dependency manifests and lockfiles, and maps known crypto libraries to what
@@ -131,6 +139,7 @@ Requires Go 1.26 or later and a C compiler, because tree-sitter uses cgo.
 make build         # writes bin/pqscope
 make test          # go test -race ./..., including the corpus score
 make lint          # gofmt, go vet, staticcheck, golangci-lint
+make integration   # network and benchmark tests against local servers (Docker)
 ./bin/pqscope version
 ```
 
