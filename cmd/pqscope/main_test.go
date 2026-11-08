@@ -160,13 +160,18 @@ func TestScanCorpusOutputsValidate(t *testing.T) {
 			ids[o.BOMRef] = true
 		}
 	}
+	observed := 0
 	for _, f := range findings {
+		if f.Derived != "" {
+			continue // reconciliation results are not inventory
+		}
+		observed++
 		if !ids[f.ID] {
 			t.Errorf("finding %s (%s:%d) missing from CBOM occurrences", f.ID, f.Location.Path, f.Location.Line)
 		}
 	}
-	if len(ids) != len(findings) {
-		t.Errorf("CBOM has %d occurrences for %d findings", len(ids), len(findings))
+	if len(ids) != observed {
+		t.Errorf("CBOM has %d occurrences for %d observed findings", len(ids), observed)
 	}
 
 	var log sarif.Log

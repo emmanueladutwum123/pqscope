@@ -2,6 +2,48 @@
 
 ## Unreleased
 
+### Milestone 8: reconciliation engine
+
+- Add `internal/reconcile`. It links findings across layers within a component and derives:
+  - `declared-pqc-deployed-classical`: PQC key establishment in source or dependencies, while an
+    endpoint negotiates (TLS) or offers (SSH) only classical key exchange;
+  - `config-overrides-library`: a dependency supports a hybrid for the protocol, but a group
+    directive lists only classical groups;
+  - `binary-without-source`: an algorithm family in a binary that no source finding uses;
+  - `stale-dependency`: a pinned version without PQC, where a later version adds it.
+- Confidence fusion:
+  - corroboration across two or more of source, config, binary and network raises confidence
+    by noisy-OR and links the findings;
+  - a group directive contradicted by a negotiated TLS group or an offered SSH key exchange is
+    flagged for review on both sides;
+  - dependency capabilities take part in neither.
+- Components (`--components`, YAML) scope linking by path prefix and host. By default the scan
+  is one component.
+- `pqscope scan` merges other runs' findings with `--with` (for example from `pqscope net
+  --findings`), reconciles by default, and has `--no-reconcile` to turn it off. Reports gain
+  reconciliation and review sections. Derived findings are not counted with observed ones and are
+  left out of the CBOM. SARIF gets `reconcile.*` rules.
+- Add `Derived` and `Review` fields to `model.Finding`, and `ByID` and `FirstPQC` to the library
+  table.
+- Add the crafted multi-layer fixture `testdata/reconcile/app`. The tests derive all four types
+  from it with the real scanners, plus the review flag and corroboration, and check negative cases
+  for every rule, component scoping, and stability under input order and re-runs.
+
+Notes:
+
+- An early version chose a derived finding's asset from whichever candidate came first, so IDs
+  depended on input order. Findings are now put in a canonical order before any rule runs, and a
+  test reverses the input to check this.
+- Run end to end: `pqscope net` against a local OpenSSL server offering only X25519, merged into
+  a scan of the fixture, produces all four derived types.
+
+Known limits:
+
+- Components come from path prefixes and host names. pqscope does not discover which endpoint
+  serves which code.
+- `config-overrides-library` reads library support from the dependency layer, not from the
+  library the server process actually loads.
+
 ### Milestone 7: binary layer
 
 - Add `internal/discover/binary`. It reads ELF, PE, Mach-O and universal Mach-O files and

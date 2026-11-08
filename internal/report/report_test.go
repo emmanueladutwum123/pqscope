@@ -222,3 +222,40 @@ func TestPolicyIDs(t *testing.T) {
 		t.Errorf("asset table without policies:\n%s", buf.String())
 	}
 }
+
+func TestReconciliationSections(t *testing.T) {
+	db := testDB(t)
+	fs := sample(t, db)
+	fs[1].Review = "nginx.conf:3 does not list it"
+	d := finding(t, db, "X25519", "key-agreement", "h:443", 0)
+	d.Derived = "declared-pqc-deployed-classical"
+	d.Evidence = "declared ML-KEM, but h:443 negotiated X25519"
+	all := append(fs, d)
+
+	observed, derived, review := Split(all)
+	if len(observed) != 5 || len(derived) != 1 || len(review) != 1 {
+		t.Fatalf("split = %d observed, %d derived, %d review", len(observed), len(derived), len(review))
+	}
+	var buf bytes.Buffer
+	if err := Text(&buf, db, all, Summary{Counted: true, FilesScanned: 4}); err != nil {
+		t.Fatal(err)
+	}
+	out := buf.String()
+	for _, want := range []string{
+		"RECONCILIATION                   LOCATION  EVIDENCE",
+		"declared-pqc-deployed-classical  h:443     declared ML-KEM, but h:443 negotiated X25519",
+		"Flagged for review:\n  a.go:2: nginx.conf:3 does not list it",
+		"5 findings in 4 files scanned; 1 derived by reconciliation",
+		"Quantum status: 1 broken-now, 2 vulnerable, 1 weakened, 1 hybrid\n", // the derived X25519 is not counted
+	} {
+		if !strings.Contains(out, want) {
+			t.Errorf("missing %q in:\n%s", want, out)
+		}
+	}
+	html := renderHTML(t, all)
+	for _, want := range []string{"<h2>Reconciliation</h2>", "<code>declared-pqc-deployed-classical</code>", "<h2>Flagged for review</h2>"} {
+		if !strings.Contains(html, want) {
+			t.Errorf("HTML missing %q", want)
+		}
+	}
+}

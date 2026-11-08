@@ -218,6 +218,9 @@ func Build(db *knowledge.DB, findings []model.Finding, opts Options) (*BOM, erro
 	groups := map[assetKey][]model.Finding{}
 	seen := map[string]bool{}
 	for _, f := range findings {
+		if f.Derived != "" {
+			continue // reconciliation results describe other findings; the CBOM is the inventory
+		}
 		if seen[f.ID] {
 			return nil, fmt.Errorf("cbom: duplicate finding id %s", f.ID)
 		}

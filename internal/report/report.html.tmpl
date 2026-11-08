@@ -86,6 +86,21 @@ footer { color: var(--muted); margin-top: 32px; font-size: 12px; }
 <p class="empty">No cryptographic assets found.</p>
 {{end}}
 
+{{if .Derived}}
+<h2>Reconciliation</h2>
+<div class="wrap"><table>
+<thead><tr><th>Finding</th><th>Location</th><th>Evidence</th></tr></thead>
+<tbody>
+{{range .Derived}}<tr><td><code>{{.Derived}}</code></td><td><code>{{.Location.Path}}{{if .Location.Line}}:{{.Location.Line}}{{end}}</code></td><td>{{.Evidence}}</td></tr>
+{{end}}
+</tbody></table></div>
+{{end}}
+
+{{if .Review}}
+<h2>Flagged for review</h2>
+<ul>{{range .Review}}<li><code>{{.Location.Path}}{{if .Location.Line}}:{{.Location.Line}}{{end}}</code>: {{.Review}}</li>{{end}}</ul>
+{{end}}
+
 {{if .Notes}}
 <h2>Not classified</h2>
 <ul>{{range .Notes}}<li><code>{{.}}</code></li>{{end}}</ul>

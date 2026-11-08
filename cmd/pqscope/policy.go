@@ -171,6 +171,9 @@ func readItems(stdin io.Reader, path string, db *knowledge.DB) ([]item, error) {
 	var items []item
 	index := map[[3]string]int{}
 	for _, f := range findings {
+		if f.Derived != "" {
+			continue // analyses of other findings, already counted through them
+		}
 		k := [3]string{f.Asset.Algorithm, f.Asset.Params, f.Asset.Primitive}
 		deps := f.Location.Layer == model.LayerDeps
 		if i, ok := index[k]; ok {

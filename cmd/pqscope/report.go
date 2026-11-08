@@ -14,6 +14,7 @@ import (
 	"github.com/emmanueladutwum123/pqscope/internal/discover/source"
 	"github.com/emmanueladutwum123/pqscope/internal/knowledge"
 	"github.com/emmanueladutwum123/pqscope/internal/model"
+	"github.com/emmanueladutwum123/pqscope/internal/reconcile"
 	"github.com/emmanueladutwum123/pqscope/internal/report"
 	"github.com/emmanueladutwum123/pqscope/internal/sarif"
 	"github.com/emmanueladutwum123/pqscope/rules"
@@ -108,6 +109,9 @@ func (o outputs) write(db *knowledge.DB, s *source.Scanner, findings []model.Fin
 		meta := map[string]sarif.Rule{}
 		for _, r := range s.Rules() {
 			meta[r.ID] = sarif.Rule{Description: r.Description, Notes: r.Notes, HelpURI: r.Source}
+		}
+		for typ, desc := range reconcile.Types {
+			meta["reconcile."+typ] = sarif.Rule{Description: desc, HelpURI: "https://github.com/emmanueladutwum123/pqscope/blob/main/docs/reconcile.md"}
 		}
 		err := writeFile(o.sarif, func(w io.Writer) error {
 			return sarif.Write(w, db, findings, sarif.Options{ToolVersion: version, Rules: meta})

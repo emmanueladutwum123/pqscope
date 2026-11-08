@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"slices"
 	"strings"
 
@@ -16,6 +17,7 @@ import (
 	"github.com/emmanueladutwum123/pqscope/internal/discover/source"
 	"github.com/emmanueladutwum123/pqscope/internal/knowledge"
 	"github.com/emmanueladutwum123/pqscope/internal/model"
+	"github.com/emmanueladutwum123/pqscope/internal/reconcile"
 	"github.com/emmanueladutwum123/pqscope/internal/report"
 	"github.com/emmanueladutwum123/pqscope/rules"
 )
@@ -24,8 +26,9 @@ import (
 var scanLayers = []model.Layer{model.LayerSource, model.LayerConfig, model.LayerDeps, model.LayerBinary}
 
 func newScanCmd() *cobra.Command {
-	var asJSON bool
-	var layerNames []string
+	var asJSON, noReconcile bool
+	var layerNames, with []string
+	var componentsFile string
 	var out outputs
 	cmd := &cobra.Command{
 		Use:   "scan [path]",
@@ -38,7 +41,12 @@ func newScanCmd() *cobra.Command {
 			"          pom.xml and Cargo.lock, matched against known crypto libraries\n" +
 			"  binary  ELF, PE and Mach-O: crypto library imports, Go build info and\n" +
 			"          functions, and constants in stripped binaries\n\n" +
-			"Use `pqscope net` for live endpoints. Each finding is evaluated under\n" +
+			"Use `pqscope net` for live endpoints, and --with to merge its findings.\n\n" +
+			"Findings are then reconciled across layers: confirmed in two layers, their\n" +
+			"confidence rises; contradicted, they are flagged for review; and derived\n" +
+			"findings report declared-but-not-deployed PQC, configuration overriding a\n" +
+			"library, crypto in binaries but not source, and stale dependencies. By default\n" +
+			"the whole scan is one component; --components splits it. Each finding is evaluated under\n" +
 			"every bundled policy and given a risk score; use `pqscope policy` to gate CI.\n\n" +
 			"A summary goes to standard output, or the findings as JSON with --json.\n" +
 			"-o, --sarif and --html also write a CycloneDX CBOM, a SARIF log and an\n" +
@@ -118,6 +126,32 @@ func newScanCmd() *cobra.Command {
 					sum.Skipped += len(res.Skipped)
 				}
 			}
+			for _, p := range with {
+				fs, err := readFindings(cmd.InOrStdin(), p)
+				if err != nil {
+					return err
+				}
+				findings = append(findings, fs...)
+			}
+			if !noReconcile {
+				var comps []reconcile.Component
+				if componentsFile != "" {
+					f, err := os.Open(componentsFile)
+					if err != nil {
+						return err
+					}
+					comps, err = reconcile.ParseComponents(f)
+					_ = f.Close() // read-only
+					if err != nil {
+						return fmt.Errorf("%s: %w", componentsFile, err)
+					}
+				}
+				libs, err := knowledge.DefaultLibs()
+				if err != nil {
+					return err
+				}
+				findings = reconcile.New(db, libs, comps).Run(findings)
+			}
 			// Layers scan disjoint files, so ordering by location interleaves them.
 			slices.SortStableFunc(findings, func(a, b model.Finding) int {
 				return cmp.Or(strings.Compare(a.Location.Path, b.Location.Path), cmp.Compare(a.Location.Line, b.Location.Line))
@@ -135,6 +169,9 @@ func newScanCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolVar(&asJSON, "json", false, "write findings to standard output as a JSON array")
+	cmd.Flags().StringArrayVar(&with, "with", nil, "merge findings from `file` (such as `pqscope net --findings`) before reconciling; repeatable")
+	cmd.Flags().StringVar(&componentsFile, "components", "", "split the scan into components for reconciliation (YAML `file`)")
+	cmd.Flags().BoolVar(&noReconcile, "no-reconcile", false, "skip cross-layer reconciliation")
 	cmd.Flags().StringSliceVar(&layerNames, "layers", []string{"source", "config", "deps", "binary"}, "layers to scan: source, config, deps, binary")
 	out.register(cmd)
 	return cmd

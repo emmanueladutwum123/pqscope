@@ -30,7 +30,8 @@ type htmlRow struct {
 
 // HTML writes a self-contained HTML report. It loads nothing from the network,
 // and its content security policy forbids it from doing so.
-func HTML(w io.Writer, db *knowledge.DB, findings []model.Finding, sum Summary, opts HTMLOptions) error {
+func HTML(w io.Writer, db *knowledge.DB, all []model.Finding, sum Summary, opts HTMLOptions) error {
+	findings, derived, review := Split(all)
 	generated := opts.Generated
 	if generated.IsZero() {
 		generated = time.Now()
@@ -72,5 +73,7 @@ func HTML(w io.Writer, db *knowledge.DB, findings []model.Finding, sum Summary, 
 		"Rows":        rows,
 		"Policies":    policies,
 		"Notes":       sum.Notes,
+		"Derived":     derived,
+		"Review":      review,
 	})
 }

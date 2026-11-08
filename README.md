@@ -9,7 +9,7 @@ layers to expose gaps between what a system declares and what it actually deploy
 
 ## Status
 
-Milestone 7 of 13. All five discovery layers work:
+Milestone 8 of 13. All five discovery layers work, and their findings are reconciled:
 
 - **source:** Go and Python code;
 - **config:** nginx, Apache, sshd, openssl.cnf, Kubernetes, and certificates and keys;
@@ -61,6 +61,27 @@ pqscope policy --policy cnsa-2.0 --fail-on disallowed-now cbom.json
 Each policy rule cites the section of the document it comes from. See
 [docs/policy.md](docs/policy.md) for the statuses and sources, and [docs/risk.md](docs/risk.md)
 for the risk score. The CNSA 2.0 policy doesn't yet encode NSA's per-equipment-class deadlines.
+
+## Reconciliation: declared versus deployed
+
+Each layer sees part of the picture. `scan` links the layers' findings for the same component and
+reports what no single layer can show:
+
+- post-quantum crypto declared in code or dependencies while the endpoint still negotiates
+  classical key exchange;
+- configuration pinning classical groups although the library supports a hybrid;
+- crypto in shipped binaries that no source file uses;
+- dependencies too old for post-quantum algorithms.
+
+Findings confirmed in two layers gain confidence, and configurations that the network contradicts
+are flagged for review:
+
+```sh
+pqscope net --targets hosts.txt --findings net.json -o net.jsonl
+pqscope scan ./service --with net.json
+```
+
+See [docs/reconcile.md](docs/reconcile.md).
 
 ## Dependencies and configuration
 

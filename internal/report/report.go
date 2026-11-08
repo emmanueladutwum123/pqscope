@@ -182,9 +182,27 @@ func joinCounts(counts []StatusCount) string {
 	return strings.Join(parts, ", ")
 }
 
+// Split separates observed findings from reconciliation's derived findings,
+// and lists the observed findings flagged for review.
+func Split(findings []model.Finding) (observed, derived, review []model.Finding) {
+	for _, f := range findings {
+		if f.Derived != "" {
+			derived = append(derived, f)
+			continue
+		}
+		observed = append(observed, f)
+		if f.Review != "" {
+			review = append(review, f)
+		}
+	}
+	return observed, derived, review
+}
+
 // Text writes a findings table, an asset summary with policy statuses and
-// migration targets, and the scan summary.
-func Text(w io.Writer, db *knowledge.DB, findings []model.Finding, sum Summary) error {
+// migration targets, reconciliation results, and the scan summary. Derived
+// findings are listed on their own and not counted with observed ones.
+func Text(w io.Writer, db *knowledge.DB, all []model.Finding, sum Summary) error {
+	findings, derived, review := Split(all)
 	var b strings.Builder // strings.Builder never fails, so its errors are dropped
 	if len(findings) > 0 {
 		table(&b, "LOCATION\tLAYER\tALGORITHM\tPARAMS\tQUANTUM\tCONFIDENCE\tRISK\tRULE", func(row func(...any)) {
@@ -214,7 +232,25 @@ func Text(w io.Writer, db *knowledge.DB, findings []model.Finding, sum Summary) 
 			b.WriteString(id + ": " + joinCounts(CountByPolicy(findings, id)) + "\n")
 		}
 	}
-	b.WriteString(sum.Line(len(findings)) + "\n")
+	if len(derived) > 0 {
+		b.WriteString("\n")
+		table(&b, "RECONCILIATION\tLOCATION\tEVIDENCE", func(row func(...any)) {
+			for _, f := range derived {
+				row(f.Derived, location(f), f.Evidence)
+			}
+		})
+	}
+	if len(review) > 0 {
+		b.WriteString("\nFlagged for review:\n")
+		for _, f := range review {
+			b.WriteString("  " + location(f) + ": " + f.Review + "\n")
+		}
+	}
+	line := sum.Line(len(findings))
+	if len(derived) > 0 {
+		line += fmt.Sprintf("; %d derived by reconciliation", len(derived))
+	}
+	b.WriteString(line + "\n")
 	if len(sum.Notes) > 0 {
 		b.WriteString("\nNot classified:\n")
 		for _, n := range sum.Notes {
