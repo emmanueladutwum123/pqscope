@@ -102,6 +102,52 @@ func (s *Scanner) Rules() []RuleInfo {
 	return out
 }
 
+// SymbolAsset is the asset a fully qualified symbol denotes, and the rule
+// that says so.
+type SymbolAsset struct {
+	Asset  model.Asset
+	RuleID string
+}
+
+// SymbolAssets maps every fully qualified symbol of a language's call and ref
+// rules, as written in the rule pack (such as "crypto/rsa.GenerateKey"), to
+// its asset. Params are unknown unless the rule fixes
+// them, since no argument is visible. Rules that choose the algorithm from an
+// argument (select) are left out.
+func (s *Scanner) SymbolAssets(lang string) map[string]SymbolAsset {
+	set, ok := s.sets[lang]
+	if !ok {
+		return nil
+	}
+	out := map[string]SymbolAsset{}
+	for _, m := range []map[string]*Rule{set.calls, set.refs} {
+		for sym, r := range m {
+			if len(r.Select) > 0 {
+				continue
+			}
+			a, ok := s.ruleAsset(r)
+			if ok {
+				out[sym] = SymbolAsset{a, r.ID}
+			}
+		}
+	}
+	return out
+}
+
+func (s *Scanner) ruleAsset(r *Rule) (model.Asset, bool) {
+	if r.Asset.Params != "" {
+		if e, ok := s.db.Lookup(r.Asset.Algorithm, r.Asset.Params); ok {
+			a, err := e.Asset(r.Asset.Primitive)
+			return a, err == nil
+		}
+	}
+	q, ok := s.db.FamilyQuantum(r.Asset.Algorithm)
+	if !ok {
+		return model.Asset{}, false
+	}
+	return model.Asset{Primitive: r.Asset.Primitive, Algorithm: r.Asset.Algorithm, Params: model.ParamsUnknown, Quantum: q}, true
+}
+
 func describe(r *Rule) string {
 	symbols := strings.Join(append(slices.Clone(r.Call), r.Ref...), ", ")
 	switch {

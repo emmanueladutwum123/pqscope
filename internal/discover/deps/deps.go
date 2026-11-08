@@ -105,6 +105,17 @@ func (s *Scanner) Scan(ctx context.Context, root string) (Result, error) {
 	return res, nil
 }
 
+// Capabilities returns the findings for one dependency found outside a
+// manifest, such as in a Go binary's build info. origin prefixes the
+// evidence; the findings are still dependency-layer capabilities.
+func (s *Scanner) Capabilities(path, origin string, d Dependency) []model.Finding {
+	out := s.findings(path, d)
+	for i := range out {
+		out[i].Evidence = origin + ": " + out[i].Evidence
+	}
+	return out
+}
+
 func (s *Scanner) findings(rel string, d Dependency) []model.Finding {
 	lib, ok := s.libs.Lookup(d.Package)
 	if !ok {

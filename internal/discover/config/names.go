@@ -117,3 +117,10 @@ func familyAsset(db *knowledge.DB, family, primitive, params string) (model.Asse
 func (n names) lookup(table, name string) []model.Asset {
 	return n[table][strings.ToLower(strings.TrimSpace(name))]
 }
+
+// ResolveAsset turns an asset reference, "ENTRY:primitive" or
+// "Family:primitive[:params]", into an asset. Other layers' data files use
+// the same notation.
+func ResolveAsset(db *knowledge.DB, ref string) (model.Asset, error) {
+	return resolveRef(db, ref)
+}
