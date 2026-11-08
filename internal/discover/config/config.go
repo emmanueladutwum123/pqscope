@@ -218,3 +218,42 @@ func evidence(line string) string {
 	}
 	return line
 }
+
+// Lookup resolves one name in a name table, with the normalisation the
+// config parsers apply: "tls-groups", "tls13-suites", "tls-ciphers" (an
+// OpenSSL cipher name), "ssh-kex", "ssh-pubkey", "ssh-ciphers" or
+// "ssh-macs". Unknown names and tables resolve to nothing.
+func (s *Scanner) Lookup(table, name string) []model.Asset {
+	switch table {
+	case "tls-ciphers":
+		return s.cipher(name)
+	case "ssh-kex":
+		return s.ssh(sshKex, name)
+	case "ssh-pubkey":
+		return s.ssh(sshPubkey, name)
+	case "ssh-ciphers":
+		return s.ssh(sshCiphers, name)
+	case "ssh-macs":
+		return s.ssh(sshMACs, name)
+	case "tls-groups", "tls13-suites":
+		return s.names.lookup(table, name)
+	}
+	return nil
+}
+
+// Material is one asset found in key material.
+type Material struct {
+	Asset    model.Asset
+	Symbol   string
+	Evidence string
+}
+
+// Certificate classifies a DER certificate: its subject key, the issuer's
+// signature algorithm and that signature's digest.
+func (s *Scanner) Certificate(der []byte) []Material {
+	var out []Material
+	for _, m := range s.certificate(der, 0) {
+		out = append(out, Material{m.asset, m.symbol, m.evidence})
+	}
+	return out
+}
