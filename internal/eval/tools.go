@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -48,18 +50,31 @@ type rawFinding struct {
 	name string // algorithm name as the tool reported it
 }
 
-// mountPrefixes are the corpus mount points eval/run.sh uses.
-var mountPrefixes = []string{"/data/", "/workspace/", "/src/"}
+// mountPrefixes are the corpus mount points eval/run.sh uses. Some tools
+// report them without the leading slash.
+var mountPrefixes = []string{"/data/", "/workspace/", "/src/", "workspace/", "data/", "src/"}
+
+// answerKey lists corpus files that are not part of the system under test.
+// eval/run.sh hides them from competitors; a finding in one is dropped.
+var answerKey = []string{"labels.yaml", "README.md", "server.env", "server.sh"}
+
+// lineSuffix matches a location written as "path:line".
+var lineSuffix = regexp.MustCompile(`^(.*):(\d+)$`)
 
 // assign maps a tool path to a case and a file within it. Tool paths are
 // relative to the corpus root, after a mount prefix.
 func assign(path string, cases map[string]bool) (caseID, file string, ok bool) {
 	p := strings.TrimPrefix(filepath.ToSlash(path), "file://")
+	// Mount points only ever begin a path (file:// is already stripped), so
+	// a directory of the same name inside a case is left alone.
 	for _, m := range mountPrefixes {
-		if i := strings.Index(p, m); i >= 0 {
-			p = p[i+len(m):]
+		if strings.HasPrefix(p, m) {
+			p = p[len(m):]
 			break
 		}
+	}
+	if strings.HasPrefix(p, "/") {
+		return "", "", false // an absolute path outside every mount
 	}
 	p = strings.TrimPrefix(p, "./")
 	parts := strings.SplitN(p, "/", 3)
@@ -93,7 +108,14 @@ func loadCompetitor(runs, name string, parse func(string) ([]rawFinding, error),
 	}
 	var items []Item
 	for _, r := range raw {
+		if m := lineSuffix.FindStringSubmatch(r.path); m != nil && r.line == 0 {
+			r.path = m[1]
+			r.line, _ = strconv.Atoi(m[2])
+		}
 		c, file, ok := assign(r.path, cases)
+		if ok && slices.Contains(answerKey, filepath.Base(file)) {
+			continue
+		}
 		fam := Family(r.name)
 		if !ok || fam == "" {
 			continue
@@ -106,7 +128,13 @@ func loadCompetitor(runs, name string, parse func(string) ([]rawFinding, error),
 // --- CycloneDX CBOM (CBOMkit, cryptoscan-pqc) ---
 
 func parseCBOMDir(dir string) ([]rawFinding, error) {
-	files, err := filepath.Glob(filepath.Join(dir, "*.json"))
+	var files []string
+	err := filepath.WalkDir(dir, func(p string, d os.DirEntry, err error) error {
+		if err == nil && !d.IsDir() && strings.HasSuffix(p, ".json") {
+			files = append(files, p)
+		}
+		return err
+	})
 	if err != nil {
 		return nil, err
 	}

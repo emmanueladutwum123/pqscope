@@ -40,7 +40,8 @@ Each finding becomes `(case, file, line, algorithm family)`. Families are pqscop
 names: RSA, ECDSA, ECDH, EdDSA, X25519, DH, DSA, ML-KEM, ML-DSA, SLH-DSA, Hybrid, AES, 3DES, DES,
 RC4, ChaCha20-Poly1305, MD5, SHA-1, SHA-2, SHA-3 and HMAC. Other tools' names are mapped by keyword
 (`internal/eval/corpus.go`). For Semgrep the rule ID is used, because messages often name the
-replacement algorithm too. Paths are assigned to cases by their first two components under the
+replacement algorithm too. A generic EC name (`EC`, `EC-secp384r1`, pqc-audit's `ECC`) maps to
+ECDSA, the corpus convention for EC keys. That undercounts a tool on lines labeled ECDH. Paths are assigned to cases by their first two components under the
 corpus mount.
 
 Each tool is scored on every case at two granularities:
@@ -63,6 +64,17 @@ asks what single-layer tools miss.
 | `rq1_tools.csv` | version, source and status of every tool |
 | `rq1_ablation.csv` | pqscope with each layer turned off, at file granularity |
 | `rq1_corpus.csv` | every case, with its layer, language, kind and label count |
+
+## Harness details
+
+- **Competitors never see the answer key.** They scan a staged copy of the corpus without
+  `labels.yaml`, READMEs and the network server definitions. A finding in one of those files is
+  dropped anyway.
+- **CBOMkit runs once per Java and Python case.** Its indexer merges the corpus's many
+  `Main.java` and `main.py` files into one module, so it scanned only two cases when run once.
+- **A non-zero exit can still count as a run.** If a tool exits non-zero but writes its output
+  (pqc-audit exits 1 when it finds something, to gate CI), the run counts, and `rq1_tools.csv`
+  records the exit code.
 
 ## Caveats
 

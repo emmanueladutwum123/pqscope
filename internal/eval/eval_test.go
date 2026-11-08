@@ -21,7 +21,8 @@ func TestFamily(t *testing.T) {
 		"DSA": "DSA", "DH": "", "diffie-hellman": "DH", "DESede": "3DES", "des-is-deprecated": "DES",
 		"use-of-md5": "MD5", "use-of-sha1": "SHA-1", "SHA-256": "SHA-2", "sha3-256": "SHA-3",
 		"HmacSHA256": "HMAC", "AES-256-GCM": "AES", "use-of-rc4": "RC4", "ChaCha20-Poly1305": "ChaCha20-Poly1305",
-		"gcm-detection": "", "certificate": "",
+		"gcm-detection": "", "certificate": "", "EC": "ECDSA", "EC-secp384r1": "ECDSA", "Diffie-Hellman": "DH",
+		"SHA256-RSA": "RSA", "key@68d415f4": "", "ECC": "ECDSA", "eccentric": "",
 	} {
 		if got := Family(name); got != want {
 			t.Errorf("Family(%q) = %q, want %q", name, got, want)
@@ -38,6 +39,9 @@ func TestAssign(t *testing.T) {
 		"go/g01-rsa-keygen/sub/x.go":                  "go/g01-rsa-keygen|sub/x.go",
 		"/src/go/unknown-case/main.go":                "",
 		"/src/README.md":                              "",
+		"workspace/go/g01-rsa-keygen/main.go":         "go/g01-rsa-keygen|main.go",
+		"go/g01-rsa-keygen/src/main.go":               "go/g01-rsa-keygen|src/main.go",
+		"/elsewhere/go/g01-rsa-keygen/main.go":        "",
 	} {
 		c, f, ok := assign(path, cases)
 		got := ""
@@ -104,6 +108,8 @@ func TestAdapters(t *testing.T) {
 	   "evidence":{"occurrences":[{"location":"/src/go/g01-rsa-keygen/main.go","line":9}]}},
 	  {"type":"cryptographic-asset","name":"alg","cryptoProperties":{"assetType":"algorithm","algorithmProperties":{"parameterSetIdentifier":"ML-KEM-768"}},
 	   "properties":[{"name":"file_path","value":"go/g51-mlkem1024/main.go"}]},
+	  {"type":"cryptographic-asset","name":"DSA","evidence":{"occurrences":[{"location":"java/j10-wildcard-import/Main.java:5"}]}},
+	  {"type":"cryptographic-asset","name":"ECDSA","evidence":{"occurrences":[{"location":"go/g01-rsa-keygen/labels.yaml:4"}]}},
 	  {"type":"library","name":"openssl"}]}`)
 	writeFile(t, filepath.Join(runs, "semgrep", "tool.json"), strings.ReplaceAll(ran, "%s", "semgrep"))
 	writeFile(t, filepath.Join(runs, "semgrep", "results.json"), `{"results":[
@@ -113,14 +119,15 @@ func TestAdapters(t *testing.T) {
 	writeFile(t, filepath.Join(runs, "pqc-audit", "report.json"), `{"findings":[{"file":"/src/python/p01-rsa-keygen/main.py","line_number":"4","algorithm":"RSA"},{"note":"no path"}]}`)
 	writeFile(t, filepath.Join(runs, "cbomkit-theia", "tool.json"), `{"tool":"cbomkit-theia","status":"failed","reason":"exit 1"}`)
 
-	cases := map[string]bool{"go/g01-rsa-keygen": true, "go/g51-mlkem1024": true, "java/j09-weak-digests": true, "python/p01-rsa-keygen": true}
+	cases := map[string]bool{"go/g01-rsa-keygen": true, "go/g51-mlkem1024": true, "java/j09-weak-digests": true, "python/p01-rsa-keygen": true, "java/j10-wildcard-import": true}
 	for _, tt := range []struct {
 		tool   string
 		parse  func(string) ([]rawFinding, error)
 		status string
 		want   []Item
 	}{
-		{"cryptoscan-pqc", parseCBOMDir, "ran", []Item{{"go/g01-rsa-keygen", "main.go", 9, "RSA"}, {"go/g51-mlkem1024", "main.go", 0, "ML-KEM"}}},
+		// "path:line" locations are split; a hit in labels.yaml (the answer key) is dropped.
+		{"cryptoscan-pqc", parseCBOMDir, "ran", []Item{{"go/g01-rsa-keygen", "main.go", 9, "RSA"}, {"go/g51-mlkem1024", "main.go", 0, "ML-KEM"}, {"java/j10-wildcard-import", "Main.java", 5, "DSA"}}},
 		{"semgrep", parseSemgrep, "ran", []Item{{"java/j09-weak-digests", "Main.java", 5, "MD5"}}},
 		{"pqc-audit", parseGenericJSON, "ran", []Item{{"python/p01-rsa-keygen", "main.py", 4, "RSA"}}},
 		{"cbomkit-theia", parseCBOMDir, "failed", nil},

@@ -64,8 +64,10 @@ def main(data_dir):
             if int(row[field]) != value:
                 problems.append(f"{k}: {field} {row[field]} != {value}")
         for field, value in (("precision", p), ("recall", r), ("f1", f1)):
-            if abs(float(row[field]) - round(value, 4)) > 1e-9:
-                problems.append(f"{k}: {field} {row[field]} != {value:.4f}")
+            # The summary rounds to 4 places; rounding conventions differ at
+            # exact halves (0.04375), so allow half a unit in the last place.
+            if abs(float(row[field]) - value) > 0.5e-4 + 1e-12:
+                problems.append(f"{k}: {field} {row[field]} != {value:.6f}")
     for k in summary:
         if k not in counts:
             problems.append(f"{k}: in rq1_summary.csv but has no items")

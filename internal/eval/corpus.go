@@ -129,7 +129,17 @@ var keywordFamilies = []struct {
 
 // Family maps a tool-reported algorithm name to a family, or "".
 func Family(name string) string {
-	s := strings.ToLower(name)
+	s := strings.ToLower(strings.TrimSpace(name))
+	// JCA's "EC" key algorithm, alone or with a curve ("EC-secp384r1"), is
+	// an EC key; the corpus labels EC key generation as ECDSA.
+	if s == "ec" || strings.HasPrefix(s, "ec-") {
+		return "ECDSA"
+	}
+	// A generic "ECC" (pqc-audit) is mapped the same way. It undercounts the
+	// tool on lines labeled ECDH; rq1_items.csv shows each such item.
+	if s == "ecc" || strings.HasPrefix(s, "ecc-") || strings.HasPrefix(s, "ecc ") {
+		return "ECDSA"
+	}
 	for _, kf := range keywordFamilies {
 		for _, k := range kf.keys {
 			if strings.Contains(s, k) {

@@ -56,30 +56,55 @@ if ! docker info >/dev/null 2>&1; then
 fi
 
 competitors() {
-run_tool() { # name version source command...
-	local name=$1 version=$2 source=$3
-	shift 3
+# Competitors scan a copy of the corpus without its answer key: labels.yaml,
+# READMEs and the network server definitions.
+STAGE="$OUT/corpus-stage"
+rm -rf "$STAGE" && mkdir -p "$STAGE"
+rsync -a --exclude labels.yaml --exclude README.md --exclude server.env --exclude server.sh "$CORPUS/" "$STAGE/"
+CORPUS="$STAGE"
+
+run_tool() { # name version source output command...
+	# output is a path, relative to the tool's directory, whose presence
+	# means the tool produced results. Some tools exit non-zero to gate CI
+	# when they find something; with output written, that still counts as a run.
+	local name=$1 version=$2 source=$3 output=$4
+	shift 4
 	rm -rf "${OUT:?}/$name"
 	mkdir -p "$OUT/$name"
 	log "== $name ($version)"
-	local start=$SECONDS
-	if "$@" >"$OUT/$name/stdout.log" 2>"$OUT/$name/stderr.log"; then
+	local start=$SECONDS code=0
+	"$@" >"$OUT/$name/stdout.log" 2>"$OUT/$name/stderr.log" || code=$?
+	if [ "$code" -eq 0 ]; then
 		tool_json "$name" "$version" "$source" ran ""
+	elif [ -n "$(find "$OUT/$name" -path "$OUT/$name/$output" -size +0 2>/dev/null | head -1)" ]; then
+		tool_json "$name" "$version" "$source" ran "exit $code with output written (the tool's findings exit code)"
 	else
-		tool_json "$name" "$version" "$source" failed "exit $? (see stderr.log)"
+		tool_json "$name" "$version" "$source" failed "exit $code (see stderr.log)"
 	fi
 	log "   $((SECONDS - start))s"
 }
 
+# CBOMkit indexes "project modules"; corpus cases share file names (Main.java,
+# main.py) and collapse into one module, so it runs once per case.
+cbomkit_action_per_case() {
+	local d g c status=0
+	for d in "$CORPUS"/java/*/ "$CORPUS"/python/*/; do
+		g=$(basename "$(dirname "$d")")
+		c=$(basename "$d")
+		mkdir -p "$OUT/cbomkit-action/$g/$c"
+		docker run --rm -v "${d%/}:/workspace/$g/$c:ro" -v "$OUT/cbomkit-action/$g/$c:/out" \
+			-e GITHUB_WORKSPACE=/workspace -e CBOMKIT_LANGUAGES=java,python -e CBOMKIT_OUTPUT_DIR=/out \
+			-e CBOMKIT_EXCLUDE= -e CBOMKIT_JAVA_REQUIRE_BUILD=false "$CBOMKIT_ACTION_IMAGE" || status=$?
+	done
+	return $status
+}
+
 # CBOMkit-theia: directories and images (certificates, keys, configs). Not source.
-run_tool cbomkit-theia "latest@46a72ead" "$CBOMKIT_THEIA_IMAGE" \
+run_tool cbomkit-theia "latest@46a72ead" "$CBOMKIT_THEIA_IMAGE" cbom.json \
 	sh -c "docker run --rm -v '$CORPUS:/data:ro' '$CBOMKIT_THEIA_IMAGE' dir /data > '$OUT/cbomkit-theia/cbom.json'"
 
 # CBOMkit (sonar-cryptography) through its GitHub Action image: Java and Python source.
-run_tool cbomkit-action "v2.3.0" "$CBOMKIT_ACTION_IMAGE" \
-	docker run --rm -v "$CORPUS:/workspace:ro" -v "$OUT/cbomkit-action:/out" \
-	-e GITHUB_WORKSPACE=/workspace -e CBOMKIT_LANGUAGES=java,python -e CBOMKIT_OUTPUT_DIR=/out \
-	-e CBOMKIT_EXCLUDE= -e CBOMKIT_JAVA_REQUIRE_BUILD=false "$CBOMKIT_ACTION_IMAGE"
+run_tool cbomkit-action "v2.3.0" "$CBOMKIT_ACTION_IMAGE" "*/*/cbom.json" cbomkit_action_per_case
 
 # Semgrep with the community registry's crypto rules for the corpus languages.
 RULES="$OUT/semgrep-rules"
@@ -88,19 +113,19 @@ if curl -sfL "https://github.com/semgrep/semgrep-rules/archive/$SEMGREP_RULES_CO
 	find "$RULES" -name '*.yaml' | grep -v -E '/(go|python|java|javascript|c)/' | xargs rm -f
 	find "$RULES" -name '*.yaml' | grep -v -i -E '(crypto|md5|sha1|sha224|des|rsa|ecb|cipher|rc4|blowfish|hash)' | xargs rm -f
 	find "$RULES" -type f ! -name '*.yaml' -delete
-	run_tool semgrep "1.184.0+rules@${SEMGREP_RULES_COMMIT:0:8}" "$SEMGREP_IMAGE" \
+	run_tool semgrep "1.184.0+rules@${SEMGREP_RULES_COMMIT:0:8}" "$SEMGREP_IMAGE" results.json \
 		sh -c "docker run --rm -v '$CORPUS:/src:ro' -v '$RULES:/rules:ro' '$SEMGREP_IMAGE' semgrep scan --config /rules --json --metrics=off --no-git-ignore --disable-version-check /src > '$OUT/semgrep/results.json'"
 else
 	tool_json semgrep "1.184.0" "$SEMGREP_IMAGE" failed "could not download semgrep-rules $SEMGREP_RULES_COMMIT"
 fi
 
 # cryptoscan-pqc from PyPI.
-run_tool cryptoscan-pqc "$CRYPTOSCAN_VERSION" "pypi:cryptoscan-pqc==$CRYPTOSCAN_VERSION in $PYTHON_IMAGE" \
+run_tool cryptoscan-pqc "$CRYPTOSCAN_VERSION" "pypi:cryptoscan-pqc==$CRYPTOSCAN_VERSION in $PYTHON_IMAGE" cbom.json \
 	docker run --rm -v "$CORPUS:/src:ro" -v "$OUT/cryptoscan-pqc:/out" "$PYTHON_IMAGE" \
 	sh -c "pip install -q --disable-pip-version-check cryptoscan-pqc==$CRYPTOSCAN_VERSION && pqscan scan /src -o /out/cbom.json"
 
 # pqc-audit (pqc-migration-audit) from a pinned commit.
-run_tool pqc-audit "${PQC_AUDIT_COMMIT:0:8}" "github:danieleschmidt/pqc-migration-audit@$PQC_AUDIT_COMMIT in $PYTHON_IMAGE" \
+run_tool pqc-audit "${PQC_AUDIT_COMMIT:0:8}" "github:danieleschmidt/pqc-migration-audit@$PQC_AUDIT_COMMIT in $PYTHON_IMAGE" report.json \
 	docker run --rm -v "$CORPUS:/src:ro" -v "$OUT/pqc-audit:/out" "$PYTHON_IMAGE" \
 	sh -c "pip install -q --disable-pip-version-check https://github.com/danieleschmidt/pqc-migration-audit/archive/$PQC_AUDIT_COMMIT.tar.gz && pqc-audit /src --output /out/report.json --format json"
 
