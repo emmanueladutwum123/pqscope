@@ -31,6 +31,9 @@ const SpecVersion = "1.6"
 
 // Property names in the pqscope namespace.
 const (
+	PropAlgorithm      = "pqscope:algorithm"
+	PropParams         = "pqscope:params"
+	PropPrimitive      = "pqscope:primitive"
 	PropQuantum        = "pqscope:quantum"
 	PropMigrationCivil = "pqscope:migration:civilian"
 	PropMigrationCNSA2 = "pqscope:migration:cnsa2"
@@ -306,7 +309,12 @@ func component(db *knowledge.DB, k assetKey, fs []model.Finding) Component {
 		id.Confidence = max(id.Confidence, round(best[tech]))
 	}
 
-	properties := []Property{{PropQuantum, a.Quantum}}
+	properties := []Property{
+		{PropAlgorithm, a.Algorithm},
+		{PropParams, a.Params},
+		{PropPrimitive, a.Primitive},
+		{PropQuantum, a.Quantum},
+	}
 	if r, ok := db.Replacement(a); ok {
 		properties = append(properties, Property{PropMigrationCivil, r.Civilian}, Property{PropMigrationCNSA2, r.CNSA2})
 	}
@@ -327,19 +335,10 @@ func component(db *knowledge.DB, k assetKey, fs []model.Finding) Component {
 	}
 }
 
-// policyRank orders policy statuses from best to worst, so that an asset
-// reports the worst verdict any of its findings received.
-var policyRank = map[string]int{
-	"":                     0,
-	model.PolicyCompliant:  1,
-	model.PolicyUnknown:    2,
-	model.PolicyDeprecated: 3,
-	model.PolicyDisallowed: 4,
-	model.PolicyBrokenNow:  5,
-}
-
+// worse returns the more urgent of two policy statuses. Unknown ranks below
+// compliant, so that any decided verdict wins over it.
 func worse(a, b string) string {
-	if policyRank[b] > policyRank[a] {
+	if a == "" || model.PolicySeverity(b) > model.PolicySeverity(a) {
 		return b
 	}
 	return a

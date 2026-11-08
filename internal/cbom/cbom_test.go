@@ -226,3 +226,73 @@ func TestDuplicateIDsRejected(t *testing.T) {
 		t.Errorf("error = %v, want duplicate id", err)
 	}
 }
+
+func TestReadRoundTrip(t *testing.T) {
+	db := testDB(t)
+	findings := []model.Finding{
+		finding(t, db, "RSA-2048", "signature", model.LayerSource, "a.go", 1),
+		finding(t, db, "RSA-2048", "pke", model.LayerSource, "a.go", 2),
+		finding(t, db, "X25519MLKEM768", "key-agreement", model.LayerNetwork, "h:443", 0),
+		model.NewFinding(model.Asset{Primitive: "signature", Algorithm: "ECDSA", Params: model.ParamsUnknown, Quantum: model.QuantumVulnerable},
+			model.Location{Layer: model.LayerSource, Path: "b.go", Line: 3}, 0.76),
+	}
+	data, _ := encode(t, db, findings)
+	items, err := Read(bytes.NewReader(data), db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(items) != len(findings) {
+		t.Fatalf("read %d items, want %d", len(items), len(findings))
+	}
+	want := map[string]model.Asset{}
+	for _, f := range findings {
+		want[f.ID] = f.Asset
+	}
+	for _, it := range items {
+		if !it.Resolved || len(it.Occurrences) != 1 {
+			t.Errorf("%s: resolved=%v occurrences=%d", it.Name, it.Resolved, len(it.Occurrences))
+			continue
+		}
+		if got := it.Asset; got != want[it.Occurrences[0].BOMRef] {
+			t.Errorf("%s: asset %+v, want %+v", it.Name, got, want[it.Occurrences[0].BOMRef])
+		}
+	}
+}
+
+// CBOMs from other tools have no pqscope properties.
+func TestReadForeign(t *testing.T) {
+	db := testDB(t)
+	doc := `{"bomFormat":"CycloneDX","specVersion":"1.6","components":[
+	  {"type":"library","name":"openssl"},
+	  {"type":"cryptographic-asset","name":"RSA-3072","cryptoProperties":{"assetType":"algorithm","algorithmProperties":{"primitive":"signature"}}},
+	  {"type":"cryptographic-asset","name":"ECDH","cryptoProperties":{"assetType":"algorithm","algorithmProperties":{"primitive":"key-agree","parameterSetIdentifier":"secp384r1"}}},
+	  {"type":"cryptographic-asset","name":"AES-128-GCM","cryptoProperties":{"assetType":"algorithm","algorithmProperties":{"primitive":"ae","parameterSetIdentifier":"128"}}},
+	  {"type":"cryptographic-asset","name":"P-256","cryptoProperties":{"assetType":"algorithm","algorithmProperties":{"primitive":"unknown"}}},
+	  {"type":"cryptographic-asset","name":"leaf.pem","cryptoProperties":{"assetType":"certificate"}}
+	]}`
+	items, err := Read(strings.NewReader(doc), db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	type want struct {
+		resolved bool
+		asset    model.Asset
+	}
+	expect := []want{
+		{true, model.Asset{Primitive: "signature", Algorithm: "RSA", Params: "3072", ClassicalBits: 128, Quantum: "vulnerable"}},
+		{true, model.Asset{Primitive: "key-agreement", Algorithm: "ECDH", Params: "P-384", ClassicalBits: 192, Quantum: "vulnerable"}},
+		{true, model.Asset{Primitive: "cipher", Algorithm: "AES", Params: "128", ClassicalBits: 128, Quantum: "weakened"}},
+		{false, model.Asset{Primitive: "", Algorithm: "P-256", Params: "unknown"}},
+	}
+	if len(items) != len(expect) {
+		t.Fatalf("items = %+v", items)
+	}
+	for i, w := range expect {
+		if items[i].Resolved != w.resolved || items[i].Asset != w.asset {
+			t.Errorf("item %d (%s) = resolved %v %+v, want %v %+v", i, items[i].Name, items[i].Resolved, items[i].Asset, w.resolved, w.asset)
+		}
+	}
+	if _, err := Read(strings.NewReader(`{"bomFormat":"SPDX"}`), db); err == nil {
+		t.Error("non-CycloneDX input should be rejected")
+	}
+}
