@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -69,6 +70,53 @@ func (s *Scanner) RuleCounts() map[string]int {
 		out[lang] = set.count
 	}
 	return out
+}
+
+// RuleInfo describes a loaded rule for output formats such as SARIF.
+type RuleInfo struct {
+	ID          string
+	Lang        string
+	Description string // one line, generated from what the rule matches
+	Notes       string // known limitations, from the rule pack
+	Source      string // citation for the API behaviour the rule relies on
+}
+
+// Rules returns every loaded rule, sorted by ID.
+func (s *Scanner) Rules() []RuleInfo {
+	seen := map[*Rule]bool{}
+	var out []RuleInfo
+	add := func(lang string, r *Rule) {
+		if seen[r] {
+			return
+		}
+		seen[r] = true
+		out = append(out, RuleInfo{ID: r.ID, Lang: lang, Description: describe(r), Notes: r.Notes, Source: r.Source})
+	}
+	for lang, set := range s.sets {
+		for _, r := range set.calls {
+			add(lang, r)
+		}
+		for _, r := range set.refs {
+			add(lang, r)
+		}
+		for _, r := range set.queries {
+			add(lang, r)
+		}
+	}
+	slices.SortFunc(out, func(a, b RuleInfo) int { return strings.Compare(a.ID, b.ID) })
+	return out
+}
+
+func describe(r *Rule) string {
+	symbols := strings.Join(append(slices.Clone(r.Call), r.Ref...), ", ")
+	switch {
+	case len(r.Select) > 0:
+		return "Algorithm selected by the argument to " + symbols
+	case r.Query != "":
+		return fmt.Sprintf("%s (%s) matched by a tree-sitter query", r.Asset.Algorithm, r.Asset.Primitive)
+	default:
+		return fmt.Sprintf("%s (%s) via %s", r.Asset.Algorithm, r.Asset.Primitive, symbols)
+	}
 }
 
 // Skipped records a file that was not scanned.

@@ -320,3 +320,31 @@ func TestGoDefaultName(t *testing.T) {
 		}
 	}
 }
+
+func TestRules(t *testing.T) {
+	s := testScanner(t)
+	rules := s.Rules()
+	total := 0
+	for _, n := range s.RuleCounts() {
+		total += n
+	}
+	if len(rules) != total {
+		t.Fatalf("Rules() returned %d rules, RuleCounts() says %d", len(rules), total)
+	}
+	byID := map[string]RuleInfo{}
+	for _, r := range rules {
+		if r.Description == "" || !strings.HasPrefix(r.Source, "https://") {
+			t.Errorf("%s: missing description or source: %+v", r.ID, r)
+		}
+		byID[r.ID] = r
+	}
+	for id, want := range map[string]string{
+		"go.rsa.generate":       "RSA (signature) via crypto/rsa.GenerateKey",
+		"py.hashlib.new":        "Algorithm selected by the argument to hashlib.new",
+		"py.ssl.set-ecdh-curve": "matched by a tree-sitter query",
+	} {
+		if got := byID[id].Description; !strings.Contains(got, want) {
+			t.Errorf("%s: description = %q, want it to contain %q", id, got, want)
+		}
+	}
+}
