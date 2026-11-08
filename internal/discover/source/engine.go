@@ -276,11 +276,12 @@ func (s *Scanner) scanFile(ctx context.Context, parsers map[*sitter.Language]*si
 	if !ok {
 		return nil, false, nil
 	}
-	p := parsers[set.lang.grammar]
+	grammar := set.lang.grammarFor(filepath.Ext(rel))
+	p := parsers[grammar]
 	if p == nil {
 		p = sitter.NewParser()
-		p.SetLanguage(set.lang.grammar)
-		parsers[set.lang.grammar] = p
+		p.SetLanguage(grammar)
+		parsers[grammar] = p
 	}
 	tree, err := p.ParseCtx(ctx, nil, src)
 	if err != nil {
@@ -293,6 +294,7 @@ func (s *Scanner) scanFile(ctx context.Context, parsers map[*sitter.Language]*si
 	f := &file{
 		scanner: s,
 		set:     set,
+		grammar: grammar,
 		rel:     rel,
 		src:     src,
 		imports: front.collectImports(root, src),
@@ -308,6 +310,7 @@ func (s *Scanner) scanFile(ctx context.Context, parsers map[*sitter.Language]*si
 type file struct {
 	scanner  *Scanner
 	set      *ruleSet
+	grammar  *sitter.Language
 	rel      string
 	src      []byte
 	imports  map[string]string
@@ -352,14 +355,13 @@ func (f *file) matchSymbols(root *sitter.Node) {
 				}
 			}
 		}
-		deadBody := n.Type() == "if_statement" && front.falseCondition(n.ChildByFieldName("condition"), f.src)
 		for i := int(n.ChildCount()) - 1; i >= 0; i-- {
 			field := n.FieldNameForChild(i)
 			stack = append(stack, frame{
 				n:          n.Child(i),
 				parentType: n.Type(),
 				field:      field,
-				dead:       fr.dead || (deadBody && field == "consequence"),
+				dead:       fr.dead || front.dead(n, field, f.src),
 			})
 		}
 	}
@@ -368,7 +370,7 @@ func (f *file) matchSymbols(root *sitter.Node) {
 func (f *file) matchQueries(root *sitter.Node) {
 	for _, r := range f.set.queries {
 		qc := sitter.NewQueryCursor()
-		qc.Exec(r.query, root)
+		qc.Exec(r.queries[f.grammar], root)
 		for {
 			m, ok := qc.NextMatch()
 			if !ok {
@@ -380,7 +382,7 @@ func (f *file) matchQueries(root *sitter.Node) {
 			}
 			captures := make(map[string]*sitter.Node, len(m.Captures))
 			for _, c := range m.Captures {
-				captures[r.query.CaptureNameForId(c.Index)] = c.Node
+				captures[r.queries[f.grammar].CaptureNameForId(c.Index)] = c.Node
 			}
 			loc := captures["match"]
 			if loc == nil {
@@ -398,51 +400,64 @@ func (f *file) matchQueries(root *sitter.Node) {
 func (f *file) isDead(n *sitter.Node) bool {
 	front := f.set.lang.front
 	for child, p := n, n.Parent(); p != nil; child, p = p, p.Parent() {
-		if p.Type() != "if_statement" || !front.falseCondition(p.ChildByFieldName("condition"), f.src) {
-			continue
-		}
-		if c := p.ChildByFieldName("consequence"); c != nil && c.StartByte() == child.StartByte() && c.EndByte() == child.EndByte() {
-			return true
+		for i := 0; i < int(p.ChildCount()); i++ {
+			c := p.Child(i)
+			if c.StartByte() == child.StartByte() && c.EndByte() == child.EndByte() && c.Type() == child.Type() {
+				if front.dead(p, p.FieldNameForChild(i), f.src) {
+					return true
+				}
+				break
+			}
 		}
 	}
 	return false
 }
 
+// value is the result of static evaluation: a literal, or a fully qualified
+// symbol.
+type value struct {
+	text    string
+	literal bool
+}
+
 // eval statically evaluates an expression to a literal value or a fully
 // qualified symbol, following same-file single-assignment names.
-func (f *file) eval(n *sitter.Node, depth int) (string, bool) {
+func (f *file) eval(n *sitter.Node, depth int) (value, bool) {
 	if n == nil || depth > maxEvalDepth {
-		return "", false
+		return value{}, false
 	}
 	front := f.set.lang.front
 	if v, ok := front.literal(n, f.src); ok {
-		return v, true
+		return value{v, true}, true
 	}
 	if fn, _, ok := front.callParts(n); ok {
-		return front.resolve(f, fn)
-	}
-	if sym, ok := front.resolve(f, n); ok {
-		return sym, true
+		sym, ok := front.resolve(f, fn)
+		return value{text: sym}, ok
 	}
 	if name, ok := front.identifier(n, f.src); ok {
 		if v := f.consts[name]; v != nil {
 			return f.eval(v, depth+1)
 		}
-		return "", false
+	}
+	if sym, ok := front.resolve(f, n); ok {
+		return value{text: sym}, true
 	}
 	if n.Type() == "parenthesized_expression" && n.NamedChildCount() == 1 {
 		return f.eval(n.NamedChild(0), depth+1)
 	}
-	return "", false
+	return value{}, false
 }
 
-func (f *file) extract(r *Rule, pos []*sitter.Node, kw map[string]*sitter.Node, captures map[string]*sitter.Node) (string, bool) {
+func (f *file) extract(r *Rule, pos []*sitter.Node, kw map[string]*sitter.Node, captures map[string]*sitter.Node) (value, bool) {
 	for _, e := range r.extractors {
 		var n *sitter.Node
 		switch e.kind {
 		case "arg":
 			if e.index < len(pos) {
 				n = pos[e.index]
+			}
+			if n != nil && e.prop != "" {
+				n = f.objectProperty(n, e.prop, 0)
 			}
 		case "kwarg":
 			n = kw[e.name]
@@ -456,17 +471,32 @@ func (f *file) extract(r *Rule, pos []*sitter.Node, kw map[string]*sitter.Node, 
 			return v, true
 		}
 	}
-	return "", false
+	return value{}, false
+}
+
+// objectProperty returns key's value in an object literal, following a
+// same-file name bound to one.
+func (f *file) objectProperty(n *sitter.Node, key string, depth int) *sitter.Node {
+	front := f.set.lang.front
+	if v := front.property(n, key, f.src); v != nil {
+		return v
+	}
+	if name, ok := front.identifier(n, f.src); ok && depth < maxEvalDepth {
+		if v := f.consts[name]; v != nil {
+			return f.objectProperty(v, key, depth+1)
+		}
+	}
+	return nil
 }
 
 func (f *file) emit(r *Rule, n *sitter.Node, sym string, pos []*sitter.Node, kw map[string]*sitter.Node, captures map[string]*sitter.Node) {
 	spec := r.Asset
 	confidence := r.Confidence
-	value, resolved := f.extract(r, pos, kw, captures)
+	v, resolved := f.extract(r, pos, kw, captures)
 
 	switch {
 	case r.selectBy != nil:
-		chosen, ok := r.selectBy[normalizeKey(value)]
+		chosen, ok := r.choose(v.text)
 		if !resolved || !ok {
 			return // the algorithm itself is unknown; nothing to report
 		}
@@ -474,11 +504,14 @@ func (f *file) emit(r *Rule, n *sitter.Node, sym string, pos []*sitter.Node, kw 
 	case len(r.extractors) > 0:
 		spec.Params = ""
 		if resolved {
-			if r.ParamsMap == nil {
-				spec.Params = value
-			} else if mapped, ok := r.ParamsMap[value]; ok {
-				spec.Params = mapped
+			switch {
+			case r.ParamsMap != nil:
+				spec.Params = r.ParamsMap[v.text]
+			case v.literal:
+				spec.Params = v.text
 			}
+			// A symbol with no params_map entry, such as a variable from
+			// another package, says nothing about params.
 		}
 		if spec.Params == "" {
 			confidence *= UnresolvedParamsFactor

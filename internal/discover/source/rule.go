@@ -2,6 +2,7 @@ package source
 
 import (
 	"bytes"
+	"cmp"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -65,7 +66,28 @@ type Rule struct {
 
 	extractors []extractor
 	selectBy   map[string]AssetSpec
-	query      *sitter.Query
+	selectPre  []selectPrefix // select keys ending in "*", longest first
+	queries    map[*sitter.Language]*sitter.Query
+}
+
+type selectPrefix struct {
+	prefix string
+	spec   AssetSpec
+}
+
+// choose returns the asset a select rule maps value to: an exact key, else
+// the longest matching "prefix*" key. Matching ignores case.
+func (r *Rule) choose(value string) (AssetSpec, bool) {
+	v := normalizeKey(value)
+	if spec, ok := r.selectBy[v]; ok {
+		return spec, true
+	}
+	for _, p := range r.selectPre {
+		if strings.HasPrefix(v, p.prefix) {
+			return p.spec, true
+		}
+	}
+	return AssetSpec{}, false
 }
 
 type pack struct {
@@ -78,23 +100,24 @@ type extractor struct {
 	kind  string // "arg", "kwarg" or "capture"
 	index int
 	name  string
+	prop  string // for arg[N].prop: a property of an object literal argument
 }
 
-var extractorRE = regexp.MustCompile(`^(?:arg\[(\d+)\]|(kwarg|capture)\[([A-Za-z_][A-Za-z0-9_]*)\])$`)
+var extractorRE = regexp.MustCompile(`^(?:arg\[(\d+)\](?:\.([A-Za-z_][A-Za-z0-9_]*))?|(kwarg|capture)\[([A-Za-z_][A-Za-z0-9_]*)\])$`)
 
 func parseExtractor(s string) (extractor, error) {
 	m := extractorRE.FindStringSubmatch(s)
 	if m == nil {
-		return extractor{}, fmt.Errorf("invalid params_from %q (want arg[N], kwarg[name] or capture[name])", s)
+		return extractor{}, fmt.Errorf("invalid params_from %q (want arg[N], arg[N].prop, kwarg[name] or capture[name])", s)
 	}
 	if m[1] != "" {
 		i, err := strconv.Atoi(m[1])
 		if err != nil {
 			return extractor{}, err
 		}
-		return extractor{kind: "arg", index: i}, nil
+		return extractor{kind: "arg", index: i, prop: m[2]}, nil
 	}
-	return extractor{kind: m[2], name: m[3]}, nil
+	return extractor{kind: m[3], name: m[4]}, nil
 }
 
 // ruleSet is the compiled rules for one language.
@@ -104,6 +127,18 @@ type ruleSet struct {
 	refs    map[string]*Rule
 	queries []*Rule
 	count   int
+	// prefixes holds every dotted prefix of every call and ref symbol, so a
+	// frontend can tell whether a partly resolved name can still match.
+	prefixes map[string]bool
+}
+
+func (set *ruleSet) addPrefixes(sym string) {
+	for i := range len(sym) {
+		if sym[i] == '.' {
+			set.prefixes[sym[:i]] = true
+		}
+	}
+	set.prefixes[sym] = true
 }
 
 func normalizeKey(s string) string { return strings.ToLower(strings.TrimSpace(s)) }
@@ -142,7 +177,7 @@ func loadRules(db *knowledge.DB, fsys fs.FS) (map[string]*ruleSet, error) {
 		}
 		set := sets[p.Lang]
 		if set == nil {
-			set = &ruleSet{lang: lang, calls: map[string]*Rule{}, refs: map[string]*Rule{}}
+			set = &ruleSet{lang: lang, calls: map[string]*Rule{}, refs: map[string]*Rule{}, prefixes: map[string]bool{}}
 			sets[p.Lang] = set
 		}
 		for _, r := range p.Rules {
@@ -217,8 +252,15 @@ func compileRule(db *knowledge.DB, set *ruleSet, lang string, r *Rule) error {
 			if err := validateAsset(db, spec); err != nil {
 				report("select %q: %v", key, err)
 			}
-			r.selectBy[normalizeKey(key)] = spec
+			if k := normalizeKey(key); strings.HasSuffix(k, "*") {
+				r.selectPre = append(r.selectPre, selectPrefix{strings.TrimSuffix(k, "*"), spec})
+			} else {
+				r.selectBy[k] = spec
+			}
 		}
+		slices.SortFunc(r.selectPre, func(a, b selectPrefix) int {
+			return cmp.Or(cmp.Compare(len(b.prefix), len(a.prefix)), strings.Compare(a.prefix, b.prefix))
+		})
 	} else {
 		if err := validateAsset(db, r.Asset); err != nil {
 			report("asset: %v", err)
@@ -239,11 +281,16 @@ func compileRule(db *knowledge.DB, set *ruleSet, lang string, r *Rule) error {
 	}
 
 	if r.Query != "" {
-		q, err := sitter.NewQuery([]byte(r.Query), set.lang.grammar)
-		if err != nil {
-			report("query: %v", err)
-		} else {
-			r.query = q
+		r.queries = map[*sitter.Language]*sitter.Query{}
+		for _, g := range set.lang.allGrammars() {
+			q, err := sitter.NewQuery([]byte(r.Query), g)
+			if err != nil {
+				report("query: %v", err)
+				break
+			}
+			r.queries[g] = q
+		}
+		if len(r.queries) == len(set.lang.allGrammars()) {
 			set.queries = append(set.queries, r)
 		}
 	}
@@ -252,12 +299,14 @@ func compileRule(db *knowledge.DB, set *ruleSet, lang string, r *Rule) error {
 			report("symbol %q is claimed by another rule", sym)
 		}
 		set.calls[sym] = r
+		set.addPrefixes(sym)
 	}
 	for _, sym := range r.Ref {
 		if claimSymbol(set, sym) {
 			report("symbol %q is claimed by another rule", sym)
 		}
 		set.refs[sym] = r
+		set.addPrefixes(sym)
 	}
 	set.count++
 	return errors.Join(errs...)

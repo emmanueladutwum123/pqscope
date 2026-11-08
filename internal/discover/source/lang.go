@@ -1,6 +1,7 @@
 package source
 
 import (
+	"slices"
 	"strconv"
 	"strings"
 
@@ -28,13 +29,42 @@ type frontend interface {
 	literal(n *sitter.Node, src []byte) (string, bool)
 	identifier(n *sitter.Node, src []byte) (string, bool)
 	falseCondition(n *sitter.Node, src []byte) bool
+	// dead reports whether the child of parent reached through field is dead
+	// code, such as the body of `if false` or C's `#if 0`.
+	dead(parent *sitter.Node, field string, src []byte) bool
+	// property returns the value of key in an object literal, or nil.
+	property(obj *sitter.Node, key string, src []byte) *sitter.Node
 }
 
 type language struct {
 	name    string
 	exts    []string
-	grammar *sitter.Language
+	grammar *sitter.Language            // the default grammar
+	byExt   map[string]*sitter.Language // grammars for extensions that need another one
 	front   frontend
+}
+
+func (l *language) grammarFor(ext string) *sitter.Language {
+	if g, ok := l.byExt[ext]; ok {
+		return g
+	}
+	return l.grammar
+}
+
+func (l *language) allGrammars() []*sitter.Language {
+	out := []*sitter.Language{l.grammar}
+	for _, g := range l.byExt {
+		if !slices.Contains(out, g) {
+			out = append(out, g)
+		}
+	}
+	return out
+}
+
+// ifDead is the dead-code test for languages whose only recognised form is
+// `if <false>` with the body in field "consequence".
+func ifDead(front frontend, parent *sitter.Node, field string, src []byte) bool {
+	return field == "consequence" && parent.Type() == "if_statement" && front.falseCondition(parent.ChildByFieldName("condition"), src)
 }
 
 var languages = map[string]*language{
@@ -232,6 +262,12 @@ func (goFrontend) falseCondition(n *sitter.Node, _ []byte) bool {
 	return n != nil && n.Type() == "false"
 }
 
+func (g goFrontend) dead(parent *sitter.Node, field string, src []byte) bool {
+	return ifDead(g, parent, field, src)
+}
+
+func (goFrontend) property(*sitter.Node, string, []byte) *sitter.Node { return nil }
+
 // --- Python ---
 
 type pyFrontend struct{}
@@ -417,3 +453,9 @@ func (pyFrontend) falseCondition(n *sitter.Node, src []byte) bool {
 	}
 	return n.Type() == "false" || (n.Type() == "integer" && n.Content(src) == "0")
 }
+
+func (p pyFrontend) dead(parent *sitter.Node, field string, src []byte) bool {
+	return ifDead(p, parent, field, src)
+}
+
+func (pyFrontend) property(*sitter.Node, string, []byte) *sitter.Node { return nil }
