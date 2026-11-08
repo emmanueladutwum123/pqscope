@@ -1,0 +1,27 @@
+env,key,value
+host,date_utc,2026-11-08T16:28:14Z
+host,goos,darwin
+host,goarch,arm64
+host,go_version,go1.26.3
+host,num_cpu,8
+host,gomaxprocs,8
+host,cpu_model,Apple M2
+host,memory_bytes,8589934592
+host,kernel,Darwin 27.0.0
+host,cpu_governor,not applicable (macOS has no cpufreq governor; frequency is managed by the OS)
+host,circl_version,v1.6.5
+host,pqscope_revision,293f877
+host,pqscope_version,dev
+docker-linux,goos,linux
+docker-linux,goarch,arm64
+docker-linux,go_version,go1.26.3
+docker-linux,num_cpu,8
+docker-linux,gomaxprocs,8
+docker-linux,cpu_model,arm64 CPU implementer 0x61 part 0x000
+docker-linux,memory_bytes,4108828672
+docker-linux,kernel,Linux 6.12.76-linuxkit
+docker-linux,cpu_governor,not exposed (no cpufreq in this kernel or container)
+docker-linux,circl_version,v1.6.5
+docker-linux,pqscope_revision,293f877
+docker-linux,virtualization,Docker 29.4.3 container (arm64) on Darwin arm64; loopback shaped with tc netem (iproute2-tc-6.15.0-r0)
+openssl,version,OpenSSL 3.5.9 29 Sep 2026 (Library: OpenSSL 3.5.9 29 Sep 2026)
