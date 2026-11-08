@@ -101,9 +101,13 @@ func TestImportsInEachFormat(t *testing.T) {
 	)
 	// Binaries with recognised imports do not fall back to constants.
 	check(t, res.Findings, has, []string{"crypto-elf binary constant:", "crypto.exe binary constant:", "crypto-macho binary constant:"})
-	if res.FilesScanned != 4 {
-		t.Errorf("FilesScanned = %d, want the 4 binaries", res.FilesScanned)
+	if res.FilesScanned != 6 {
+		t.Errorf("FilesScanned = %d, want the 6 binaries", res.FilesScanned)
 	}
+	check(t, res.Findings, []string{
+		"sodium-elf binary import:crypto_box_keypair X25519 X25519/key-agreement",
+		"sodium-elf binary import:crypto_sign_detached EdDSA Ed25519/signature",
+	}, []string{"hello-elf "})
 
 	evidence := map[string]string{}
 	for _, f := range res.Findings {

@@ -43,6 +43,10 @@ jobs:
       - run: make test
       - run: make build
       - run: ./bin/pqscope version
+      - name: Evaluation pipeline scores the corpus and cross-checks itself
+        run: |
+          ./bin/pqscope eval --runs "$RUNNER_TEMP/no-runs" --out "$RUNNER_TEMP/rq1"
+          python3 eval/score.py "$RUNNER_TEMP/rq1"
       - name: Policy gate passes on post-quantum code and fails on classical code
         run: |
           ./bin/pqscope scan testdata/policy/pq-only -o "$RUNNER_TEMP/pq.cdx.json"

@@ -98,7 +98,6 @@ func TestStubsFailRatherThanReportCleanScan(t *testing.T) {
 		args []string
 	}{
 		{[]string{"bench"}},
-		{[]string{"eval"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.args[0], func(t *testing.T) {

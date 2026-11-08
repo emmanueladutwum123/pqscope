@@ -48,12 +48,11 @@ func newRootCmd() *cobra.Command {
 		SilenceUsage:  true,
 		SilenceErrors: false,
 	}
-	root.AddCommand(newVersionCmd(), newScanCmd(), newReportCmd(), newPolicyCmd(), newNetCmd())
+	root.AddCommand(newVersionCmd(), newScanCmd(), newReportCmd(), newPolicyCmd(), newNetCmd(), newEvalCmd())
 	for _, stub := range []struct {
 		name, short string
 		milestone   int
 	}{
-		{"eval", "Run the evaluation harness", 10},
 		{"bench", "Run migration-cost benchmarks", 11},
 	} {
 		root.AddCommand(newStubCmd(stub.name, stub.short, stub.milestone))
