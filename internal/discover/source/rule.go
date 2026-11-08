@@ -60,14 +60,18 @@ type Rule struct {
 	ParamsFrom Strings              `yaml:"params_from"`
 	ParamsMap  map[string]string    `yaml:"params_map"`
 	Select     map[string]AssetSpec `yaml:"select"`
-	Confidence float64              `yaml:"confidence"`
-	Source     string               `yaml:"source"`
-	Notes      string               `yaml:"notes"`
+	// SelectParamsFrom reads params for a selected asset that leaves them
+	// open, such as the key size in generateKeyPairSync('rsa', {modulusLength}).
+	SelectParamsFrom Strings `yaml:"select_params_from"`
+	Confidence       float64 `yaml:"confidence"`
+	Source           string  `yaml:"source"`
+	Notes            string  `yaml:"notes"`
 
-	extractors []extractor
-	selectBy   map[string]AssetSpec
-	selectPre  []selectPrefix // select keys ending in "*", longest first
-	queries    map[*sitter.Language]*sitter.Query
+	extractors       []extractor
+	selectParamsFrom []extractor
+	selectBy         map[string]AssetSpec
+	selectPre        []selectPrefix // select keys ending in "*", longest first
+	queries          map[*sitter.Language]*sitter.Query
 }
 
 type selectPrefix struct {
@@ -244,8 +248,16 @@ func compileRule(db *knowledge.DB, set *ruleSet, lang string, r *Rule) error {
 		if len(r.ParamsFrom) == 0 {
 			report("select requires params_from")
 		}
-		if r.Asset != (AssetSpec{}) || len(r.ParamsMap) > 0 {
+		if r.Asset != (AssetSpec{}) || (len(r.ParamsMap) > 0 && len(r.SelectParamsFrom) == 0) {
 			report("select replaces asset and params_map; do not set them too")
+		}
+		for _, s := range r.SelectParamsFrom {
+			e, err := parseExtractor(s)
+			if err != nil {
+				report("select_params_from: %v", err)
+				continue
+			}
+			r.selectParamsFrom = append(r.selectParamsFrom, e)
 		}
 		r.selectBy = make(map[string]AssetSpec, len(r.Select))
 		for key, spec := range r.Select {
@@ -262,6 +274,9 @@ func compileRule(db *knowledge.DB, set *ruleSet, lang string, r *Rule) error {
 			return cmp.Or(cmp.Compare(len(b.prefix), len(a.prefix)), strings.Compare(a.prefix, b.prefix))
 		})
 	} else {
+		if len(r.SelectParamsFrom) > 0 {
+			report("select_params_from requires select")
+		}
 		if err := validateAsset(db, r.Asset); err != nil {
 			report("asset: %v", err)
 		}

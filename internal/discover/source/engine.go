@@ -449,7 +449,11 @@ func (f *file) eval(n *sitter.Node, depth int) (value, bool) {
 }
 
 func (f *file) extract(r *Rule, pos []*sitter.Node, kw map[string]*sitter.Node, captures map[string]*sitter.Node) (value, bool) {
-	for _, e := range r.extractors {
+	return f.extractWith(r.extractors, pos, kw, captures)
+}
+
+func (f *file) extractWith(extractors []extractor, pos []*sitter.Node, kw map[string]*sitter.Node, captures map[string]*sitter.Node) (value, bool) {
+	for _, e := range extractors {
 		var n *sitter.Node
 		switch e.kind {
 		case "arg":
@@ -501,6 +505,27 @@ func (f *file) emit(r *Rule, n *sitter.Node, sym string, pos []*sitter.Node, kw 
 			return // the algorithm itself is unknown; nothing to report
 		}
 		spec = chosen
+		if spec.Params == "" && len(r.selectParamsFrom) > 0 {
+			// Params come from another argument. Each candidate is kept only if
+			// the knowledge DB knows it for the chosen algorithm, so a curve
+			// name can never become an RSA key size.
+			for _, e := range r.selectParamsFrom {
+				p, ok := f.extractWith([]extractor{e}, pos, kw, captures)
+				if !ok {
+					continue
+				}
+				candidate := p.text
+				if mapped, ok := r.ParamsMap[p.text]; ok {
+					candidate = mapped
+				} else if !p.literal {
+					continue
+				}
+				if _, known := f.scanner.db.Lookup(spec.Algorithm, candidate); known {
+					spec.Params = candidate
+					break
+				}
+			}
+		}
 	case len(r.extractors) > 0:
 		spec.Params = ""
 		if resolved {
@@ -574,6 +599,10 @@ func sortFindings(fs []model.Finding) {
 		if a.RuleID != b.RuleID {
 			return a.RuleID < b.RuleID
 		}
-		return a.Location.Symbol < b.Location.Symbol
+		if a.Location.Symbol != b.Location.Symbol {
+			return a.Location.Symbol < b.Location.Symbol
+		}
+		// One call can match twice on a line; the asset settles the order.
+		return a.ID < b.ID
 	})
 }

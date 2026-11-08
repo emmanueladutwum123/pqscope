@@ -75,6 +75,76 @@ func TestScanFile(t *testing.T) {
 		want            []want
 	}{
 		{
+			name: "java import and select",
+			file: "A.java",
+			src:  "import java.security.KeyPairGenerator;\nclass A { void f() throws Exception { KeyPairGenerator.getInstance(\"EC\"); } }\n",
+			want: []want{{line: 2, algorithm: "ECDSA", params: "unknown", primitive: "signature"}},
+		},
+		{
+			name: "java select prefix picks the longest match",
+			file: "A.java",
+			src:  "import javax.crypto.Cipher;\nclass A { void f() throws Exception { Cipher.getInstance(\"AES_256/GCM/NoPadding\"); Cipher.getInstance(\"desede/cbc/pkcs5padding\"); } }\n",
+			want: []want{{line: 2, algorithm: "AES", params: "256", primitive: "cipher"}, {line: 2, algorithm: "3DES", params: "3-key", primitive: "cipher"}},
+		},
+		{
+			name: "java class not imported is not resolved",
+			file: "A.java",
+			src:  "class A { void f() throws Exception { KeyPairGenerator.getInstance(\"RSA\"); } }\n",
+		},
+		{
+			name: "java constructor and named constant",
+			file: "A.java",
+			src:  "import java.security.spec.*;\nclass A { Object a = new ECGenParameterSpec(\"secp521r1\"); Object b = NamedParameterSpec.ML_KEM_1024; }\n",
+			want: []want{{line: 2, algorithm: "ECDSA", params: "P-521", primitive: "signature"}, {line: 2, algorithm: "ML-KEM", params: "ML-KEM-1024", primitive: "kem"}},
+		},
+		{
+			name: "c macro selects the algorithm",
+			file: "a.c",
+			src:  "void f(void) { EVP_PKEY_CTX_new_id(EVP_PKEY_X25519, 0); }\n",
+			want: []want{{line: 1, algorithm: "X25519", params: "X25519", primitive: "key-agreement"}},
+		},
+		{
+			name: "c parameter is not a key size",
+			file: "a.c",
+			src:  "int f(RSA *r, int bits) { return RSA_generate_key_ex(r, bits, 0, 0); }\n",
+			want: []want{{line: 1, algorithm: "RSA", params: "unknown", primitive: "signature", confidenceAtMost: 0.95 * UnresolvedParamsFactor}},
+		},
+		{
+			name: "c #if 0 and if (0) are dead",
+			file: "a.c",
+			src:  "void f(void) {\n#if 0\nMD5(0, 0, 0);\n#else\nSHA1(0, 0, 0);\n#endif\nif (0) { EVP_md5(); }\n}\n",
+			want: []want{{line: 5, algorithm: "SHA-1", params: "SHA-1", primitive: "hash"}},
+		},
+		{
+			name: "c++ grammar for .cpp",
+			file: "a.cpp",
+			src:  "auto f() { return EVP_sha512(); }\n",
+			want: []want{{line: 1, algorithm: "SHA-2", params: "SHA-512", primitive: "hash"}},
+		},
+		{
+			name: "js require with property access",
+			file: "a.js",
+			src:  "const h = require('crypto').createHash('sha384');\n",
+			want: []want{{line: 1, algorithm: "SHA-2", params: "SHA-384", primitive: "hash"}},
+		},
+		{
+			name: "js select params from the options object",
+			file: "a.mjs",
+			src:  "import { generateKeyPairSync as g } from 'node:crypto';\nconst opts = { namedCurve: 'secp384r1' };\ng('ec', opts);\ng('rsa', { namedCurve: 'P-256' });\n",
+			want: []want{{line: 3, algorithm: "ECDSA", params: "P-384", primitive: "signature"}, {line: 4, algorithm: "RSA", params: "unknown", primitive: "signature"}},
+		},
+		{
+			name: "js shadowed crypto is not WebCrypto",
+			file: "a.js",
+			src:  "const crypto = makeCrypto();\ncrypto.subtle.generateKey({ name: 'ECDSA' }, true, []);\n",
+		},
+		{
+			name: "ts grammar for .ts",
+			file: "a.ts",
+			src:  "import * as c from 'crypto';\nconst x: string = 'md5';\nc.createHash(x);\n",
+			want: []want{{line: 3, algorithm: "MD5", params: "MD5", primitive: "hash"}},
+		},
+		{
 			name: "go aliased import",
 			file: "a.go",
 			src:  "package p\nimport r \"crypto/rsa\"\nfunc f() { r.GenerateKey(nil, 2048) }\n",
@@ -288,6 +358,8 @@ func TestRuleValidation(t *testing.T) {
 		{"bad query", "  - id: a\n    query: (nope\n" + ok, "query"},
 		{"confidence", "  - id: a\n    ref: x.Y\n    asset: {primitive: hash, algorithm: MD5, params: MD5}\n    confidence: 1.5\n    source: https://example.org\n", "confidence"},
 		{"unknown field", "  - id: a\n    ref: x.Y\n    bogus: 1\n" + ok, "bogus"},
+		{"select_params_from without select", "  - id: a\n    call: x.Y\n    select_params_from: arg[1]\n" + ok, "requires select"},
+		{"bad property extractor", "  - id: a\n    call: x.Y\n    params_from: arg[0].a.b\n" + ok, "invalid params_from"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

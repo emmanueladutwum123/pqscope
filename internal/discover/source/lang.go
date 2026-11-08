@@ -6,8 +6,14 @@ import (
 	"strings"
 
 	sitter "github.com/smacker/go-tree-sitter"
+	"github.com/smacker/go-tree-sitter/c"
+	"github.com/smacker/go-tree-sitter/cpp"
 	"github.com/smacker/go-tree-sitter/golang"
+	"github.com/smacker/go-tree-sitter/java"
+	"github.com/smacker/go-tree-sitter/javascript"
 	"github.com/smacker/go-tree-sitter/python"
+	"github.com/smacker/go-tree-sitter/typescript/tsx"
+	"github.com/smacker/go-tree-sitter/typescript/typescript"
 )
 
 // frontend holds the language-specific syntax knowledge the engine needs.
@@ -70,6 +76,25 @@ func ifDead(front frontend, parent *sitter.Node, field string, src []byte) bool 
 var languages = map[string]*language{
 	"go":     {name: "go", exts: []string{".go"}, grammar: golang.GetLanguage(), front: goFrontend{}},
 	"python": {name: "python", exts: []string{".py"}, grammar: python.GetLanguage(), front: pyFrontend{}},
+	"java":   {name: "java", exts: []string{".java"}, grammar: java.GetLanguage(), front: javaFrontend{}},
+	"c": {
+		name: "c", exts: []string{".c", ".h", ".cc", ".cpp", ".cxx", ".hpp", ".hh", ".hxx"},
+		grammar: c.GetLanguage(),
+		byExt: map[string]*sitter.Language{
+			".cc": cpp.GetLanguage(), ".cpp": cpp.GetLanguage(), ".cxx": cpp.GetLanguage(),
+			".hpp": cpp.GetLanguage(), ".hh": cpp.GetLanguage(), ".hxx": cpp.GetLanguage(),
+		},
+		front: cFrontend{},
+	},
+	"js": {
+		name: "js", exts: []string{".js", ".mjs", ".cjs", ".jsx", ".ts", ".mts", ".cts", ".tsx"},
+		grammar: javascript.GetLanguage(),
+		byExt: map[string]*sitter.Language{
+			".ts": typescript.GetLanguage(), ".mts": typescript.GetLanguage(), ".cts": typescript.GetLanguage(),
+			".tsx": tsx.GetLanguage(),
+		},
+		front: jsFrontend{},
+	},
 }
 
 // children calls fn for every child of n with its field name.
