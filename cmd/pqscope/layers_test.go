@@ -108,7 +108,7 @@ func TestScanAllLayers(t *testing.T) {
 		}
 	}
 
-	if _, err := execute("scan", "--layers", "binary", root); err == nil || !strings.Contains(err.Error(), "unsupported layer") {
+	if _, err := execute("scan", "--layers", "network", root); err == nil || !strings.Contains(err.Error(), "unsupported layer") {
 		t.Errorf("unsupported layer: err = %v", err)
 	}
 }
@@ -143,5 +143,35 @@ func TestPolicyIncludeDeps(t *testing.T) {
 		if _, err := execute("policy", "--include-deps", input); err == nil {
 			t.Errorf("%s: --include-deps should fail on cryptography 47's RSA", filepath.Base(input))
 		}
+	}
+}
+
+func TestScanBinaries(t *testing.T) {
+	out, err := execute("scan", "--json", "--layers", "binary", filepath.Join("..", "..", "testdata", "binaries"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var findings []model.Finding
+	if err := json.Unmarshal([]byte(out), &findings); err != nil {
+		t.Fatal(err)
+	}
+	formats := map[string]bool{}
+	for _, f := range findings {
+		if f.Location.Layer != model.LayerBinary || len(f.Policy) != 2 {
+			t.Errorf("%s %s: layer %s policy %v", f.Location.Path, f.Location.Symbol, f.Location.Layer, f.Policy)
+		}
+		if f.Location.Symbol == "import:RSA_generate_key_ex" {
+			formats[f.Location.Path] = true
+		}
+	}
+	if len(formats) != 3 {
+		t.Errorf("RSA imports found in %v, want ELF, PE and Mach-O", formats)
+	}
+	text, err := execute("scan", "--layers", "binary", filepath.Join("..", "..", "testdata", "binaries"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(text, "EVP_PKEY_encapsulate; the algorithm is chosen at run time") {
+		t.Errorf("generic imports should be listed as not classified:\n%s", text)
 	}
 }

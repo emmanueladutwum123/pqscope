@@ -9,14 +9,15 @@ layers to expose gaps between what a system declares and what it actually deploy
 
 ## Status
 
-Milestone 6 of 13. Four layers work:
+Milestone 7 of 13. All five discovery layers work:
 
 - **source:** Go and Python code;
 - **config:** nginx, Apache, sshd, openssl.cnf, Kubernetes, and certificates and keys;
 - **deps:** Go, Python, npm, Maven and Cargo manifests;
+- **binary:** ELF, PE and Mach-O crypto imports, Go build info and functions;
 - **network:** `pqscope net` probes TLS and SSH endpoints.
 
-Binaries aren't scanned yet. `version`, `scan`, `report`, `policy` and `net` work.
+`version`, `scan`, `report`, `policy` and `net` work.
 The other commands exit non-zero with a "not implemented" error, so a stub can't be mistaken
 for a clean scan.
 
@@ -67,7 +68,9 @@ for the risk score. The CNSA 2.0 policy doesn't yet encode NSA's per-equipment-c
 they provide at their version. For example, pyca/cryptography provides ML-KEM from 48.0.0. It
 reads TLS and SSH configuration, and certificates, keys and CSRs. Private keys are reported by
 algorithm, size and public-key fingerprint only, and a test checks that their bytes never reach
-any output. See [docs/layers.md](docs/layers.md).
+any output. It also reads binaries: crypto library imports in ELF, PE and Mach-O files, and the
+module versions and crypto functions of Go binaries, even stripped ones. See
+[docs/layers.md](docs/layers.md).
 
 ## Network probing
 

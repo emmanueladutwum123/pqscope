@@ -10,6 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/emmanueladutwum123/pqscope/internal/discover/binary"
 	"github.com/emmanueladutwum123/pqscope/internal/discover/config"
 	"github.com/emmanueladutwum123/pqscope/internal/discover/deps"
 	"github.com/emmanueladutwum123/pqscope/internal/discover/source"
@@ -20,7 +21,7 @@ import (
 )
 
 // scanLayers are the layers `scan` can run, in output order.
-var scanLayers = []model.Layer{model.LayerSource, model.LayerConfig, model.LayerDeps}
+var scanLayers = []model.Layer{model.LayerSource, model.LayerConfig, model.LayerDeps, model.LayerBinary}
 
 func newScanCmd() *cobra.Command {
 	var asJSON bool
@@ -29,13 +30,15 @@ func newScanCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "scan [path]",
 		Short: "Scan a directory for cryptographic assets",
-		Long: "Scan a directory or file for cryptographic assets in three layers:\n\n" +
+		Long: "Scan a directory or file for cryptographic assets in four layers:\n\n" +
 			"  source  Go and Python code\n" +
 			"  config  nginx, Apache, sshd_config, openssl.cnf, Kubernetes, and key material\n" +
 			"          (certificates, keys, CSRs); private keys are never output\n" +
 			"  deps    go.mod, go.sum, requirements.txt, poetry.lock, package-lock.json,\n" +
-			"          pom.xml and Cargo.lock, matched against known crypto libraries\n\n" +
-			"Binaries and the network are not scanned yet. Each finding is evaluated under\n" +
+			"          pom.xml and Cargo.lock, matched against known crypto libraries\n" +
+			"  binary  ELF, PE and Mach-O: crypto library imports, Go build info and\n" +
+			"          functions, and constants in stripped binaries\n\n" +
+			"Use `pqscope net` for live endpoints. Each finding is evaluated under\n" +
 			"every bundled policy and given a risk score; use `pqscope policy` to gate CI.\n\n" +
 			"A summary goes to standard output, or the findings as JSON with --json.\n" +
 			"-o, --sarif and --html also write a CycloneDX CBOM, a SARIF log and an\n" +
@@ -84,6 +87,23 @@ func newScanCmd() *cobra.Command {
 					sum.FilesScanned += res.FilesScanned
 					sum.Skipped += len(res.Skipped)
 					sum.Notes = append(sum.Notes, res.Notes...)
+				case model.LayerBinary:
+					libs, err := knowledge.DefaultLibs()
+					if err != nil {
+						return err
+					}
+					bs, err := binary.New(db, libs, src.SymbolAssets("go"))
+					if err != nil {
+						return err
+					}
+					res, err := bs.Scan(cmd.Context(), root)
+					if err != nil {
+						return err
+					}
+					findings = append(findings, res.Findings...)
+					sum.FilesScanned += res.FilesScanned
+					sum.Skipped += len(res.Skipped)
+					sum.Notes = append(sum.Notes, res.Notes...)
 				case model.LayerDeps:
 					libs, err := knowledge.DefaultLibs()
 					if err != nil {
@@ -115,7 +135,7 @@ func newScanCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolVar(&asJSON, "json", false, "write findings to standard output as a JSON array")
-	cmd.Flags().StringSliceVar(&layerNames, "layers", []string{"source", "config", "deps"}, "layers to scan: source, config, deps")
+	cmd.Flags().StringSliceVar(&layerNames, "layers", []string{"source", "config", "deps", "binary"}, "layers to scan: source, config, deps, binary")
 	out.register(cmd)
 	return cmd
 }
@@ -129,7 +149,7 @@ func parseLayers(names []string) ([]model.Layer, error) {
 	}
 	for _, n := range names {
 		if !slices.Contains(scanLayers, model.Layer(n)) {
-			return nil, fmt.Errorf("--layers: unknown or unsupported layer %q (want source, config or deps)", n)
+			return nil, fmt.Errorf("--layers: unknown or unsupported layer %q (want source, config, deps or binary)", n)
 		}
 	}
 	if len(out) == 0 {

@@ -2,6 +2,47 @@
 
 ## Unreleased
 
+### Milestone 7: binary layer
+
+- Add `internal/discover/binary`. It reads ELF, PE, Mach-O and universal Mach-O files and
+  reports:
+  - crypto library imports, and defined symbols in static binaries (OpenSSL, LibreSSL,
+    BoringSSL, libsodium, liboqs, and OpenSSL 3.5's internal ML-KEM/ML-DSA/SLH-DSA);
+  - for Go binaries, the functions and packages the linker kept, from the function table that
+    survives `-s -w`;
+  - for stripped binaries with nothing else, known constants as low-confidence evidence.
+- Go build info feeds the dependency capability table. Module versions become deps findings
+  located at the binary.
+- Algorithm-agnostic imports (`EVP_PKEY_encapsulate`, `OQS_KEM_new`) are listed under "Not
+  classified" instead of being guessed.
+- Add `symbols.yaml`. Every symbol name was checked against the library's header, source or
+  OpenSSL 3.5's `libcrypto.num`, and every entry is cited. A test checks each constant against
+  values computed from the standards.
+- Add test binaries built by `testdata/binaries/build.sh`:
+  - an ELF linked against OpenSSL 3.5;
+  - a PE importing from a libcrypto DLL;
+  - a Mach-O linked against Homebrew OpenSSL;
+  - a stripped static ELF with only constants.
+
+  The tests also cross-compile a Go fixture for three formats, stripped and unstripped.
+- `pqscope scan` runs the binary layer by default.
+- The source and deps layers export the Go symbol-to-asset map and capability findings for
+  reuse.
+
+Notes:
+
+- The Go compiler inlines small crypto functions, so `ecdh.X25519` and `mldsa65.GenerateKey`
+  never appear by name. Matching by package catches them. Exact names are tried first because
+  they can carry parameters.
+- A fixture guarded by `len(os.Args) < 0` linked nothing: the compiler proved it false and
+  removed the block. The fixture now uses a condition the compiler can't decide.
+
+Known limits:
+
+- Binaries that use ML-KEM only through OpenSSL's generic EVP API are not attributed to ML-KEM.
+- Constants show presence, not use, and say nothing about which primitive uses a curve.
+- The Mach-O test binary can only be rebuilt on macOS with Homebrew OpenSSL.
+
 ### Milestone 6: network layer
 
 - Add `internal/discover/network`.

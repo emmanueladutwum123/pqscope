@@ -1,6 +1,6 @@
-# Dependency and config layers
+# Dependency, config and binary layers
 
-`pqscope scan` runs three layers by default. Choose them with `--layers source,config,deps`.
+`pqscope scan` runs four layers by default. Choose them with `--layers source,config,deps,binary`.
 The source layer is described in [rules.md](rules.md).
 
 ## Dependencies (`deps`)
@@ -88,3 +88,50 @@ of file contents into the evidence field makes it fail.
 
 Encrypted PKCS#8 keys hide their algorithm, so they are listed under "Not classified" instead.
 Legacy encrypted PEM keys (`Proc-Type: 4,ENCRYPTED`) show their family but not their size.
+
+## Binaries (`binary`)
+
+Every file with an ELF, PE, Mach-O or universal Mach-O header is read. Java class files share the
+universal header's magic number and are told apart by the field that follows it. The symbol and
+constant tables are in [`internal/discover/binary/symbols.yaml`](../internal/discover/binary/symbols.yaml),
+and each entry cites a header, manual or standard.
+
+| Evidence | Kind | Confidence |
+|---|---|---|
+| A dynamic import of a known crypto function, such as `RSA_new` or `EVP_sha256` (OpenSSL, LibreSSL, BoringSSL), `crypto_box_*` (libsodium) or `OQS_KEM_ml_kem_768_*` (liboqs) | `import` | 0.8 |
+| The same functions defined in a statically linked, unstripped binary, including OpenSSL 3.5's internal `ossl_ml_kem_*` and `ossl_ml_dsa_*` | `symbol` | 0.7 |
+| A Go function the linker kept, matched against the source layer's Go rule pack, such as `crypto/mlkem.GenerateKey768` | `go` | 0.8 |
+| Functions of a Go crypto package, such as `crypto/internal/fips140/mlkem` | `go-package` | 0.7 |
+| A known constant, used only when nothing above matched: the P-256 and Curve25519 primes, Ed25519's d, the SHA-256 initial value, and DER OIDs for RSA, P-256, ML-KEM and ML-DSA | `constant` | 0.4 |
+
+Notes on these:
+
+- **Go function names survive stripping.** Go keeps its function table even with `-ldflags="-s -w"`,
+  so `go` and `go-package` evidence works for stripped Go binaries in all three formats.
+  - **Package matching** is there because the compiler inlines small functions such as
+    `ecdh.X25519` or `mldsa65.GenerateKey` out of existence.
+  - **Exact function names** come first because they can carry parameters (ML-KEM-768, not just
+    ML-KEM).
+  - **Dead code isn't counted:** the linker removes unreachable functions, so what remains is code
+    the program can call.
+- **Go build info** (module paths and versions, and the Go version) is passed through the
+  dependency capability table. The resulting findings are dependency-layer capabilities located at
+  the binary, such as `pkg:golang/github.com/cloudflare/circl@v1.6.5`. The policy gate treats them
+  like any other `deps` finding.
+- **Algorithm-agnostic APIs can't name an algorithm.** These are functions like
+  `EVP_PKEY_CTX_new_from_name`, `EVP_PKEY_encapsulate` and `OQS_KEM_new`, which take the algorithm as
+  a run-time string, so they are listed under "Not classified". A binary that uses ML-KEM only
+  through `EVP_PKEY_encapsulate` will not be attributed to ML-KEM.
+- **Constants are weak evidence.** The constant values are checked by a test against values computed
+  from the standards. A constant shows that a binary contains, for example, the P-256 prime. It
+  doesn't show that the binary uses it for ECDSA rather than ECDH.
+
+Test binaries, built from [`testdata/binaries/src`](../testdata/binaries/src) by
+[`build.sh`](../testdata/binaries/build.sh):
+
+- an ELF linked against OpenSSL 3.5 (gcc, Alpine);
+- a PE importing from a libcrypto DLL (mingw-w64, Debian);
+- a Mach-O linked against Homebrew OpenSSL (clang);
+- a static, stripped ELF that holds only constants.
+
+The tests also cross-compile a Go fixture for Linux, Windows and macOS, stripped and unstripped.
