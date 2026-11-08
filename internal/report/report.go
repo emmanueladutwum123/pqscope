@@ -22,6 +22,9 @@ type Summary struct {
 	FilesScanned int
 	Skipped      int
 	SyntaxErrors int
+	// Notes record material seen but not classified, such as an encrypted
+	// private key, as "path: line N: reason".
+	Notes []string
 }
 
 // Line returns the one-line scan summary, such as
@@ -184,9 +187,9 @@ func joinCounts(counts []StatusCount) string {
 func Text(w io.Writer, db *knowledge.DB, findings []model.Finding, sum Summary) error {
 	var b strings.Builder // strings.Builder never fails, so its errors are dropped
 	if len(findings) > 0 {
-		table(&b, "LOCATION\tALGORITHM\tPARAMS\tQUANTUM\tCONFIDENCE\tRISK\tRULE", func(row func(...any)) {
+		table(&b, "LOCATION\tLAYER\tALGORITHM\tPARAMS\tQUANTUM\tCONFIDENCE\tRISK\tRULE", func(row func(...any)) {
 			for _, f := range findings {
-				row(location(f), f.Asset.Algorithm, f.Asset.Params, f.Asset.Quantum,
+				row(location(f), f.Location.Layer, f.Asset.Algorithm, f.Asset.Params, f.Asset.Quantum,
 					fmt.Sprintf("%.2f", f.Confidence), fmt.Sprintf("%.2f", f.Risk), cmp.Or(f.RuleID, "-"))
 			}
 		})
@@ -212,6 +215,12 @@ func Text(w io.Writer, db *knowledge.DB, findings []model.Finding, sum Summary) 
 		}
 	}
 	b.WriteString(sum.Line(len(findings)) + "\n")
+	if len(sum.Notes) > 0 {
+		b.WriteString("\nNot classified:\n")
+		for _, n := range sum.Notes {
+			b.WriteString("  " + n + "\n")
+		}
+	}
 	_, err := io.WriteString(w, b.String())
 	return err
 }

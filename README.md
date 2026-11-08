@@ -9,17 +9,22 @@ layers to expose gaps between what a system declares and what it actually deploy
 
 ## Status
 
-Milestone 4 of 13. **Only the source layer works, for Go and Python.** Dependencies,
-configuration, binaries and the network aren't scanned yet. `version`, `scan`, `report` and
-`policy` work. The other commands exit non-zero with a "not implemented" error, so a stub can't be
-mistaken for a clean scan.
+Milestone 5 of 13. Three layers work:
+
+- **source:** Go and Python code;
+- **config:** nginx, Apache, sshd, openssl.cnf, Kubernetes, and certificates and keys;
+- **deps:** Go, Python, npm, Maven and Cargo manifests.
+
+Binaries and the network aren't scanned yet. `version`, `scan`, `report` and `policy` work.
+The other commands exit non-zero with a "not implemented" error, so a stub can't be mistaken
+for a clean scan.
 
 ```sh
 $ pqscope scan ./server
-LOCATION    ALGORITHM  PARAMS          QUANTUM     CONFIDENCE  RISK  RULE
-main.go:9   Hybrid     X25519MLKEM768  hybrid      0.90        0.04  go.tls.x25519mlkem768
-main.go:10  X25519     X25519          vulnerable  0.90        0.81  go.tls.x25519
-main.go:11  ECDH       P-256           vulnerable  0.90        0.81  go.tls.p256
+LOCATION    LAYER   ALGORITHM  PARAMS          QUANTUM     CONFIDENCE  RISK  RULE
+main.go:9   source  Hybrid     X25519MLKEM768  hybrid      0.90        0.04  go.tls.x25519mlkem768
+main.go:10  source  X25519     X25519          vulnerable  0.90        0.81  go.tls.x25519
+main.go:11  source  ECDH       P-256           vulnerable  0.90        0.81  go.tls.p256
 
 ASSET           PRIMITIVE      QUANTUM     FINDINGS  NIST-IR-8547-2026  CNSA-2.0        MIGRATE TO
 ECDH-P256       key-agreement  vulnerable  1         deprecated-2030    disallowed-now  civilian: X25519MLKEM768 (hybrid); CNSA 2.0: ML-KEM-1024
@@ -54,6 +59,14 @@ pqscope policy --policy cnsa-2.0 --fail-on disallowed-now cbom.json
 Each policy rule cites the section of the document it comes from. See
 [docs/policy.md](docs/policy.md) for the statuses and sources, and [docs/risk.md](docs/risk.md)
 for the risk score. The CNSA 2.0 policy doesn't yet encode NSA's per-equipment-class deadlines.
+
+## Dependencies and configuration
+
+`scan` also reads dependency manifests and lockfiles, and maps known crypto libraries to what
+they provide at their version. For example, pyca/cryptography provides ML-KEM from 48.0.0. It
+reads TLS and SSH configuration, and certificates, keys and CSRs. Private keys are reported by
+algorithm, size and public-key fingerprint only, and a test checks that their bytes never reach
+any output. See [docs/layers.md](docs/layers.md).
 
 ## Output formats
 

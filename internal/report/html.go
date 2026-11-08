@@ -24,8 +24,8 @@ type HTMLOptions struct {
 }
 
 type htmlRow struct {
-	Location, Algorithm, Params, Primitive, Quantum, Confidence, Risk, Rule, Evidence string
-	Statuses                                                                          []string // one per policy, in the order of PolicyIDs
+	Location, Layer, Algorithm, Params, Primitive, Quantum, Confidence, Risk, Rule, Evidence string
+	Statuses                                                                                 []string // one per policy, in the order of PolicyIDs
 }
 
 // HTML writes a self-contained HTML report. It loads nothing from the network,
@@ -51,6 +51,7 @@ func HTML(w io.Writer, db *knowledge.DB, findings []model.Finding, sum Summary, 
 			Risk:       fmt.Sprintf("%.2f", f.Risk),
 			Statuses:   statuses,
 			Location:   location(f),
+			Layer:      string(f.Location.Layer),
 			Algorithm:  f.Asset.Algorithm,
 			Params:     f.Asset.Params,
 			Primitive:  f.Asset.Primitive,
@@ -70,5 +71,6 @@ func HTML(w io.Writer, db *knowledge.DB, findings []model.Finding, sum Summary, 
 		"Groups":      Groups(db, findings),
 		"Rows":        rows,
 		"Policies":    policies,
+		"Notes":       sum.Notes,
 	})
 }

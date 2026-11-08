@@ -2,6 +2,39 @@
 
 ## Unreleased
 
+### Milestone 5: dependency and config/key-material layers
+
+- Add `internal/discover/deps`. It parses go.mod, go.sum, requirements*.txt, poetry.lock,
+  package-lock.json (v1 to v3), pom.xml and Cargo.lock, and reports what each known crypto
+  library provides at its version. Findings carry the package purl.
+- Add `internal/knowledge/libs.yaml`, a cited library capability table. It covers the Go
+  standard library, CIRCL, x/crypto, pyca/cryptography, liboqs-python, PyCryptodome, node-forge,
+  jsrsasign, noble-post-quantum, Bouncy Castle, rustls, ring and OpenSSL via openssl-src. Every
+  version boundary comes from release notes (for example cryptography 48.0.0, CIRCL 1.4.0/1.5.0/
+  1.6.2, Bouncy Castle 1.79, rustls 0.23.22, x/crypto v0.38.0, Go 1.24/1.26, OpenSSL 3.5.0).
+- Add `internal/discover/config`. It reads nginx, Apache, sshd/ssh config, openssl.cnf,
+  Kubernetes (TLS Secrets, ingress-nginx, cert-manager) and key material (PEM/DER certificates,
+  CSRs, PKCS#1/#8, SEC 1, DSA and OpenSSH keys, DH parameters, authorized_keys). Name tables live
+  in `names.yaml` with registry citations. Post-quantum keys are recognised by NIST OID.
+- Private keys are reported by algorithm, size and public-key fingerprint only.
+  `TestNoPrivateKeyBytesInAnyOutput` generates keys at test time and checks every output format
+  for any private-key encoding. A deliberate leak makes it fail.
+- `pqscope scan` runs all three layers (`--layers` to choose) and lists unclassifiable material
+  under "Not classified". The reports gain a layer column.
+- `pqscope policy` leaves deps-only assets out of the gate unless `--include-deps` is set.
+- Add `internal/discover/walk`, a shared file walker used by all layers.
+
+Known limits:
+
+- Dependency findings show availability, not use. Reconciliation is milestone 8.
+- `go.sum` is read only without a sibling `go.mod`. `requirements.txt` versions count only when
+  pinned with `==`.
+- OpenSSL cipher-string keywords (`HIGH`, `ECDHE+AESGCM`) are not expanded. A certificate's
+  issuer key size is unknown unless the certificate is self-signed.
+- Encrypted PKCS#8 keys can't be classified, so they are listed as notes.
+- The config and deps layers have fixture tests but no labeled corpus yet. Precision and recall
+  for them come with milestone 10.
+
 ### Milestone 4: policy engine, NIST IR 8547 and CNSA 2.0 policies, risk score
 
 - Add `internal/policy` and the bundled policies `policies/nist-ir-8547-2026.yaml` and

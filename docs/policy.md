@@ -11,6 +11,9 @@ pqscope policy --policy cnsa-2.0 --fail-on disallowed-now cbom.json
 pqscope scan . --json | pqscope policy -                  # saved findings work too
 ```
 
+Assets seen only in dependency manifests are what a library makes available, not what the code
+uses. The gate lists them as `deps` and doesn't fail on them unless you pass `--include-deps`.
+
 | Exit code | Meaning |
 |---|---|
 | 0 | No asset reaches `--fail-on` |

@@ -18,6 +18,13 @@ type Item struct {
 	Asset       model.Asset
 	Resolved    bool // false when the component could not be matched to the knowledge DB
 	Occurrences []Occurrence
+	Techniques  []string // evidence techniques, such as "manifest-analysis" for the deps layer
+}
+
+// DepsOnly reports whether the component was seen only in dependency
+// manifests, so it is available rather than known to be used.
+func (it Item) DepsOnly() bool {
+	return len(it.Techniques) > 0 && !slices.ContainsFunc(it.Techniques, func(t string) bool { return t != technique[model.LayerDeps] })
 }
 
 // modelPrimitive maps CycloneDX primitives back to pqscope's.
@@ -55,6 +62,13 @@ func Read(r io.Reader, db *knowledge.DB) ([]Item, error) {
 		item := Item{Name: c.Name, BOMRef: c.BOMRef}
 		if c.Evidence != nil {
 			item.Occurrences = c.Evidence.Occurrences
+			for _, id := range c.Evidence.Identity {
+				for _, m := range id.Methods {
+					if !slices.Contains(item.Techniques, m.Technique) {
+						item.Techniques = append(item.Techniques, m.Technique)
+					}
+				}
+			}
 		}
 		item.Asset, item.Resolved = resolve(db, c)
 		items = append(items, item)
