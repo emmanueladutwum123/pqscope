@@ -17,6 +17,10 @@
 #
 # replacement is required for vulnerable and broken-now entries, per primitive.
 # civilian and cnsa2 name other entries by id; the loader checks they resolve.
+#
+# curve names the elliptic curve in the std-curves catalogue
+# (https://neuromancer.sk/std/, source https://github.com/J08nY/std-curves), which
+# CycloneDX 1.6 recommends for cryptoProperties.algorithmProperties.curve.
 version: 1
 
 sources:
@@ -69,6 +73,7 @@ entries:
     id: ECDSA-P224
     algorithm: ECDSA
     params: P-224
+    curve: nist/P-224
     aliases: [secp224r1]
     primitives: [signature]
     classical_bits: 112
@@ -77,15 +82,16 @@ entries:
     replacement: {signature: {civilian: ML-DSA-65, cnsa2: ML-DSA-87}}
     sources: [fips186-5, sp800-57, ir8547]
     notes: Signature size is raw r||s; DER encoding is variable and larger.
-  - {<<: *ecdsa, id: ECDSA-P256, params: P-256, aliases: [secp256r1, prime256v1, ecdsa-sha2-nistp256], classical_bits: 128, sizes: {public_key: 65, private_key: 32, signature: 64}}
-  - {<<: *ecdsa, id: ECDSA-P384, params: P-384, aliases: [secp384r1, ecdsa-sha2-nistp384], classical_bits: 192, sizes: {public_key: 97, private_key: 48, signature: 96}}
-  - {<<: *ecdsa, id: ECDSA-P521, params: P-521, aliases: [secp521r1, ecdsa-sha2-nistp521], classical_bits: 256, sizes: {public_key: 133, private_key: 66, signature: 132}}
+  - {<<: *ecdsa, id: ECDSA-P256, params: P-256, curve: nist/P-256, aliases: [secp256r1, prime256v1, ecdsa-sha2-nistp256], classical_bits: 128, sizes: {public_key: 65, private_key: 32, signature: 64}}
+  - {<<: *ecdsa, id: ECDSA-P384, params: P-384, curve: nist/P-384, aliases: [secp384r1, ecdsa-sha2-nistp384], classical_bits: 192, sizes: {public_key: 97, private_key: 48, signature: 96}}
+  - {<<: *ecdsa, id: ECDSA-P521, params: P-521, curve: nist/P-521, aliases: [secp521r1, ecdsa-sha2-nistp521], classical_bits: 256, sizes: {public_key: 133, private_key: 66, signature: 132}}
 
   # --- ECDH ---
   - &ecdh
     id: ECDH-P256
     algorithm: ECDH
     params: P-256
+    curve: nist/P-256
     aliases: [secp256r1, prime256v1, ecdh-sha2-nistp256]
     primitives: [key-agreement]
     classical_bits: 128
@@ -93,18 +99,19 @@ entries:
     sizes: {public_key: 65, private_key: 32, shared_secret: 32}
     replacement: {key-agreement: {civilian: X25519MLKEM768, cnsa2: ML-KEM-1024}}
     sources: [sp800-56a, sp800-57, ir8547]
-  - {<<: *ecdh, id: ECDH-P384, params: P-384, aliases: [secp384r1, ecdh-sha2-nistp384], classical_bits: 192, sizes: {public_key: 97, private_key: 48, shared_secret: 48}}
-  - {<<: *ecdh, id: ECDH-P521, params: P-521, aliases: [secp521r1, ecdh-sha2-nistp521], classical_bits: 256, sizes: {public_key: 133, private_key: 66, shared_secret: 66}}
+  - {<<: *ecdh, id: ECDH-P384, params: P-384, curve: nist/P-384, aliases: [secp384r1, ecdh-sha2-nistp384], classical_bits: 192, sizes: {public_key: 97, private_key: 48, shared_secret: 48}}
+  - {<<: *ecdh, id: ECDH-P521, params: P-521, curve: nist/P-521, aliases: [secp521r1, ecdh-sha2-nistp521], classical_bits: 256, sizes: {public_key: 133, private_key: 66, shared_secret: 66}}
 
   # --- Montgomery curves ---
-  - {<<: *ecdh, id: X25519, algorithm: X25519, params: X25519, aliases: [curve25519, curve25519-sha256], classical_bits: 128, sizes: {public_key: 32, private_key: 32, shared_secret: 32}, sources: [rfc7748, ir8547]}
-  - {<<: *ecdh, id: X448, algorithm: X448, params: X448, aliases: [curve448], classical_bits: 224, sizes: {public_key: 56, private_key: 56, shared_secret: 56}, sources: [rfc7748, ir8547]}
+  - {<<: *ecdh, id: X25519, algorithm: X25519, params: X25519, curve: other/Curve25519, aliases: [curve25519, curve25519-sha256], classical_bits: 128, sizes: {public_key: 32, private_key: 32, shared_secret: 32}, sources: [rfc7748, ir8547]}
+  - {<<: *ecdh, id: X448, algorithm: X448, params: X448, curve: other/Curve448, aliases: [curve448], classical_bits: 224, sizes: {public_key: 56, private_key: 56, shared_secret: 56}, sources: [rfc7748, ir8547]}
 
   # --- EdDSA ---
   - &eddsa
     id: Ed25519
     algorithm: EdDSA
     params: Ed25519
+    curve: other/Ed25519
     aliases: [ssh-ed25519]
     primitives: [signature]
     classical_bits: 128
@@ -112,7 +119,7 @@ entries:
     sizes: {public_key: 32, private_key: 32, signature: 64}
     replacement: {signature: {civilian: ML-DSA-65, cnsa2: ML-DSA-87}}
     sources: [rfc8032, fips186-5, ir8547]
-  - {<<: *eddsa, id: Ed448, params: Ed448, aliases: [ssh-ed448], classical_bits: 224, sizes: {public_key: 57, private_key: 57, signature: 114}}
+  - {<<: *eddsa, id: Ed448, params: Ed448, curve: other/Ed448, aliases: [ssh-ed448], classical_bits: 224, sizes: {public_key: 57, private_key: 57, signature: 114}}
 
   # --- Finite-field DH and MQV ---
   - &ffdh

@@ -379,6 +379,7 @@ func TestParseRejects(t *testing.T) {
 		{"hybrid wrong strength", header + "entries:\n  - " + safe + "\n  - {id: H, algorithm: H, params: h, primitives: [kem], classical_bits: 1, quantum: hybrid, components: [A], sources: [s]}\n", "strongest component"},
 		{"source without url", "version: 1\nsources: {s: {title: T}}\nentries: []\n", "https url"},
 		{"no version", "sources: {}\nentries: []\n", "invalid version"},
+		{"bad curve", header + "entries:\n  - {id: A, algorithm: A, params: a, curve: P-256, primitives: [kem], quantum: safe, sources: [s]}\n", "std-curves"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -387,5 +388,66 @@ func TestParseRejects(t *testing.T) {
 				t.Fatalf("error = %v, want it to mention %q", err, tt.wantErr)
 			}
 		})
+	}
+}
+
+func TestCurves(t *testing.T) {
+	d := db(t)
+	want := map[string]string{
+		"ECDSA-P224": "nist/P-224", "ECDSA-P256": "nist/P-256", "ECDSA-P384": "nist/P-384",
+		"ECDSA-P521": "nist/P-521", "ECDH-P256": "nist/P-256", "ECDH-P384": "nist/P-384",
+		"ECDH-P521": "nist/P-521", "X25519": "other/Curve25519", "X448": "other/Curve448",
+		"Ed25519": "other/Ed25519", "Ed448": "other/Ed448",
+	}
+	for _, e := range d.Entries() {
+		if got := e.Curve; got != want[e.ID] {
+			t.Errorf("%s: curve = %q, want %q", e.ID, got, want[e.ID])
+		}
+	}
+}
+
+func TestMigration(t *testing.T) {
+	d := db(t)
+	tests := []struct {
+		name  string
+		asset model.Asset
+		want  string
+	}{
+		{"rsa signature", model.Asset{Primitive: "signature", Algorithm: "RSA", Params: "2048"}, "civilian: ML-DSA-65; CNSA 2.0: ML-DSA-87"},
+		{"rsa pke", model.Asset{Primitive: "pke", Algorithm: "RSA", Params: "3072"}, "civilian: ML-KEM-768; CNSA 2.0: ML-KEM-1024"},
+		{"ecdh marks hybrid", model.Asset{Primitive: "key-agreement", Algorithm: "ECDH", Params: "P-256"}, "civilian: X25519MLKEM768 (hybrid); CNSA 2.0: ML-KEM-1024"},
+		{"same target once", model.Asset{Primitive: "hash", Algorithm: "MD5", Params: "MD5"}, "civilian: SHA-256; CNSA 2.0: SHA-384"},
+		{"cipher", model.Asset{Primitive: "cipher", Algorithm: "DES", Params: "56"}, "AES-256"},
+		{"unknown params use family", model.Asset{Primitive: "signature", Algorithm: "RSA", Params: model.ParamsUnknown}, "civilian: ML-DSA-65; CNSA 2.0: ML-DSA-87"},
+		{"unknown params, family primitive differs", model.Asset{Primitive: "pke", Algorithm: "RSA", Params: model.ParamsUnknown}, "civilian: ML-KEM-768; CNSA 2.0: ML-KEM-1024"},
+		{"safe needs none", model.Asset{Primitive: "kem", Algorithm: "ML-KEM", Params: "ML-KEM-768"}, ""},
+		{"weakened needs none", model.Asset{Primitive: "cipher", Algorithm: "AES", Params: "128"}, ""},
+		{"unknown family", model.Asset{Primitive: "signature", Algorithm: "Rainbow", Params: model.ParamsUnknown}, ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := d.Migration(tt.asset); got != tt.want {
+				t.Errorf("Migration = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestName(t *testing.T) {
+	d := db(t)
+	tests := []struct {
+		asset model.Asset
+		want  string
+	}{
+		{model.Asset{Algorithm: "RSA", Params: "2048"}, "RSA-2048"},
+		{model.Asset{Algorithm: "ECDSA", Params: "secp256r1"}, "ECDSA-P256"},
+		{model.Asset{Algorithm: "Hybrid", Params: "X25519MLKEM768"}, "X25519MLKEM768"},
+		{model.Asset{Algorithm: "RSA", Params: model.ParamsUnknown}, "RSA"},
+		{model.Asset{Algorithm: "RSA", Params: "1536"}, "RSA-1536"},
+	}
+	for _, tt := range tests {
+		if got := d.Name(tt.asset); got != tt.want {
+			t.Errorf("Name(%v) = %q, want %q", tt.asset, got, tt.want)
+		}
 	}
 }

@@ -7,6 +7,7 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
+	"regexp"
 	"slices"
 	"strings"
 	"sync"
@@ -45,6 +46,7 @@ type Entry struct {
 	ID               string                 `yaml:"id"`
 	Algorithm        string                 `yaml:"algorithm"`
 	Params           string                 `yaml:"params"`
+	Curve            string                 `yaml:"curve"`
 	Aliases          []string               `yaml:"aliases"`
 	Primitives       []string               `yaml:"primitives"`
 	ClassicalBits    int                    `yaml:"classical_bits"`
@@ -159,6 +161,9 @@ func (db *DB) validateEntry(e Entry) []error {
 	if e.SecurityCategory < 0 || e.SecurityCategory > 5 {
 		report("security_category %d outside 0..5", e.SecurityCategory)
 	}
+	if e.Curve != "" && !curveName.MatchString(e.Curve) {
+		report("curve %q is not a std-curves name like nist/P-256", e.Curve)
+	}
 	if len(e.Sources) == 0 {
 		report("no sources")
 	}
@@ -209,6 +214,9 @@ func (db *DB) validateEntry(e Entry) []error {
 	}
 	return errs
 }
+
+// curveName matches a std-curves catalogue name: category/curve.
+var curveName = regexp.MustCompile(`^[a-z0-9]+/[A-Za-z0-9-]+$`)
 
 func normalize(name string) string {
 	return strings.ToLower(strings.TrimSpace(name))
@@ -277,4 +285,60 @@ func (db *DB) FamilyQuantum(algorithm string) (status string, ok bool) {
 		status = e.Quantum
 	}
 	return status, status != ""
+}
+
+// Replacement returns the migration targets for an asset. If the asset's
+// parameters are not in the database, it falls back to the family, provided
+// every entry of the family that is used as the asset's primitive agrees.
+func (db *DB) Replacement(a model.Asset) (Replacement, bool) {
+	if e, ok := db.Lookup(a.Algorithm, a.Params); ok {
+		r, ok := e.Replacement[a.Primitive]
+		return r, ok
+	}
+	var found Replacement
+	for _, e := range db.entries {
+		if !strings.EqualFold(e.Algorithm, a.Algorithm) || !slices.Contains(e.Primitives, a.Primitive) {
+			continue
+		}
+		r, ok := e.Replacement[a.Primitive]
+		if !ok || (found != Replacement{} && found != r) {
+			return Replacement{}, false
+		}
+		found = r
+	}
+	return found, found != Replacement{}
+}
+
+// Migration describes an asset's migration targets in one line, such as
+// "civilian: ML-DSA-65; CNSA 2.0: ML-DSA-87", or just "AES-256" when both
+// targets agree. It returns "" when the asset needs no replacement or none is
+// recorded.
+func (db *DB) Migration(a model.Asset) string {
+	r, ok := db.Replacement(a)
+	if !ok {
+		return ""
+	}
+	label := func(id string) string {
+		if e, ok := db.ByID(id); ok && e.Quantum == model.QuantumHybrid {
+			return id + " (hybrid)"
+		}
+		return id
+	}
+	if r.Civilian == r.CNSA2 {
+		return label(r.Civilian)
+	}
+	return "civilian: " + label(r.Civilian) + "; CNSA 2.0: " + label(r.CNSA2)
+}
+
+// Name returns a display name for an asset: its entry ID when the database has
+// one, such as "RSA-2048" or "X25519MLKEM768", otherwise the algorithm and any
+// known params.
+func (db *DB) Name(a model.Asset) string {
+	if e, ok := db.Lookup(a.Algorithm, a.Params); ok {
+		return e.ID
+	}
+	if a.Params == "" || a.Params == model.ParamsUnknown {
+		return a.Algorithm
+	}
+	return a.Algorithm + "-" + a.Params
 }
