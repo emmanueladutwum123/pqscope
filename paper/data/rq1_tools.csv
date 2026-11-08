@@ -1,8 +1,8 @@
 tool,version,source,status,reason
 pqscope,this tree,in-process,ran,network cases: ran
-cbomkit-theia,,,unavailable,not run (no eval/out/cbomkit-theia/tool.json)
-cbomkit-action,,,unavailable,not run (no eval/out/cbomkit-action/tool.json)
-cryptoscan-pqc,,,unavailable,not run (no eval/out/cryptoscan-pqc/tool.json)
-semgrep,,,unavailable,not run (no eval/out/semgrep/tool.json)
-pqc-audit,,,unavailable,not run (no eval/out/pqc-audit/tool.json)
-keylens,,,unavailable,not run (no eval/out/keylens/tool.json)
+cbomkit-theia,latest@46a72ead,ghcr.io/cbomkit/cbomkit-theia@sha256:46a72eadc9849b919fc4c72e1c851f9783e03c35db8fad49ba99341ac97f8dea,ran,
+cbomkit-action,v2.3.0,ghcr.io/cbomkit/cbomkit-action:v2.3.0@sha256:47c2505267dc5f055152616ffa0d0076b7d0824fe9e0de670b572d1ebad2fc4b,ran,
+cryptoscan-pqc,0.1.1,pypi:cryptoscan-pqc==0.1.1 in python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b,ran,
+semgrep,1.184.0+rules@16b9e6d4,semgrep/semgrep:1.184.0@sha256:cc1b68266f267878b39739373ea9985b9a78e5d64497dd875c8de100b22695ed,ran,
+pqc-audit,2b11fc59,github:danieleschmidt/pqc-migration-audit@2b11fc59b0ce8701650a602db51c170953ae0c9e in python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b,ran,exit 1 with output written (the tool's findings exit code)
+keylens,,,unavailable,"No crypto scanner named Keylens could be found (GitHub search, 2026-11-08)"

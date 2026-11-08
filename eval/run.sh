@@ -61,7 +61,8 @@ competitors() {
 STAGE="$OUT/corpus-stage"
 rm -rf "$STAGE" && mkdir -p "$STAGE"
 rsync -a --exclude labels.yaml --exclude README.md --exclude server.env --exclude server.sh "$CORPUS/" "$STAGE/"
-CORPUS="$STAGE"
+# local: the network stage still needs the server definitions in $CORPUS.
+local CORPUS="$STAGE"
 
 run_tool() { # name version source output command...
 	# output is a path, relative to the tool's directory, whose presence
