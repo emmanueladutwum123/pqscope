@@ -1,0 +1,8 @@
+tool,version,source,status,reason
+pqscope,this tree,in-process,ran,network cases: ran
+cbomkit-theia,,,unavailable,not run (no eval/out/cbomkit-theia/tool.json)
+cbomkit-action,,,unavailable,not run (no eval/out/cbomkit-action/tool.json)
+cryptoscan-pqc,,,unavailable,not run (no eval/out/cryptoscan-pqc/tool.json)
+semgrep,,,unavailable,not run (no eval/out/semgrep/tool.json)
+pqc-audit,,,unavailable,not run (no eval/out/pqc-audit/tool.json)
+keylens,,,unavailable,not run (no eval/out/keylens/tool.json)

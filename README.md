@@ -9,7 +9,7 @@ layers to expose gaps between what a system declares and what it actually deploy
 
 ## Status
 
-Milestone 9 of 13. All five discovery layers work, and their findings are reconciled:
+Milestone 10 of 13. All five discovery layers work, and their findings are reconciled:
 
 - **source:** Go, Python, Java, C/C++ and JavaScript/TypeScript code;
 - **config:** nginx, Apache, sshd, openssl.cnf, Kubernetes, and certificates and keys;
@@ -82,6 +82,13 @@ pqscope scan ./service --with net.json
 ```
 
 See [docs/reconcile.md](docs/reconcile.md).
+
+## Evaluation
+
+`make eval` scores pqscope and competing scanners (CBOMkit, cryptoscan-pqc, pqc-audit and Semgrep,
+each pinned) against a labeled corpus of 202 cases covering all five layers. It writes
+`paper/data/rq1_*.csv`, and an independent script recomputes every summary number from the
+per-item outcomes. See [eval/README.md](eval/README.md).
 
 ## Dependencies and configuration
 

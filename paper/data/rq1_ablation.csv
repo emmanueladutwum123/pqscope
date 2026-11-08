@@ -1,0 +1,7 @@
+config,tp,fp,fn,precision,recall,f1
+all,312,1,8,0.9968,0.9750,0.9858
+without source,117,0,203,1.0000,0.3656,0.5355
+without config,256,1,64,0.9961,0.8000,0.8873
+without deps,291,1,29,0.9966,0.9094,0.9510
+without binary,292,1,28,0.9966,0.9125,0.9527
+without network,292,1,28,0.9966,0.9125,0.9527

@@ -2,6 +2,51 @@
 
 ## Unreleased
 
+### Milestone 10: evaluation harness and a 202-case corpus
+
+- Grow the corpus to 202 cases across all five layers:
+  - source: 153 cases (Go 38, Python 40, Java 26, C/C++ 24, JS/TS 25);
+  - config: 24;
+  - deps: 14;
+  - binary: 6;
+  - network: 5.
+
+  It now includes public certificates, keys and CSRs generated with OpenSSL (private keys
+  discarded), two new test binaries (a libsodium ELF and a no-crypto ELF), and network servers
+  run in Docker.
+- Add `eval/run.sh`. It runs CBOMkit-theia, CBOMkit (sonar-cryptography via cbomkit-action
+  v2.3.0), cryptoscan-pqc 0.1.1, pqc-audit (pqc-migration-audit at a pinned commit) and Semgrep
+  1.184.0 with pinned community crypto rules. Each runs once over the corpus in a container pinned
+  by digest. It also starts and probes the network servers. Keylens is recorded as unavailable:
+  no crypto scanner by that name exists.
+- Add `internal/eval` and `pqscope eval`. They score every tool per layer, language and
+  granularity (file+family and file+line+family), run a layer ablation for pqscope, and write
+  `paper/data/rq1_{summary,items,tools,ablation,corpus}.csv`.
+- Add `eval/score.py`, which recomputes every summary number from the per-item outcomes with a
+  separate implementation and fails on any difference. CI runs the pipeline on every push.
+- Add `make eval`, `make eval-score` and `make paper-data`.
+- Fix: SARIF rules for the config, binary, deps and network layers now carry a description and a
+  documentation link. Before, only source rules did. The larger corpus exposed this.
+
+pqscope at this commit, from `paper/data/rq1_summary.csv` (file granularity, all 202 cases, with
+network cases probed): precision 0.9968, recall 0.9750. In the ablation from `rq1_ablation.csv`,
+turning off the source, config, deps, binary or network layer lowers recall to 0.366, 0.800,
+0.909, 0.913 and 0.913 respectively.
+
+Known limits:
+
+- **Competitors not run yet.** The committed `paper/data` has no competitor rows. Running the
+  competitors needs permission to download and execute third-party code, which this environment
+  refused, so `rq1_tools.csv` lists them as not run. Running `make eval` on a machine with Docker
+  fills them in.
+- **Adapters untested on real output.** They are tested on synthetic output in each tool's
+  documented format. pqc-audit's report schema is undocumented, so its adapter reads any objects
+  with a path and an algorithm. Check the adapters against real output on the first run.
+- **One author for rules and labels.** pqscope's scores measure consistency with the labeling
+  convention.
+- **One honest network miss.** When a server sends a HelloRetryRequest, pqscope doesn't report
+  the cipher suite.
+
 ### Milestone 9: Java, C/C++ and JavaScript/TypeScript
 
 - Add source frontends for Java, C/C++ (C and C++ grammars by extension) and JS/TS (JavaScript,
