@@ -1,0 +1,204 @@
+# Names the config layer recognises, mapped to assets. Every table cites the
+# registry or manual that defines its names; unlisted names are ignored.
+#
+# An asset is written "<entry or family>:<primitive>[:<params>]":
+#   - "X25519MLKEM768:kem" is a knowledge DB entry used as a primitive;
+#   - "RSA:signature" is a family with params unknown;
+#   - "DH:key-agreement:4096" is a family with explicit params the DB lacks.
+version: 1
+
+sources:
+  iana-groups: {title: "IANA TLS Supported Groups registry", url: "https://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml#tls-parameters-8"}
+  openssl-conf: {title: "OpenSSL 3.5 SSL_CONF_cmd (Groups, Curves, CipherString, Ciphersuites)", url: "https://docs.openssl.org/3.5/man3/SSL_CONF_cmd/"}
+  openssl-ciphers: {title: "OpenSSL 3.5 openssl-ciphers, cipher suite names", url: "https://docs.openssl.org/3.5/man1/openssl-ciphers/"}
+  rfc8446: {title: "RFC 8446, TLS 1.3, Appendix B.4 cipher suites", url: "https://www.rfc-editor.org/rfc/rfc8446#appendix-B.4"}
+  sshd-config: {title: "OpenBSD sshd_config(5)", url: "https://man.openbsd.org/sshd_config"}
+  rfc4253: {title: "RFC 4253, SSH Transport Layer Protocol", url: "https://www.rfc-editor.org/rfc/rfc4253"}
+  rfc8268: {title: "RFC 8268, More MODP Diffie-Hellman groups for SSH", url: "https://www.rfc-editor.org/rfc/rfc8268"}
+  rfc5656: {title: "RFC 5656, Elliptic Curve Algorithm Integration in SSH", url: "https://www.rfc-editor.org/rfc/rfc5656"}
+  rfc8731: {title: "RFC 8731, SSH key exchange with Curve25519 and Curve448", url: "https://www.rfc-editor.org/rfc/rfc8731"}
+  rfc8332: {title: "RFC 8332, RSA keys with SHA-256 and SHA-512 in SSH", url: "https://www.rfc-editor.org/rfc/rfc8332"}
+  rfc8709: {title: "RFC 8709, Ed25519 and Ed448 public key algorithms for SSH", url: "https://www.rfc-editor.org/rfc/rfc8709"}
+  rfc4344: {title: "RFC 4344, SSH transport layer encryption modes (CTR)", url: "https://www.rfc-editor.org/rfc/rfc4344"}
+  rfc6668: {title: "RFC 6668, SHA-2 data integrity verification for SSH", url: "https://www.rfc-editor.org/rfc/rfc6668"}
+  ssh-mlkem: {title: "draft-ietf-sshm-mlkem-hybrid-kex", url: "https://datatracker.ietf.org/doc/draft-ietf-sshm-mlkem-hybrid-kex/"}
+  ssh-ntruprime: {title: "draft-ietf-sshm-ntruprime-ssh", url: "https://datatracker.ietf.org/doc/draft-ietf-sshm-ntruprime-ssh/"}
+  csor: {title: "NIST CSOR algorithm registration (ML-KEM, ML-DSA, SLH-DSA OIDs)", url: "https://csrc.nist.gov/projects/computer-security-objects-register/algorithm-registration"}
+  rfc8410: {title: "RFC 8410, X25519, X448, Ed25519 and Ed448 in X.509", url: "https://www.rfc-editor.org/rfc/rfc8410"}
+
+tables:
+  # TLS key-exchange group names, as nginx ssl_ecdh_curve, Apache Curves/Groups
+  # and openssl.cnf Groups accept them. Matching ignores case.
+  tls-groups:
+    sources: [iana-groups, openssl-conf]
+    names:
+      X25519MLKEM768: [X25519MLKEM768:kem]
+      SecP256r1MLKEM768: [SecP256r1MLKEM768:kem]
+      SecP384r1MLKEM1024: [SecP384r1MLKEM1024:kem]
+      MLKEM512: [ML-KEM-512:kem]
+      MLKEM768: [ML-KEM-768:kem]
+      MLKEM1024: [ML-KEM-1024:kem]
+      x25519: [X25519:key-agreement]
+      x448: [X448:key-agreement]
+      secp256r1: [ECDH-P256:key-agreement]
+      prime256v1: [ECDH-P256:key-agreement]
+      P-256: [ECDH-P256:key-agreement]
+      secp384r1: [ECDH-P384:key-agreement]
+      P-384: [ECDH-P384:key-agreement]
+      secp521r1: [ECDH-P521:key-agreement]
+      P-521: [ECDH-P521:key-agreement]
+      ffdhe2048: [DH-2048:key-agreement]
+      ffdhe3072: [DH-3072:key-agreement]
+      ffdhe4096: ["DH:key-agreement:4096"]
+
+  # TLS 1.3 cipher suites (RFC 8446 names, also OpenSSL's Ciphersuites names).
+  tls13-suites:
+    sources: [rfc8446, openssl-ciphers]
+    names:
+      TLS_AES_128_GCM_SHA256: [AES-128:cipher, SHA-256:hash]
+      TLS_AES_256_GCM_SHA384: [AES-256:cipher, SHA-384:hash]
+      TLS_CHACHA20_POLY1305_SHA256: [ChaCha20-Poly1305:cipher, SHA-256:hash]
+      TLS_AES_128_CCM_SHA256: [AES-128:cipher, SHA-256:hash]
+      TLS_AES_128_CCM_8_SHA256: [AES-128:cipher, SHA-256:hash]
+
+  # Parts of OpenSSL TLS 1.2 cipher suite names, read as [KX-][AUTH-]CIPHER[-MAC].
+  # A name with no key-exchange part uses RSA key transport. Cipher-string
+  # keywords such as HIGH or ECDHE+AESGCM need OpenSSL to expand and are ignored.
+  tls12-kx:
+    sources: [openssl-ciphers]
+    names:
+      ECDHE: ["ECDH:key-agreement"]
+      DHE: ["DH:key-agreement"]
+      EDH: ["DH:key-agreement"]
+  tls12-auth:
+    sources: [openssl-ciphers]
+    names:
+      RSA: ["RSA:signature"]
+      ECDSA: ["ECDSA:signature"]
+      DSS: ["DSA:signature"]
+  tls12-cipher:
+    sources: [openssl-ciphers]
+    names:
+      AES128-GCM: [AES-128:cipher]
+      AES256-GCM: [AES-256:cipher]
+      AES128-CCM: [AES-128:cipher]
+      AES256-CCM: [AES-256:cipher]
+      AES128: [AES-128:cipher]
+      AES256: [AES-256:cipher]
+      CHACHA20-POLY1305: [ChaCha20-Poly1305:cipher]
+      DES-CBC3: [3DES:cipher]
+      DES-CBC: [DES:cipher]
+      RC4: [RC4:cipher]
+  tls12-mac:
+    sources: [openssl-ciphers]
+    names:
+      SHA256: [SHA-256:hash]
+      SHA384: [SHA-384:hash]
+      SHA: [SHA-1:hash]
+      MD5: [MD5:hash]
+
+  # SSH key exchange (KexAlgorithms). The exchange hash is listed with the key
+  # agreement because SHA-1 exchanges are weak on their own account.
+  ssh-kex:
+    sources: [sshd-config, rfc4253, rfc8268, rfc5656, rfc8731, ssh-mlkem, ssh-ntruprime]
+    names:
+      mlkem768x25519-sha256: [mlkem768x25519-sha256:kem]
+      sntrup761x25519-sha512: [sntrup761x25519-sha512:kem]
+      sntrup761x25519-sha512@openssh.com: [sntrup761x25519-sha512:kem]
+      curve25519-sha256: [X25519:key-agreement, SHA-256:hash]
+      curve25519-sha256@libssh.org: [X25519:key-agreement, SHA-256:hash]
+      ecdh-sha2-nistp256: [ECDH-P256:key-agreement, SHA-256:hash]
+      ecdh-sha2-nistp384: [ECDH-P384:key-agreement, SHA-384:hash]
+      ecdh-sha2-nistp521: [ECDH-P521:key-agreement, SHA-512:hash]
+      diffie-hellman-group1-sha1: ["DH:key-agreement:1024", SHA-1:hash]
+      diffie-hellman-group14-sha1: [DH-2048:key-agreement, SHA-1:hash]
+      diffie-hellman-group14-sha256: [DH-2048:key-agreement, SHA-256:hash]
+      diffie-hellman-group16-sha512: ["DH:key-agreement:4096", SHA-512:hash]
+      diffie-hellman-group18-sha512: ["DH:key-agreement:8192", SHA-512:hash]
+      diffie-hellman-group-exchange-sha1: ["DH:key-agreement", SHA-1:hash]
+      diffie-hellman-group-exchange-sha256: ["DH:key-agreement", SHA-256:hash]
+
+  # SSH public key and signature algorithms (HostKeyAlgorithms,
+  # PubkeyAcceptedAlgorithms, CASignatureAlgorithms). "-cert-v01@openssh.com"
+  # certificate variants are reduced to the base name before lookup.
+  ssh-pubkey:
+    sources: [sshd-config, rfc4253, rfc5656, rfc8332, rfc8709]
+    names:
+      ssh-ed25519: [Ed25519:signature]
+      sk-ssh-ed25519@openssh.com: [Ed25519:signature]
+      ssh-ed448: [Ed448:signature]
+      ecdsa-sha2-nistp256: [ECDSA-P256:signature, SHA-256:hash]
+      ecdsa-sha2-nistp384: [ECDSA-P384:signature, SHA-384:hash]
+      ecdsa-sha2-nistp521: [ECDSA-P521:signature, SHA-512:hash]
+      sk-ecdsa-sha2-nistp256@openssh.com: [ECDSA-P256:signature, SHA-256:hash]
+      rsa-sha2-256: ["RSA:signature", SHA-256:hash]
+      rsa-sha2-512: ["RSA:signature", SHA-512:hash]
+      ssh-rsa: ["RSA:signature", SHA-1:hash]
+      ssh-dss: [DSA-1024:signature, SHA-1:hash]
+
+  # SSH ciphers (Ciphers).
+  ssh-ciphers:
+    sources: [sshd-config, rfc4253, rfc4344]
+    names:
+      aes128-ctr: [AES-128:cipher]
+      aes192-ctr: [AES-192:cipher]
+      aes256-ctr: [AES-256:cipher]
+      aes128-cbc: [AES-128:cipher]
+      aes192-cbc: [AES-192:cipher]
+      aes256-cbc: [AES-256:cipher]
+      aes128-gcm@openssh.com: [AES-128:cipher]
+      aes256-gcm@openssh.com: [AES-256:cipher]
+      chacha20-poly1305@openssh.com: [ChaCha20-Poly1305:cipher]
+      3des-cbc: [3DES:cipher]
+      arcfour: [RC4:cipher]
+      arcfour128: [RC4:cipher]
+      arcfour256: [RC4:cipher]
+
+  # SSH MACs (MACs). Encrypt-then-MAC "-etm@openssh.com" variants are reduced
+  # to the base name before lookup.
+  ssh-macs:
+    sources: [sshd-config, rfc4253, rfc6668]
+    names:
+      hmac-sha2-256: [HMAC-SHA-256:mac]
+      hmac-sha2-512: [HMAC-SHA-512:mac]
+      hmac-sha1: [HMAC-SHA-1:mac]
+      hmac-sha1-96: [HMAC-SHA-1:mac]
+      hmac-md5: ["HMAC:mac:MD5"]
+      hmac-md5-96: ["HMAC:mac:MD5"]
+
+  # Message digests named by openssl.cnf default_md.
+  digests:
+    sources: [openssl-conf]
+    names:
+      md5: [MD5:hash]
+      sha1: [SHA-1:hash]
+      sha256: [SHA-256:hash]
+      sha384: [SHA-384:hash]
+      sha512: [SHA-512:hash]
+
+  # Public key algorithm OIDs that Go's crypto/x509 does not parse.
+  oids:
+    sources: [csor, rfc8410]
+    names:
+      "2.16.840.1.101.3.4.4.1": [ML-KEM-512:kem]
+      "2.16.840.1.101.3.4.4.2": [ML-KEM-768:kem]
+      "2.16.840.1.101.3.4.4.3": [ML-KEM-1024:kem]
+      "2.16.840.1.101.3.4.3.17": [ML-DSA-44:signature]
+      "2.16.840.1.101.3.4.3.18": [ML-DSA-65:signature]
+      "2.16.840.1.101.3.4.3.19": [ML-DSA-87:signature]
+      "2.16.840.1.101.3.4.3.20": [SLH-DSA-128s:signature]
+      "2.16.840.1.101.3.4.3.21": [SLH-DSA-128f:signature]
+      "2.16.840.1.101.3.4.3.22": [SLH-DSA-192s:signature]
+      "2.16.840.1.101.3.4.3.23": [SLH-DSA-192f:signature]
+      "2.16.840.1.101.3.4.3.24": [SLH-DSA-256s:signature]
+      "2.16.840.1.101.3.4.3.25": [SLH-DSA-256f:signature]
+      "2.16.840.1.101.3.4.3.26": [SLH-DSA-128s:signature]
+      "2.16.840.1.101.3.4.3.27": [SLH-DSA-128f:signature]
+      "2.16.840.1.101.3.4.3.28": [SLH-DSA-192s:signature]
+      "2.16.840.1.101.3.4.3.29": [SLH-DSA-192f:signature]
+      "2.16.840.1.101.3.4.3.30": [SLH-DSA-256s:signature]
+      "2.16.840.1.101.3.4.3.31": [SLH-DSA-256f:signature]
+      "1.3.101.110": [X25519:key-agreement]
+      "1.3.101.111": [X448:key-agreement]
+      "1.3.101.112": [Ed25519:signature]
+      "1.3.101.113": [Ed448:signature]

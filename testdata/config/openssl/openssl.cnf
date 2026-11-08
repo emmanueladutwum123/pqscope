@@ -1,0 +1,16 @@
+openssl_conf = openssl_init
+
+[openssl_init]
+ssl_conf = ssl_sect
+
+[ssl_sect]
+system_default = system_default_sect
+
+[system_default_sect]
+MinProtocol = TLSv1.2
+Groups = X25519MLKEM768:?SecP384r1MLKEM1024:x25519:-secp521r1
+CipherString = ECDHE-ECDSA-AES256-GCM-SHA384
+
+[ req ]
+default_bits = 2048
+default_md = sha1
