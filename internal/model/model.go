@@ -93,19 +93,62 @@ type Location struct {
 	Symbol string `json:"symbol,omitempty"`
 }
 
-// Values for PolicyResult.Status.
+// Values for PolicyResult.Status, from least to most urgent. The years name
+// the NIST IR 8547 transition points. Each policy row records its exact
+// schedule in PolicyResult.Schedule.
 const (
-	PolicyCompliant  = "compliant"
-	PolicyDeprecated = "deprecated-2030"
+	// PolicyCompliant: allowed with no scheduled end.
+	PolicyCompliant = "compliant"
+	// PolicyDisallowed: allowed today, disallowed after 2035.
 	PolicyDisallowed = "disallowed-2035"
-	PolicyBrokenNow  = "broken-now"
-	PolicyUnknown    = "unknown"
+	// PolicyDeprecated: allowed today, with restrictions starting after 2030.
+	PolicyDeprecated = "deprecated-2030"
+	// PolicyDisallowedNow: not allowed today, though not broken: removed from
+	// the standard, below its minimum strength, or outside the suite.
+	PolicyDisallowedNow = "disallowed-now"
+	// PolicyBrokenNow: insecure against classical attack today.
+	PolicyBrokenNow = "broken-now"
+	// PolicyUnknown: the policy can't decide, usually because params are
+	// unknown and the family's rows disagree. See PolicyResult.AtBest.
+	PolicyUnknown = "unknown"
 )
+
+// ValidPolicyStatus reports whether s is a known PolicyResult.Status value.
+func ValidPolicyStatus(s string) bool {
+	switch s {
+	case PolicyCompliant, PolicyDisallowed, PolicyDeprecated, PolicyDisallowedNow, PolicyBrokenNow, PolicyUnknown:
+		return true
+	}
+	return false
+}
+
+// PolicySeverity orders statuses from compliant (0) to broken-now (4). It
+// returns -1 for unknown and any unrecognised value.
+func PolicySeverity(s string) int {
+	switch s {
+	case PolicyCompliant:
+		return 0
+	case PolicyDisallowed:
+		return 1
+	case PolicyDeprecated:
+		return 2
+	case PolicyDisallowedNow:
+		return 3
+	case PolicyBrokenNow:
+		return 4
+	}
+	return -1
+}
 
 // PolicyResult is one policy's verdict on a finding.
 type PolicyResult struct {
-	Policy string `json:"policy"`
-	Status string `json:"status"`
+	Policy   string `json:"policy"`
+	Status   string `json:"status"`
+	Rule     string `json:"rule,omitempty"`     // ID of the policy row that decided
+	Schedule string `json:"schedule,omitempty"` // the row's transition, in the policy's words
+	// AtBest is set when Status is unknown and every row the asset could match
+	// agrees on a floor: the least urgent status any of them gives.
+	AtBest string `json:"at_best,omitempty"`
 }
 
 // Finding is a single observation of a cryptographic asset.

@@ -126,3 +126,15 @@ func TestFindingJSONRoundTrip(t *testing.T) {
 		t.Errorf("round trip mismatch:\n got %+v\nwant %+v", got, f)
 	}
 }
+
+func TestPolicySeverity(t *testing.T) {
+	order := []string{PolicyCompliant, PolicyDisallowed, PolicyDeprecated, PolicyDisallowedNow, PolicyBrokenNow}
+	for i, s := range order {
+		if !ValidPolicyStatus(s) || PolicySeverity(s) != i {
+			t.Errorf("%s: valid=%v severity=%d, want %d", s, ValidPolicyStatus(s), PolicySeverity(s), i)
+		}
+	}
+	if PolicySeverity(PolicyUnknown) != -1 || !ValidPolicyStatus(PolicyUnknown) || ValidPolicyStatus("maybe") || PolicySeverity("maybe") != -1 {
+		t.Error("unknown handling")
+	}
+}
