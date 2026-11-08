@@ -1,0 +1,142 @@
+# Crypto library capability table, used by the dependency layer.
+#
+# For each library, `capabilities` lists what it provides from a given version on.
+# A `provides` item is either a knowledge DB entry ID (an exact parameter set, such
+# as X25519MLKEM768) or an algorithm family (such as ML-KEM), meaning the library
+# offers the family without pqscope claiming which parameter sets. Every row cites
+# where the claim comes from; the loader rejects rows that don't.
+#
+# Only what a library provides natively is listed. A capability means "available
+# to code that depends on this library", not "in use".
+#
+# Versions compare numerically per dot-separated segment, ignoring a leading "v";
+# a pre-release ("-rc1", "rc1") sorts before its release. `version_from:
+# build-metadata` reads the version after "+", for crates such as openssl-src
+# whose "300.5.3+3.5.4" means OpenSSL 3.5.4.
+#
+# Absence is only as good as the cited page: rows without PQC record that the
+# cited documentation lists no PQC algorithms as of `checked`.
+version: 1
+checked: "2026-11-08"
+
+sources:
+  go-crypto: {title: "Go standard library crypto packages", url: "https://pkg.go.dev/crypto"}
+  go1.24: {title: "Go 1.24 release notes (crypto/mlkem; X25519MLKEM768 enabled by default)", url: "https://go.dev/doc/go1.24"}
+  go1.26: {title: "Go 1.26 release notes (SecP256r1MLKEM768, SecP384r1MLKEM1024 enabled by default)", url: "https://go.dev/doc/go1.26"}
+  circl: {title: "CIRCL README", url: "https://github.com/cloudflare/circl"}
+  circl-1.4.0: {title: "CIRCL v1.4.0 release notes (ML-KEM, FIPS 203)", url: "https://github.com/cloudflare/circl/releases/tag/v1.4.0"}
+  circl-1.5.0: {title: "CIRCL v1.5.0 release notes (ML-DSA; X25519MLKEM768)", url: "https://github.com/cloudflare/circl/releases/tag/v1.5.0"}
+  circl-1.6.2: {title: "CIRCL v1.6.2 release notes (SLH-DSA)", url: "https://github.com/cloudflare/circl/releases/tag/v1.6.2"}
+  x-crypto: {title: "golang.org/x/crypto packages", url: "https://pkg.go.dev/golang.org/x/crypto"}
+  x-crypto-ssh-mlkem: {title: "x/crypto commit c96bba2 \"ssh: add mlkem768x25519-sha256 Key Exchange algorithm\", first tagged in v0.38.0", url: "https://github.com/golang/crypto/commit/c96bba2ced58"}
+  pyca: {title: "pyca/cryptography asymmetric algorithms", url: "https://cryptography.io/en/latest/hazmat/primitives/asymmetric/"}
+  pyca-changelog: {title: "pyca/cryptography changelog, 48.0.0 (ML-KEM and ML-DSA with OpenSSL 3.5, so in the PyPI wheels)", url: "https://github.com/pyca/cryptography/blob/main/CHANGELOG.rst"}
+  liboqs-python: {title: "liboqs-python README", url: "https://github.com/open-quantum-safe/liboqs-python"}
+  liboqs-0.12.0: {title: "liboqs 0.12.0 release notes (ML-DSA final; ML-KEM final since 0.11.0)", url: "https://github.com/open-quantum-safe/liboqs/releases/tag/0.12.0"}
+  pycryptodome: {title: "PyCryptodome public key algorithms", url: "https://www.pycryptodome.org/src/public_key/public_key"}
+  forge: {title: "node-forge README", url: "https://github.com/digitalbazaar/forge"}
+  jsrsasign: {title: "jsrsasign README", url: "https://github.com/kjur/jsrsasign"}
+  noble-pq: {title: "noble-post-quantum 0.2.0 release notes (final FIPS 203, 204, 205)", url: "https://github.com/paulmillr/noble-post-quantum/releases/tag/0.2.0"}
+  bc: {title: "Bouncy Castle specification and interoperability", url: "https://www.bouncycastle.org/documentation/specification_interoperability/"}
+  bc-1.79: {title: "Bouncy Castle release notes, 1.79 (ML-KEM, ML-DSA, SLH-DSA in the provider)", url: "https://github.com/bcgit/bc-java/blob/main/docs/releasenotes.md"}
+  rustls: {title: "rustls documentation", url: "https://docs.rs/rustls/latest/rustls/"}
+  rustls-0.23.22: {title: "rustls 0.23.22 release notes (X25519MLKEM768 with the aws-lc-rs provider)", url: "https://github.com/rustls/rustls/releases/tag/v%2F0.23.22"}
+  ring: {title: "ring documentation", url: "https://docs.rs/ring/latest/ring/"}
+  openssl: {title: "OpenSSL 3.5 migration guide", url: "https://docs.openssl.org/3.5/man7/ossl-guide-migration/"}
+  openssl-3.5: {title: "OpenSSL 3.5 release notes (ML-KEM, ML-DSA, SLH-DSA; X25519MLKEM768 default keyshare)", url: "https://openssl-library.org/news/openssl-3.5-notes/"}
+  openssl-src: {title: "openssl-src crate README (version X.Y.Z+B, B is the OpenSSL version)", url: "https://github.com/alexcrichton/openssl-src-rs"}
+
+libraries:
+  - id: go-stdlib
+    name: Go standard library
+    packages: [{ecosystem: golang, name: stdlib}]
+    note: Version comes from the go.mod toolchain directive, or the go directive when there is none.
+    capabilities:
+      - {since: "0", provides: [RSA, ECDSA, ECDH, X25519, EdDSA, DSA], source: go-crypto}
+      - {since: "1.24", provides: [ML-KEM-768, ML-KEM-1024, X25519MLKEM768], source: go1.24}
+      - {since: "1.26", provides: [SecP256r1MLKEM768, SecP384r1MLKEM1024], source: go1.26}
+
+  - id: circl
+    name: Cloudflare CIRCL
+    packages: [{ecosystem: golang, name: github.com/cloudflare/circl}]
+    capabilities:
+      - {since: "0", provides: [X25519, X448, EdDSA], source: circl}
+      - {since: "1.4.0", provides: [ML-KEM], source: circl-1.4.0}
+      - {since: "1.5.0", provides: [ML-DSA, X25519MLKEM768], source: circl-1.5.0}
+      - {since: "1.6.2", provides: [SLH-DSA], source: circl-1.6.2}
+
+  - id: x-crypto
+    name: golang.org/x/crypto
+    packages: [{ecosystem: golang, name: golang.org/x/crypto}]
+    capabilities:
+      - {since: "0", provides: [X25519, EdDSA], source: x-crypto}
+      - {since: "0.38.0", provides: [mlkem768x25519-sha256], source: x-crypto-ssh-mlkem}
+
+  - id: pyca-cryptography
+    name: pyca/cryptography
+    packages: [{ecosystem: pypi, name: cryptography}]
+    capabilities:
+      - {since: "0", provides: [RSA, ECDSA, ECDH, X25519, X448, EdDSA, DH, DSA], source: pyca}
+      - {since: "48.0.0", provides: [ML-KEM, ML-DSA], source: pyca-changelog}
+
+  - id: liboqs-python
+    name: liboqs-python
+    packages: [{ecosystem: pypi, name: liboqs-python}]
+    note: Wraps a separately installed liboqs; the package version tracks the liboqs version it targets.
+    capabilities:
+      - {since: "0.12.0", provides: [ML-KEM, ML-DSA], source: liboqs-0.12.0}
+
+  - id: pycryptodome
+    name: PyCryptodome
+    packages: [{ecosystem: pypi, name: pycryptodome}, {ecosystem: pypi, name: pycryptodomex}]
+    capabilities:
+      - {since: "0", provides: [RSA, ECDSA, EdDSA, DSA], source: pycryptodome}
+
+  - id: node-forge
+    name: node-forge
+    packages: [{ecosystem: npm, name: node-forge}]
+    capabilities:
+      - {since: "0", provides: [RSA, EdDSA], source: forge}
+
+  - id: jsrsasign
+    name: jsrsasign
+    packages: [{ecosystem: npm, name: jsrsasign}]
+    capabilities:
+      - {since: "0", provides: [RSA, ECDSA, DSA], source: jsrsasign}
+
+  - id: noble-post-quantum
+    name: noble-post-quantum
+    packages: [{ecosystem: npm, name: "@noble/post-quantum"}]
+    capabilities:
+      - {since: "0.2.0", provides: [ML-KEM, ML-DSA, SLH-DSA], source: noble-pq}
+
+  - id: bouncycastle
+    name: Bouncy Castle
+    packages:
+      - {ecosystem: maven, name: "org.bouncycastle:bcprov-jdk18on"}
+      - {ecosystem: maven, name: "org.bouncycastle:bcprov-jdk15to18"}
+      - {ecosystem: maven, name: "org.bouncycastle:bcprov-jdk15on"}
+    capabilities:
+      - {since: "0", provides: [RSA, ECDSA, ECDH, X25519, X448, EdDSA, DH, DSA], source: bc}
+      - {since: "1.79", provides: [ML-KEM, ML-DSA, SLH-DSA], source: bc-1.79}
+
+  - id: rustls
+    name: rustls
+    packages: [{ecosystem: cargo, name: rustls}]
+    capabilities:
+      - {since: "0", provides: [X25519, ECDH, RSA, ECDSA, EdDSA], source: rustls}
+      - {since: "0.23.22", provides: [X25519MLKEM768], source: rustls-0.23.22}
+
+  - id: ring
+    name: ring
+    packages: [{ecosystem: cargo, name: ring}]
+    capabilities:
+      - {since: "0", provides: [RSA, ECDSA, ECDH, X25519, EdDSA], source: ring}
+
+  - id: openssl
+    name: OpenSSL (vendored by the openssl-src crate)
+    packages: [{ecosystem: cargo, name: openssl-src}]
+    version_from: build-metadata
+    capabilities:
+      - {since: "0", provides: [RSA, ECDSA, ECDH, X25519, X448, EdDSA, DH, DSA], source: openssl}
+      - {since: "3.5.0", provides: [ML-KEM, ML-DSA, SLH-DSA, X25519MLKEM768], source: openssl-3.5}
