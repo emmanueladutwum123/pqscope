@@ -21,6 +21,7 @@ import (
 
 	sitter "github.com/smacker/go-tree-sitter"
 
+	fswalk "github.com/emmanueladutwum123/pqscope/internal/discover/walk"
 	"github.com/emmanueladutwum123/pqscope/internal/knowledge"
 	"github.com/emmanueladutwum123/pqscope/internal/model"
 )
@@ -34,12 +35,6 @@ const MaxFileSize = 2 << 20
 
 const maxEvalDepth = 4
 const maxEvidenceLen = 160
-
-// skipDirs are directory names never descended into.
-var skipDirs = map[string]bool{
-	".git": true, ".hg": true, ".svn": true, "node_modules": true, "vendor": true,
-	"__pycache__": true, ".venv": true, "venv": true, ".tox": true,
-}
 
 // Scanner runs the source rule packs.
 type Scanner struct {
@@ -120,10 +115,7 @@ func describe(r *Rule) string {
 }
 
 // Skipped records a file that was not scanned.
-type Skipped struct {
-	Path   string
-	Reason string
-}
+type Skipped = fswalk.Skipped
 
 // Result is the outcome of scanning a directory tree.
 type Result struct {
@@ -136,39 +128,18 @@ type Result struct {
 // Scan walks root (a directory or a single file) and scans every file in a
 // supported language.
 func (s *Scanner) Scan(ctx context.Context, root string) (Result, error) {
-	info, err := os.Stat(root)
+	type job struct{ path, rel string }
+	files, err := fswalk.Files(root, func(rel string) bool {
+		_, ok := s.byExt[filepath.Ext(rel)]
+		return ok
+	})
 	if err != nil {
 		return Result{}, err
 	}
-	type job struct{ path, rel string }
-	var jobs []job
 	var res Result
-	if !info.IsDir() {
-		jobs = append(jobs, job{root, filepath.ToSlash(filepath.Base(root))})
-	} else {
-		err = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
-			if d.IsDir() {
-				if path != root && skipDirs[d.Name()] {
-					return filepath.SkipDir
-				}
-				return nil
-			}
-			if _, ok := s.byExt[filepath.Ext(path)]; !ok || d.Type()&fs.ModeSymlink != 0 {
-				return nil
-			}
-			rel, err := filepath.Rel(root, path)
-			if err != nil {
-				return err
-			}
-			jobs = append(jobs, job{path, filepath.ToSlash(rel)})
-			return nil
-		})
-		if err != nil {
-			return Result{}, err
-		}
+	jobs := make([]job, len(files))
+	for i, f := range files {
+		jobs[i] = job{f.Path, f.Rel}
 	}
 
 	type out struct {
@@ -198,7 +169,7 @@ func (s *Scanner) Scan(ctx context.Context, root string) (Result, error) {
 					continue
 				}
 				if info.Size() > MaxFileSize {
-					results[i].skip = &Skipped{j.rel, fmt.Sprintf("larger than %d bytes", MaxFileSize)}
+					results[i].skip = &Skipped{Path: j.rel, Reason: fmt.Sprintf("larger than %d bytes", MaxFileSize)}
 					continue
 				}
 				src, err := os.ReadFile(j.path)
