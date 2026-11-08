@@ -9,9 +9,9 @@ layers to expose gaps between what a system declares and what it actually deploy
 
 ## Status
 
-Milestone 8 of 13. All five discovery layers work, and their findings are reconciled:
+Milestone 9 of 13. All five discovery layers work, and their findings are reconciled:
 
-- **source:** Go and Python code;
+- **source:** Go, Python, Java, C/C++ and JavaScript/TypeScript code;
 - **config:** nginx, Apache, sshd, openssl.cnf, Kubernetes, and certificates and keys;
 - **deps:** Go, Python, npm, Maven and Cargo manifests;
 - **binary:** ELF, PE and Mach-O crypto imports, Go build info and functions;

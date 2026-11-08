@@ -8,7 +8,7 @@ Python are supported.
 
 ```yaml
 version: 1
-lang: go            # go | python
+lang: go            # go | python | java | c | js
 rules:
   - id: go.rsa.generate
     call: crypto/rsa.GenerateKey
@@ -25,9 +25,10 @@ rules:
 | `ref` | One or more fully qualified symbols. Matches any reference, called or not. |
 | `query` | A raw tree-sitter query. `@match` (or the first capture) is the location. |
 | `asset` | `primitive`, `algorithm` and optionally fixed `params`. |
-| `params_from` | Where to read params: `arg[N]`, `kwarg[name]` (Python) or `capture[name]` (queries). The first one that resolves wins. |
+| `params_from` | Where to read params: `arg[N]`, `arg[N].prop` (a property of an object literal, such as Node's `{modulusLength: 2048}`), `kwarg[name]` (Python) or `capture[name]` (queries). The first one that resolves wins. |
 | `params_map` | Maps a resolved value, such as `crypto/elliptic.P256`, to params such as `P-256`. |
-| `select` | Maps a resolved value to a whole asset, for APIs that take the algorithm as an argument, such as `hashlib.new("md5")`. If the value can't be resolved, nothing is reported. |
+| `select` | Maps a resolved value to a whole asset, for APIs that take the algorithm as an argument, such as `hashlib.new("md5")`. Keys match case-insensitively, and a key ending in `*` matches by prefix (`AES/*`, `aes-256-*`), with the longest prefix winning. If the value can't be resolved, nothing is reported. |
+| `select_params_from` | For `select` rules, where to read params the selected asset leaves open, such as the curve in `generateKeyPairSync('ec', {namedCurve})`. A value is used only if the knowledge DB knows it for the selected algorithm, after `params_map`. |
 | `confidence` | 0 to 1. Multiplied by 0.8 when `params_from` can't resolve a value. |
 | `source` | Required https citation for the API behaviour the rule relies on. |
 | `notes` | Optional; known limitations of the rule. |
@@ -62,5 +63,26 @@ Anything else, including function parameters, leaves params as `unknown`.
 - Values passed into a wrapper function aren't traced across the call.
 - A Python EC key from `ec.generate_private_key` is reported as ECDSA even when it is used
   for ECDH.
-- Dead code is only recognised in the literal form `if false` (Go), or `if False` / `if 0`
-  (Python).
+- Dead code is only recognised in literal forms: `if false` (Go, Java, JS/TS, C++), `if False`
+  / `if 0` (Python), `if (0)` and `#if 0` (C/C++).
+- Java: the key size or curve passed to a later `initialize()` call isn't linked to the
+  `getInstance()` that created the generator, so it stays unknown. `XDH` names a family, not one
+  algorithm, and isn't reported.
+- C/C++: a function referenced without being called, such as `md = EVP_sha1;`, isn't seen. Neither
+  is a key size set by a separate call, such as `EVP_PKEY_CTX_set_rsa_keygen_bits` after
+  `EVP_PKEY_CTX_new_id`. Names resolve to themselves, so a project function that reuses an OpenSSL
+  name, such as `RSA_new`, would match. C++ qualified names (`mylib::MD5`) and member calls
+  (`k->RSA_new()`) don't.
+- JS/TS: algorithm names computed at run time (`['sha', '256'].join('')`, template literals with
+  substitutions) aren't resolved. `crypto` is treated as WebCrypto's global unless the file defines
+  its own `crypto`.
+
+## Languages
+
+| Pack | Files | Imports and names | Libraries |
+|---|---|---|---|
+| `go.yaml` | `.go` | Import paths, with aliases | Standard library, `golang.org/x/crypto`, CIRCL |
+| `python.yaml` | `.py` | `import`, `from ... import`, aliases | pyca/cryptography, hashlib, hmac, PyCryptodome, paramiko, PyNaCl, liboqs-python, ssl |
+| `java.yaml` | `.java` | Single-type and wildcard imports, fully qualified names | JCA (`KeyPairGenerator`, `Signature`, `Cipher`, `KEM`, ...), `NamedParameterSpec` constants including ML-KEM and ML-DSA |
+| `c.yaml` | `.c`, `.h` (C grammar); `.cc`, `.cpp`, `.cxx`, `.hpp`, `.hh`, `.hxx` (C++ grammar) | Global function names; macro constants as arguments; `#define` and single-assignment variables followed | OpenSSL 1.x and 3.x (including ML-KEM/ML-DSA by name), libsodium, liboqs, Windows CNG |
+| `js.yaml` | `.js`, `.mjs`, `.cjs`, `.jsx` (JavaScript grammar); `.ts`, `.mts`, `.cts` (TypeScript); `.tsx` (TSX) | ES imports (default, namespace, named, aliased), `require()` with destructuring, the `node:` prefix, the WebCrypto global | Node.js `crypto` (including ML-KEM and ML-DSA key types), WebCrypto, node-forge, jsrsasign, noble, TweetNaCl |

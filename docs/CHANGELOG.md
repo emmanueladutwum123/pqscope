@@ -2,6 +2,50 @@
 
 ## Unreleased
 
+### Milestone 9: Java, C/C++ and JavaScript/TypeScript
+
+- Add source frontends for Java, C/C++ (C and C++ grammars by extension) and JS/TS (JavaScript,
+  TypeScript and TSX grammars by extension).
+- Add three rule packs, each rule cited:
+  - `rules/java.yaml` (20 rules): JCA factories and `NamedParameterSpec`, including the JDK 24+
+    ML-KEM and ML-DSA names;
+  - `rules/c.yaml` (37 rules): OpenSSL 1.x/3.x including ML-KEM/ML-DSA by name, libsodium, liboqs
+    and Windows CNG;
+  - `rules/js.yaml` (24 rules): Node `crypto` including the `ml-kem-*` and `ml-dsa-*` key types,
+    WebCrypto, node-forge, jsrsasign, noble and TweetNaCl.
+- Engine extensions:
+  - per-extension grammars;
+  - a per-language dead-code hook (C's `#if 0`);
+  - `arg[N].prop` extractors for options objects;
+  - case-insensitive `select` with `prefix*` keys;
+  - `select_params_from`, which reads a selected algorithm's size or curve from another argument
+    and keeps it only if the knowledge DB knows it for that algorithm.
+- A parameter value is now used only if it is a literal or is mapped by `params_map`. Before, a
+  constant resolved to some other symbol could have been recorded as a bogus key size. The Go and
+  Python scores are unchanged.
+- The order of two findings on one line no longer depends on the sort implementation.
+- Add 51 labeled corpus cases: 18 Java, 16 C/C++ and 17 JS/TS.
+
+Corpus results at this commit (same author for rules and labels; see the corpus README):
+
+| Language | Cases | Precision | Recall | F1 | Params correct |
+|---|---|---|---|---|---|
+| Go | 30 | 1.000 | 0.981 | 0.990 | 50/51 |
+| Python | 32 | 0.959 | 0.940 | 0.949 | 46/47 |
+| Java | 18 | 1.000 | 0.963 | 0.981 | 21/26 |
+| C/C++ | 16 | 1.000 | 0.962 | 0.980 | 22/25 |
+| JS/TS | 17 | 1.000 | 0.955 | 0.977 | 21/21 |
+
+Known limits:
+
+- The new misses are kept in the corpus: a concatenated Java algorithm name (`j13`), a C function
+  pointer (`c16`), and a JS name computed at run time (`js15`).
+- Java key sizes set by `initialize()`, and C key sizes set by a separate call, stay unknown.
+  That accounts for 5 of 26 Java and 2 of 25 C params.
+- C names resolve to themselves, so a project function reusing an OpenSSL name would match.
+- The corpus is still 113 cases across five languages. Milestone 10 needs at least 200, and adds
+  competitor tools as an independent check.
+
 ### Milestone 8: reconciliation engine
 
 - Add `internal/reconcile`. It links findings across layers within a component and derives:

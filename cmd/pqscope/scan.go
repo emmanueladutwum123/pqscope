@@ -34,7 +34,7 @@ func newScanCmd() *cobra.Command {
 		Use:   "scan [path]",
 		Short: "Scan a directory for cryptographic assets",
 		Long: "Scan a directory or file for cryptographic assets in four layers:\n\n" +
-			"  source  Go and Python code\n" +
+			"  source  Go, Python, Java, C/C++ and JavaScript/TypeScript code\n" +
 			"  config  nginx, Apache, sshd_config, openssl.cnf, Kubernetes, and key material\n" +
 			"          (certificates, keys, CSRs); private keys are never output\n" +
 			"  deps    go.mod, go.sum, requirements.txt, poetry.lock, package-lock.json,\n" +
