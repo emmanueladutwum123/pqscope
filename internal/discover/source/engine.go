@@ -188,13 +188,7 @@ func (s *Scanner) Scan(ctx context.Context, root string) (Result, error) {
 		jobs[i] = job{f.Path, f.Rel}
 	}
 
-	type out struct {
-		findings    []model.Finding
-		skip        *Skipped
-		syntaxError bool
-		err         error
-	}
-	results := make([]out, len(jobs))
+	results := make([]fileResult, len(jobs))
 	next := make(chan int)
 	var wg sync.WaitGroup
 	for w := 0; w < runtime.GOMAXPROCS(0); w++ {
@@ -223,8 +217,7 @@ func (s *Scanner) Scan(ctx context.Context, root string) (Result, error) {
 					results[i].err = err
 					continue
 				}
-				f, syntaxErr, err := s.scanFile(ctx, parsers, j.rel, src)
-				results[i] = out{findings: f, syntaxError: syntaxErr, err: err}
+				results[i] = s.scanOne(ctx, parsers, j.rel, src)
 			}
 		}()
 	}
@@ -269,6 +262,27 @@ func (s *Scanner) ScanFile(ctx context.Context, rel string, src []byte) ([]model
 	}()
 	f, _, err := s.scanFile(ctx, parsers, rel, src)
 	return f, err
+}
+
+// fileResult is one file's outcome.
+type fileResult struct {
+	findings    []model.Finding
+	skip        *Skipped
+	syntaxError bool
+	err         error
+}
+
+// scanOne scans one file. A panic in a language frontend (a grammar shape
+// the frontend did not expect) skips the file with the reason, rather than
+// ending the whole scan.
+func (s *Scanner) scanOne(ctx context.Context, parsers map[*sitter.Language]*sitter.Parser, rel string, src []byte) (res fileResult) {
+	defer func() {
+		if r := recover(); r != nil {
+			res = fileResult{skip: &Skipped{Path: rel, Reason: fmt.Sprintf("internal error: %v", r)}}
+		}
+	}()
+	f, syntaxErr, err := s.scanFile(ctx, parsers, rel, src)
+	return fileResult{findings: f, syntaxError: syntaxErr, err: err}
 }
 
 func (s *Scanner) scanFile(ctx context.Context, parsers map[*sitter.Language]*sitter.Parser, rel string, src []byte) ([]model.Finding, bool, error) {

@@ -23,6 +23,10 @@
   `paper/data/rq2_*` and `rq3_*` with raw evidence under `paper/data/raw/`. Add
   `measure/exclude.txt`, the opt-out list `docs/scanning.md` promises. See
   [measurement.md](measurement.md).
+- Fix: a TypeScript `import x = require("m")` crashed the whole source scan. It has no `source`
+  field, and the JS frontend dereferenced it. Scanning facebook/react and babel/babel for RQ3
+  found it. A panic in any language frontend now skips that one file, reported with the reason,
+  instead of ending the scan.
 
 ### Milestone 11: migration-cost benchmarks
 

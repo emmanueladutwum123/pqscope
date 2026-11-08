@@ -58,13 +58,18 @@ done < "$WORK/candidates.txt"
 	--info "$WORK/info.tsv" --n "$N" -o "$WORK/selection.tsv"
 log "== $(grep -c '	selected$' "$WORK/selection.tsv") projects to scan with $JOBS jobs"
 
+clone() { # repo dir
+	GIT_LFS_SKIP_SMUDGE=1 git clone -q --depth 1 --single-branch --no-tags "https://github.com/$1.git" "$2" 2>>"$2.clone.log"
+}
+
 # scan_one clones, scans and deletes one project, appending a line to
 # scans.tsv: repo, commit, status, seconds.
 scan_one() {
 	local repo=$1 dir status commit="" start=$SECONDS code=0
 	dir="$WORK/clones/${repo//\//__}"
 	rm -rf "$dir"
-	if ! GIT_LFS_SKIP_SMUDGE=1 git clone -q --depth 1 --single-branch --no-tags "https://github.com/$repo.git" "$dir" 2>"$WORK/clones/${repo//\//__}.clone.log"; then
+	# One retry: a large checkout sometimes ends with the remote hanging up.
+	if ! clone "$repo" "$dir" && ! { rm -rf "$dir"; clone "$repo" "$dir"; }; then
 		status="clone failed"
 	else
 		commit="$(git -C "$dir" rev-parse HEAD)"
@@ -88,7 +93,7 @@ scan_one() {
 	printf '%s\t%s\t%s\t%s\n' "$repo" "$commit" "$status" "$((SECONDS - start))" >> "$WORK/scans.tsv"
 	log "   $repo: $status ($((SECONDS - start))s)"
 }
-export -f scan_one log
+export -f scan_one clone log
 export WORK PQ SCAN_TIMEOUT
 
 touch "$WORK/scans.tsv"

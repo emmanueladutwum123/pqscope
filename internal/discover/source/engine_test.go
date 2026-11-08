@@ -420,3 +420,11 @@ func TestRules(t *testing.T) {
 		}
 	}
 }
+
+// TypeScript's import-require has no source field; scanning it once crashed
+// the whole scan (found scanning facebook/react for RQ3).
+func TestTSImportRequire(t *testing.T) {
+	s := testScanner(t)
+	scan(t, s, "a.ts", "import c = require(\"crypto\");\nc.createHash(\"md5\");\n")
+	scan(t, s, "b.ts", "import type { X } from './x';\nimport './side-effect';\nexport = c;\n")
+}

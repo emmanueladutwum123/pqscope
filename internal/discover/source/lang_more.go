@@ -298,6 +298,9 @@ type jsFrontend struct{}
 
 // jsModule normalises a module specifier: Node's "node:" prefix is dropped.
 func jsModule(n *sitter.Node, src []byte) (string, bool) {
+	if n == nil {
+		return "", false // import x = require("m") (TypeScript) has no source field
+	}
 	s, ok := jsFrontend{}.literal(n, src)
 	if !ok || n.Type() != "string" {
 		return "", false
@@ -491,6 +494,9 @@ func (j jsFrontend) resolve(f *file, n *sitter.Node) (string, bool) {
 }
 
 func (jsFrontend) literal(n *sitter.Node, src []byte) (string, bool) {
+	if n == nil {
+		return "", false
+	}
 	switch n.Type() {
 	case "string", "template_string":
 		var b strings.Builder
