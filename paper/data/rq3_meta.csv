@@ -1,0 +1,11 @@
+key,value
+criticality_source,https://raw.githubusercontent.com/ossf/criticality_score/0e76c6a99d865dddcbd89dff4117f0a54b1abfb8/data/20250725_all.csv.gz
+criticality_sha256,86f635183dfdbf023af3d48f499c3f5cb574cc5902d966b20fa38cb35dad61f4
+criticality_snapshot,2025-07-25
+candidates,200
+projects,100
+clone,"git clone --depth 1 --single-branch --no-tags (default branch head), LFS files not fetched"
+scan,"pqscope scan --json (source, config, deps, binary layers; reconciliation on)"
+scan_timeout_seconds,1800
+host,Darwin arm64
+pqscope_revision,75dd4ef

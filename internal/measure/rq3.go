@@ -86,8 +86,8 @@ type RepoInfo struct {
 
 // MaxRepoKB caps a repository's size (GitHub's size field, which counts all
 // history). Above it, the project is listed as skipped: cloning even its
-// latest tree would take hours. Only chromium/chromium exceeds it in the
-// candidate set.
+// latest tree would take hours. In the 2025-07-25 snapshot, chromium/chromium
+// and MicrosoftDocs/azure-docs exceed it.
 const MaxRepoKB = 20 * 1024 * 1024
 
 // Selection is one candidate's fate.

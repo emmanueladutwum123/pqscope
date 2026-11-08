@@ -1,0 +1,12 @@
+metric,projects_with,projects_scanned,share,ci95_low,ci95_high,findings
+vulnerable:any-layer,50,97,0.5155,0.4173,0.6124,7596
+"vulnerable:used (source, config, binary)",48,97,0.4948,0.3975,0.5926,6323
+vulnerable:layer:source,32,97,0.3299,0.2444,0.4284,671
+vulnerable:layer:config,41,97,0.4227,0.3292,0.5221,5637
+vulnerable:layer:deps,26,97,0.2680,0.1900,0.3638,1273
+vulnerable:layer:binary,2,97,0.0206,0.0057,0.0721,15
+vulnerable:exposure:network,22,97,0.2268,0.1548,0.3196,1596
+vulnerable:exposure:internal,34,97,0.3505,0.2629,0.4495,1366
+vulnerable:exposure:test,41,97,0.4227,0.3292,0.5221,4634
+derived:binary-without-source,2,97,0.0206,0.0057,0.0721,9
+derived:stale-dependency,7,97,0.0722,0.0354,0.1415,20

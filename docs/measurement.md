@@ -97,7 +97,9 @@ Walking down them, a repository whose root commit matches a higher-ranked one is
 code base and is skipped. Kernel trees, Android framework mirrors, and Docker's moby and docs
 all collapse this way. The first 100 distinct code bases are the sample. Repositories over
 20 GB (GitHub's size field) are counted in the 100 but not cloned, and are listed as skipped:
-only chromium/chromium is affected.
+chromium/chromium and MicrosoftDocs/azure-docs. A project whose clone fails twice is listed
+with that status. In the published run, that was aws/aws-cdk, whose checkout the remote cut
+off.
 
 **Scan.** Each project is cloned shallow at its default branch's head (commit recorded, LFS
 files not fetched) and scanned with `pqscope scan --json`: source, config, deps and binary
@@ -136,6 +138,10 @@ intervals.
 - **"Reachable from network-facing code" is a path and API heuristic.** pqscope does no
   call-graph analysis (see [risk.md](risk.md)). The `network` class is a lower bound for code
   that handles network traffic, and an upper bound for code that is actually reached.
+- **Totals are dominated by a few projects; shares are not.** Config findings count each
+  certificate and key, so a vendored CA bundle or a directory of test certificates adds
+  hundreds. Projects that implement cryptography (golang/go) add hundreds of source findings.
+  Read the per-project shares in `rq3_summary.csv`, not the `findings` column, as prevalence.
 - **Deps findings are capabilities.** They say a library is present, not that the project uses
   its quantum-vulnerable algorithms. The summary reports them apart.
 - **Languages outside the rule packs** (PHP, Ruby, Rust, Scala, Dart, ...) get no source

@@ -1,0 +1,117 @@
+rank,repo,language,criticality_score,root_commit,size_kb,status
+1,jcmvbkbc/linux-xtensa,C,0.84872,1da177e4c3f41524e886b7f1b8a0c1fc7321cac2,3653734,selected
+2,torvalds/linux,C,0.80952,1da177e4c3f41524e886b7f1b8a0c1fc7321cac2,6449750,duplicate of jcmvbkbc/linux-xtensa
+3,ceph/ceph-client,C,0.80936,1da177e4c3f41524e886b7f1b8a0c1fc7321cac2,3614796,duplicate of jcmvbkbc/linux-xtensa
+4,gregkh/linux,C,0.80029,1da177e4c3f41524e886b7f1b8a0c1fc7321cac2,4978875,duplicate of jcmvbkbc/linux-xtensa
+5,hisilicon/linux-hisi,C,0.79748,1da177e4c3f41524e886b7f1b8a0c1fc7321cac2,3259703,duplicate of jcmvbkbc/linux-xtensa
+6,multipath-tcp/mptcp_net-next,C,0.79656,1da177e4c3f41524e886b7f1b8a0c1fc7321cac2,3730780,duplicate of jcmvbkbc/linux-xtensa
+7,spring-projects/spring-boot,Java,0.79315,80b151e2b37a66a8fe7eb2d5bac2f7aa766d4ead,226543,selected
+8,storybookjs/storybook,TypeScript,0.79221,6becb7de8258a84e331a7ac4d3df5264ab6eeab2,1146113,selected
+9,vercel/next.js,JavaScript,0.79011,04578072ec60eb9e5c5e1b6787ed695a16e4529e,2633099,selected
+10,Xilinx/linux-xlnx,C,0.78765,1da177e4c3f41524e886b7f1b8a0c1fc7321cac2,3891153,duplicate of jcmvbkbc/linux-xtensa
+11,angular/angular,TypeScript,0.78704,6a3abf2366e2c32ce3460155903262fee01736c8,672750,selected
+12,linux-audit/audit-kernel,C,0.78551,1da177e4c3f41524e886b7f1b8a0c1fc7321cac2,3206261,duplicate of jcmvbkbc/linux-xtensa
+13,beagleboard/linux,C,0.78502,1da177e4c3f41524e886b7f1b8a0c1fc7321cac2,4029100,duplicate of jcmvbkbc/linux-xtensa
+14,facebook/react-native,C++,0.78052,a15603d8f1ecdd673d80be318293cee53eb4475d,993543,selected
+15,mui/material-ui,TypeScript,0.77967,28b768913b75752ecf9b6bb32766e27c241dbc46,749540,selected
+16,chromium/chromium,C++,0.77724,a5068f5fa11005232bc4383c54f6af230f9392fb,68018889,"skipped: repository is 64 GB, above the 20 GB cap"
+17,babel/babel,TypeScript,0.7763,aedcd4e12fd2dca3b415b0019fb96962a8bad27d,151341,selected
+18,openSUSE/kernel,C,0.7746,7a2deb32924142696b8174cdf9b38cd72a11fc96,5365398,selected
+19,numpy/numpy,Python,0.77441,f1a2d6376c430f65550efa235209b86c1a0967e3,187032,selected
+20,spring-projects/spring-framework,Java,0.77242,8119659fb1e4ae6fabe8897c42ba7629fda07b21,246942,selected
+21,NixOS/nixpkgs,Nix,0.77163,2766a4b44ee6eafae03a042801270c7f6b8ed32a,3585420,selected
+22,raspberrypi/linux,C,0.77041,1da177e4c3f41524e886b7f1b8a0c1fc7321cac2,5314461,duplicate of jcmvbkbc/linux-xtensa
+23,eslint/eslint,JavaScript,0.76985,a658d7b0e7d915750f18d666823d54ef2129a9af,54795,selected
+24,quarkusio/quarkus,Java,0.76864,161cfa303b4ea366dbd07e54bf4fe5a67ddec497,545401,selected
+25,kubernetes/kubernetes,Go,0.7647,2c4b3a562ce34cddc3f8218a2c4d11c7310e6d56,1551211,selected
+26,facebook/react,JavaScript,0.76456,75897c2dcd1dd3a6ca46284dd37e13d22b4b16b4,1139399,selected
+27,netty/netty,Java,0.76282,aef2ab453a8b11984c4fe64ba27612a1308ee490,119589,selected
+28,aws/aws-cdk,TypeScript,0.76026,b2073c40df5eb54852359a852ecdbef4ddf69d77,1572580,selected
+29,kernel-patches/bpf,C,0.75552,1da177e4c3f41524e886b7f1b8a0c1fc7321cac2,3132680,duplicate of jcmvbkbc/linux-xtensa
+30,SELinuxProject/selinux-kernel,C,0.75523,1da177e4c3f41524e886b7f1b8a0c1fc7321cac2,3321122,duplicate of jcmvbkbc/linux-xtensa
+31,webpack/webpack,JavaScript,0.75412,2e1460036c5349951da86c582006c7787c56c543,164947,selected
+32,symfony/symfony,PHP,0.75305,65d075016888e202cc20c9710800512caec77811,366414,selected
+33,gentoo/gentoo,Shell,0.75251,56bd759df1d0c750a065b8c845e93d5dfa6b549d,2789176,selected
+34,MicrosoftDocs/azure-docs,Markdown,0.75236,6c2c72e03e11a3dd0210f23d3a53e3bec1832a60,27209454,"skipped: repository is 25 GB, above the 20 GB cap"
+35,gatsbyjs/gatsby,JavaScript,0.75197,24606f5a2d5c85d7b6661403333f34823409bdf3,1152394,selected
+36,typescript-eslint/typescript-eslint,TypeScript,0.75034,63953d0c2552b4f40f194b02b3bec5e4aeb65f6b,84967,selected
+37,matplotlib/matplotlib,Python,0.74983,48111d043ec52f9afb511ac447438877b236e7f3,493253,selected
+38,hashicorp/terraform-provider-aws,Go,0.74783,8570c8cda4d4f3b0c7845e9769b784d099dfe3ed,983117,selected
+39,remix-run/react-router,TypeScript,0.74514,987de78deb9687f15133188f2e8e51ffd653794d,46868,selected
+40,systemd/systemd,C,0.74487,f0083e3d4eb49e11fd7e37532dc64a6e6f5d4039,796294,selected
+41,rollup/rollup,JavaScript,0.74483,f9efb42fc7969a7c3ee23b8e18d614b0bd18ee6c,37716,selected
+42,koverstreet/bcachefs,C,0.74455,1da177e4c3f41524e886b7f1b8a0c1fc7321cac2,2897393,duplicate of jcmvbkbc/linux-xtensa
+43,u-boot/u-boot,C,0.74312,0b666f81da14bf46cada222856762f7fd6641c26,339380,selected
+44,prettier/prettier,JavaScript,0.74304,29627ee520307494c45073701b20ef64effd3a8f,182236,selected
+45,getsentry/sentry-javascript,TypeScript,0.74236,67faeb3a384fbd7af3af561906a89aba4ea28cb0,286298,selected
+46,jestjs/jest,TypeScript,0.73968,88a94d5d1bc1f387317a3068bf510ab992c5dc64,324529,selected
+47,laravel/framework,PHP,0.73818,de69bb287c5017d1acb7d47a6db1dedf578036d6,108397,selected
+48,zephyrproject-rtos/zephyr,C,0.73712,8ddf82cf70dc6f951ab477f325dee0efde3ec589,982218,selected
+49,aosp-mirror/kernel_common,C,0.73597,1da177e4c3f41524e886b7f1b8a0c1fc7321cac2,6570460,duplicate of jcmvbkbc/linux-xtensa
+50,scikit-learn/scikit-learn,Python,0.73576,92fbeab6ad94b6683377e26e8af7dd1cb86d615e,187939,selected
+51,GStreamer/gstreamer,C,0.73567,1762dfbf982a75d895676b0063379e33b4f9b96a,392773,selected
+52,facebook/create-react-app,JavaScript,0.73463,003d9e7b52c3a91cb584b3afd78cd06c539f13be,25186,selected
+53,Dolibarr/dolibarr,PHP,0.73361,da82ec43bbe597964349ac5b185862644e465cce,1777932,selected
+54,spring-projects/spring-security,Java,0.73358,35fe1e7b73ca1f12bfea0a9cdde9aadf40a53e65,96357,selected
+55,scala/scala,Scala,0.73343,e566ca34a3fd246a4535c458ae47ff7ea62e2de7,162560,selected
+56,qemu/qemu,C,0.73277,e63c3dc74bfb90e4522d075d0d5a7600c5145745,719476,selected
+57,git/git,C,0.73241,e83c5163316f89bfbde7d9ab23ca2e25604af290,324253,selected
+58,Homebrew/homebrew-cask,Ruby,0.73183,5a0d1d5556e3f963a0d34da46e16ecffa59ea2fc,536662,selected
+59,pandas-dev/pandas,Python,0.73154,9d0080576446de475d34b0dbb58389b15cd4f529,421443,selected
+60,vuejs/core,TypeScript,0.73122,3401f6b460196ce254a73df05ce571802b365054,48251,selected
+61,nodejs/undici,JavaScript,0.7312,85e89076227648886cffa1d3558758a09b8b7925,18796,selected
+62,scipy/scipy,Python,0.73044,02de46a5464f182d3d64be5a7ee1087ae8be8646,208708,selected
+63,nxp-imx/linux-imx,C,0.73039,1da177e4c3f41524e886b7f1b8a0c1fc7321cac2,3184734,duplicate of jcmvbkbc/linux-xtensa
+64,aio-libs/aiohttp,Python,0.72992,f382b5ffc445e45a110734f5396728da7914aeb6,46289,selected
+65,postcss/postcss,TypeScript,0.72966,2d96cea96e3a96f616c28f897358086a69caa506,11370,selected
+66,axios/axios,JavaScript,0.72791,91871496a21a0286599c540b82dc0010cd814394,30701,selected
+67,aosp-mirror/platform_frameworks_base,Java,0.72786,54b6cfa9a9e5b861a9930af873580d6dc20f773c,8087727,selected
+68,magento/magento2,PHP,0.72749,be09cb921bafae2d06302f3f9c9ecacaf90da6dd,753168,selected
+69,ant-design/ant-design,TypeScript,0.72731,c5e67da18f48d8fe5ad31b5be246d73116ffa601,285971,selected
+70,moby/moby,Go,0.72708,a27b4b8cb8e838d03a99b6d2b30f76bdaf2f9e5d,279935,selected
+71,openstack/openstack,Python,0.72626,1a8546c90100e2e3116b1a74adbeed507ce5e250,166942,selected
+72,intel/llvm,LLVM,0.72596,2f7c963559dbc6dbda43df77a090a93f94c6625e,6724323,selected
+73,lodash/lodash,JavaScript,0.72578,02ede85b539a89a44a71ce098f09a9553a3a6890,49744,selected
+74,php/php-src,C,0.72537,f70a4db647886f65a3e24249351d2c8abc0cdfb3,683323,selected
+75,formatjs/formatjs,TypeScript,0.72398,7c664f5f87d094f9204d9339ae5e297c37fe0116,103087,selected
+76,swc-project/swc,Rust,0.72368,0f9532dd5d379292cc2d67777a108d88803bad91,471937,selected
+77,rollup/plugins,JavaScript,0.72362,b3e186b406a018d48685d89ffb2f1638b3b75dcf,8235,selected
+78,FFmpeg/FFmpeg,C,0.72359,77bb6835ba752bb9335d208963a53227bbb1bc63,507615,selected
+79,chakra-ui/chakra-ui,TypeScript,0.7234,988d822a394525cb6b227c0ed300b7c6d2f02946,297691,selected
+80,aws/aws-sdk-js-v3,TypeScript,0.72339,9b354699e017f2ffb7fb9fc63d5e5669d4e3a3e4,2695955,selected
+81,facebook/watchman,C++,0.72307,77c0f51a1bf6f10162452304bf9a51718d4dda4a,37241,selected
+82,apache/arrow,C++,0.72258,d5aa7c46692474376a3c31704cfc4783c86338f2,237283,selected
+83,flutter/flutter,Dart,0.72247,cd404cb5e1aed30b46a7af7ddb91ba6e126fe4c2,514504,selected
+84,jupyterlab/jupyterlab,TypeScript,0.72225,e9f67ae612639037f6e19ef43d71ce497e0efa6b,317673,selected
+85,tailwindlabs/tailwindcss,TypeScript,0.72168,421c1b0d7d121f94dac4c2d2534830aba0b0bff1,114605,selected
+86,floating-ui/floating-ui,TypeScript,0.72104,9e29fa1cc5db26374bbe85e7c04bcb4c4c41be98,42253,selected
+87,getsentry/sentry,Python,0.72024,3c2e87573d3bd16f61cf08fece0638cc47a4fc22,995861,selected
+88,cms-sw/cmssw,C++,0.72009,ad1cfd6b0a8ae6030b872c5dae7c39e7875c01bd,1549720,selected
+89,open-telemetry/opentelemetry-js,TypeScript,0.7199,13f74f5ad71edf6102ef9996bd98915c989f00eb,104509,selected
+90,ckeditor/ckeditor5,Rich Text Format,0.71938,b303bde8e176cad4fba6ebb5daa1ca401d9f976f,692112,selected
+91,npm/cli,JavaScript,0.71912,4626dfa73b7847e9c42c1f799935f8242794d020,180258,selected
+92,apache/flink,Java,0.71833,3b88e30924268799c96317fe1bf9f5b9c6bf6f80,559321,selected
+93,grpc/grpc,C++,0.71823,0e905e63db21bcdd85d3d1af051fcdc5bb5caa38,632991,selected
+94,backstage/backstage,TypeScript,0.71799,1a19a01c4beee7d869765a43d1b57b1b450017a7,8175836,selected
+95,apache/airflow,Python,0.71775,1047940ca4363b04044c4963b9c88f7632746407,809294,selected
+96,linux-surface/kernel,C,0.71766,1da177e4c3f41524e886b7f1b8a0c1fc7321cac2,3920894,duplicate of jcmvbkbc/linux-xtensa
+97,buildroot/buildroot,Makefile,0.71762,ffde94bd2ca21542ae0b4518348f8e986b9d92e0,170682,selected
+98,crdroidandroid/android_frameworks_base,Java,0.71747,54b6cfa9a9e5b861a9930af873580d6dc20f773c,8306524,duplicate of aosp-mirror/platform_frameworks_base
+99,ruby/ruby,Ruby,0.71743,392296c12de9d7f9be03a8205250ba0844cb9d38,415986,selected
+100,ceph/ceph,C++,0.71709,7091d44931086985a26cca2d263e307ad2f82001,1018950,selected
+101,nestjs/nest,TypeScript,0.717,f7c8d10fb20943bc7102c73d5ecbe49e6c0b5ea1,493011,selected
+102,nrwl/nx,TypeScript,0.71605,7ac762c77f2fed81dbcd3733656146c53f1f9cc5,1037230,selected
+103,Homebrew/brew,Ruby,0.71575,29d85578e75170a6c0eaebda4d701b46f1acf446,130935,selected
+104,ueberdosis/tiptap,TypeScript,0.71559,2afac72224038f34899c4036c5f0c3efc2fd673f,89933,selected
+105,expressjs/express,JavaScript,0.7149,9998490f93d3ad3d56c00d23c0aa13fac41c3f6b,10074,selected
+106,golang/go,Go,0.71455,7d7c6a97f815e9279d08cfaea7d5efb5e90695a8,466984,selected
+107,kubernetes/api,Go,0.71442,6fdd195eda1cf1a0317e19524cf216c1a1b34350,87321,selected
+108,pypa/setuptools,Python,0.71426,82942d9cce6b4c3b93d147bcac8ca4a599017fec,49694,selected
+109,python/cpython,Python,0.71404,7f777ed95a19224294949e1b4ce56bbffcb1fe9f,913000,selected
+110,espressif/esp-idf,C,0.71287,bd6ea4393c7d2f059fc4decc70f1ec3eb3597268,462764,selected
+111,vitejs/vite,TypeScript,0.71272,820c2cfbefd376b7be2d0ba5ad1fd39d3e45347e,77323,selected
+112,web-platform-tests/wpt,HTML,0.71259,fe5901f6c401fafd84736082c6176b373503cd55,2884439,selected
+113,socketio/socket.io,TypeScript,0.71236,507dc0438819677360c2f349f062f87a3785287e,34089,selected
+114,hashicorp/terraform,Go,0.71052,649cf336e86da10910f6e50ea3cfaad507a2e336,362059,selected
+115,pydantic/pydantic,Python,0.7103,a8e844dad56388522ddbaa68a3285570d5cef7b3,474433,selected
+116,google/guava,Java,0.71023,db3929bd79ef57f8da40515b663f40200a941fa8,1438719,selected
