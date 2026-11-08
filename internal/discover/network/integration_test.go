@@ -27,6 +27,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -159,15 +160,29 @@ func requireDocker(t *testing.T) {
 		}
 		t.Skip("Docker unavailable")
 	}
+	pullImage(t)
 }
 
+// docker runs a docker command and returns its standard output. Standard
+// error, where docker writes progress such as image pulls, is kept apart so
+// it can't be mistaken for a container ID.
 func docker(t *testing.T, args ...string) string {
 	t.Helper()
-	out, err := exec.Command("docker", args...).CombinedOutput()
-	if err != nil {
-		t.Fatalf("docker %s: %v\n%s", strings.Join(args, " "), err, out)
+	var stdout, stderr strings.Builder
+	cmd := exec.Command("docker", args...)
+	cmd.Stdout, cmd.Stderr = &stdout, &stderr
+	if err := cmd.Run(); err != nil {
+		t.Fatalf("docker %s: %v\n%s%s", strings.Join(args, " "), err, stdout.String(), stderr.String())
 	}
-	return strings.TrimSpace(string(out))
+	return strings.TrimSpace(stdout.String())
+}
+
+var pullOnce sync.Once
+
+// pullImage pulls the test image once, before any container is created.
+func pullImage(t *testing.T) {
+	t.Helper()
+	pullOnce.Do(func() { docker(t, "pull", "-q", alpineImage) })
 }
 
 // container creates a container publishing port on 127.0.0.1, runs setup
@@ -177,7 +192,7 @@ func container(t *testing.T, port string, setup func(id string), args ...string)
 	id := docker(t, append([]string{"create", "-p", "127.0.0.1::" + port}, args...)...)
 	t.Cleanup(func() {
 		if t.Failed() {
-			out, _ := exec.Command("docker", "logs", id).CombinedOutput()
+			out, _ := exec.Command("docker", "logs", id).CombinedOutput() // the server's output, both streams
 			t.Logf("container logs:\n%s", out)
 		}
 		_ = exec.Command("docker", "rm", "-f", id).Run()
