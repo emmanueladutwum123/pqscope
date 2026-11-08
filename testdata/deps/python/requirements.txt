@@ -1,0 +1,8 @@
+# Production dependencies
+-r requirements-base.txt
+--hash=sha256:0000
+cryptography==48.0.0  # PQC wheels
+PyCryptodomeX>=3.20 ; python_version >= "3.9"
+liboqs_python[extras]===0.12.0
+requests==2.32.3
+git+https://github.com/example/pkg.git#egg=pkg
