@@ -1,0 +1,9 @@
+LIBRARY libcrypto-3-x64.dll
+EXPORTS
+RSA_new
+RSA_generate_key_ex
+ECDSA_sign
+EVP_sha256
+EVP_aes_256_gcm
+EVP_md5
+EVP_PKEY_encapsulate

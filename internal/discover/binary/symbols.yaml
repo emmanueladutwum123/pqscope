@@ -1,0 +1,146 @@
+# Symbols and byte constants the binary layer recognises, mapped to assets.
+# Every entry cites the header, manual or standard that defines it.
+#
+# An asset is written as in the config layer's names.yaml:
+# "<entry or family>:<primitive>[:<params>]".
+#
+# Symbols are matched by exact name or by prefix. Mach-O's leading underscore
+# and PE's "@N" decoration are removed first. Generic APIs, whose algorithm is
+# chosen at run time (EVP_PKEY_CTX_new_from_name, OQS_KEM_new), cannot name an
+# algorithm; they are listed under `generic` and reported as notes.
+version: 1
+
+sources:
+  openssl-num: {title: "OpenSSL 3.5 util/libcrypto.num, the exported symbol list", url: "https://github.com/openssl/openssl/blob/openssl-3.5.0/util/libcrypto.num"}
+  openssl-rsa: {title: "OpenSSL 3.5 RSA_new(3), RSA_generate_key(3), RSA_sign(3), RSA_public_encrypt(3)", url: "https://docs.openssl.org/3.5/man3/RSA_new/"}
+  openssl-dsa: {title: "OpenSSL 3.5 DSA_new(3), DSA_sign(3)", url: "https://docs.openssl.org/3.5/man3/DSA_new/"}
+  openssl-ecdsa: {title: "OpenSSL 3.5 ECDSA_sign(3)", url: "https://docs.openssl.org/3.5/man3/ECDSA_sign/"}
+  openssl-dh: {title: "OpenSSL 3.5 DH_new(3), DH_generate_key(3)", url: "https://docs.openssl.org/3.5/man3/DH_generate_key/"}
+  openssl-ec: {title: "OpenSSL 3.5 EC_KEY_new(3)", url: "https://docs.openssl.org/3.5/man3/EC_KEY_new/"}
+  openssl-md: {title: "OpenSSL 3.5 EVP_md5(3), EVP_sha224(3), EVP_sha3_224(3)", url: "https://docs.openssl.org/3.5/man3/EVP_sha224/"}
+  openssl-digest: {title: "OpenSSL 3.5 MD5(3), SHA256_Init(3)", url: "https://docs.openssl.org/3.5/man3/SHA256_Init/"}
+  openssl-cipher: {title: "OpenSSL 3.5 EVP_aes_128_gcm(3), EVP_des_cbc(3), EVP_rc4(3), EVP_chacha20(3)", url: "https://docs.openssl.org/3.5/man3/EVP_aes_128_gcm/"}
+  openssl-kem: {title: "OpenSSL 3.5 EVP_PKEY_encapsulate(3)", url: "https://docs.openssl.org/3.5/man3/EVP_PKEY_encapsulate/"}
+  openssl-ml-kem-src: {title: "OpenSSL 3.5 crypto/ml_kem (internal ossl_ml_kem_* functions)", url: "https://github.com/openssl/openssl/tree/openssl-3.5.0/crypto/ml_kem"}
+  openssl-ml-dsa-src: {title: "OpenSSL 3.5 crypto/ml_dsa (internal ossl_ml_dsa_* functions)", url: "https://github.com/openssl/openssl/tree/openssl-3.5.0/crypto/ml_dsa"}
+  openssl-slh-dsa-src: {title: "OpenSSL 3.5 crypto/slh_dsa (internal ossl_slh_dsa_* functions)", url: "https://github.com/openssl/openssl/tree/openssl-3.5.0/crypto/slh_dsa"}
+  boringssl-25519: {title: "BoringSSL include/openssl/curve25519.h", url: "https://github.com/google/boringssl/blob/main/include/openssl/curve25519.h"}
+  sodium-box: {title: "libsodium authenticated encryption (crypto_box, X25519)", url: "https://doc.libsodium.org/public-key_cryptography/authenticated_encryption"}
+  sodium-sign: {title: "libsodium public-key signatures (crypto_sign, Ed25519)", url: "https://doc.libsodium.org/public-key_cryptography/public-key_signatures"}
+  sodium-kx: {title: "libsodium key exchange (crypto_kx, X25519)", url: "https://doc.libsodium.org/key_exchange"}
+  sodium-scalarmult: {title: "libsodium scalar multiplication (crypto_scalarmult_curve25519)", url: "https://doc.libsodium.org/advanced/scalar_multiplication"}
+  sodium-chacha: {title: "libsodium IETF ChaCha20-Poly1305", url: "https://doc.libsodium.org/secret-key_cryptography/aead/chacha20-poly1305/ietf_chacha20-poly1305_construction"}
+  sodium-aesgcm: {title: "libsodium AES256-GCM", url: "https://doc.libsodium.org/secret-key_cryptography/aead/aes-256-gcm"}
+  liboqs-mlkem: {title: "liboqs 0.12.0 src/kem/ml_kem/kem_ml_kem.h", url: "https://github.com/open-quantum-safe/liboqs/blob/0.12.0/src/kem/ml_kem/kem_ml_kem.h"}
+  liboqs-mldsa: {title: "liboqs 0.12.0 src/sig/ml_dsa/sig_ml_dsa.h", url: "https://github.com/open-quantum-safe/liboqs/blob/0.12.0/src/sig/ml_dsa/sig_ml_dsa.h"}
+  sec2: {title: "SEC 2 v2, Recommended Elliptic Curve Domain Parameters (secp256r1 prime)", url: "https://www.secg.org/sec2-v2.pdf"}
+  rfc7748: {title: "RFC 7748, Curve25519 prime 2^255-19", url: "https://www.rfc-editor.org/rfc/rfc7748"}
+  rfc8032: {title: "RFC 8032, Ed25519 constant d", url: "https://www.rfc-editor.org/rfc/rfc8032"}
+  rfc8017: {title: "RFC 8017, rsaEncryption OID 1.2.840.113549.1.1.1", url: "https://www.rfc-editor.org/rfc/rfc8017"}
+  rfc5480: {title: "RFC 5480, id-ecPublicKey and secp256r1 OIDs", url: "https://www.rfc-editor.org/rfc/rfc5480"}
+  csor: {title: "NIST CSOR algorithm registration (ML-KEM, ML-DSA OIDs)", url: "https://csrc.nist.gov/projects/computer-security-objects-register/algorithm-registration"}
+  fips180-4: {title: "FIPS 180-4, SHA-256 initial hash value", url: "https://csrc.nist.gov/pubs/fips/180-4/upd1/final"}
+  go-std: {title: "Go 1.26.3 standard library crypto packages", url: "https://github.com/golang/go/tree/go1.26.3/src/crypto"}
+  go-fips140: {title: "Go 1.26.3 crypto/internal/fips140 implementation packages", url: "https://github.com/golang/go/tree/go1.26.3/src/crypto/internal/fips140"}
+  go-vendor: {title: "Go 1.26.3 vendored golang.org/x/crypto", url: "https://github.com/golang/go/tree/go1.26.3/src/vendor/golang.org/x/crypto"}
+  circl-pkgs: {title: "CIRCL v1.6.5 kem/mlkem and sign/mldsa packages", url: "https://github.com/cloudflare/circl/tree/v1.6.5"}
+
+symbols:
+  # --- OpenSSL, LibreSSL and BoringSSL public API ---
+  - {names: [RSA_new, RSA_generate_key_ex, RSA_generate_multi_prime_key, RSA_sign, RSA_verify], asset: "RSA:signature", source: openssl-rsa}
+  - {names: [RSA_public_encrypt, RSA_private_decrypt], asset: "RSA:pke", source: openssl-rsa}
+  - {names: [DSA_new, DSA_generate_key, DSA_sign, DSA_verify, DSA_do_sign, DSA_do_verify], asset: "DSA:signature", source: openssl-dsa}
+  - {names: [ECDSA_sign, ECDSA_verify, ECDSA_do_sign, ECDSA_do_verify], asset: "ECDSA:signature", source: openssl-ecdsa}
+  - {names: [ECDH_compute_key], asset: "ECDH:key-agreement", source: openssl-num}
+  - {names: [DH_new, DH_generate_key, DH_compute_key], asset: "DH:key-agreement", source: openssl-dh}
+  - {names: [X25519, X25519_keypair, X25519_public_from_private], asset: "X25519:key-agreement", source: boringssl-25519}
+  - {names: [ED25519_sign, ED25519_verify, ED25519_keypair], asset: "Ed25519:signature", source: boringssl-25519}
+  - {names: [EVP_md5, MD5, MD5_Init], asset: "MD5:hash", source: openssl-digest}
+  - {names: [EVP_sha1, SHA1, SHA1_Init], asset: "SHA-1:hash", source: openssl-digest}
+  - {names: [EVP_sha256, SHA256, SHA256_Init], asset: "SHA-256:hash", source: openssl-md}
+  - {names: [EVP_sha384, SHA384, SHA384_Init], asset: "SHA-384:hash", source: openssl-md}
+  - {names: [EVP_sha512, SHA512, SHA512_Init], asset: "SHA-512:hash", source: openssl-md}
+  - {names: [EVP_sha3_256], asset: "SHA3-256:hash", source: openssl-md}
+  - {names: [EVP_sha3_512], asset: "SHA3-512:hash", source: openssl-md}
+  - {prefixes: [EVP_aes_128_], asset: "AES-128:cipher", source: openssl-cipher}
+  - {prefixes: [EVP_aes_192_], asset: "AES-192:cipher", source: openssl-cipher}
+  - {prefixes: [EVP_aes_256_], asset: "AES-256:cipher", source: openssl-cipher}
+  - {prefixes: [EVP_des_ede3], asset: "3DES:cipher", source: openssl-cipher}
+  - {names: [EVP_des_cbc, EVP_des_ecb, EVP_des_cfb64, EVP_des_ofb], asset: "DES:cipher", source: openssl-cipher}
+  - {names: [EVP_rc4, EVP_rc4_40, EVP_rc4_hmac_md5], asset: "RC4:cipher", source: openssl-cipher}
+  - {names: [EVP_chacha20_poly1305], asset: "ChaCha20-Poly1305:cipher", source: openssl-cipher}
+
+  # --- OpenSSL 3.5 internals, visible in statically linked, unstripped binaries ---
+  - {prefixes: [ossl_ml_kem_], asset: "ML-KEM:kem", source: openssl-ml-kem-src}
+  - {prefixes: [ossl_ml_dsa_], asset: "ML-DSA:signature", source: openssl-ml-dsa-src}
+  - {prefixes: [ossl_slh_dsa_], asset: "SLH-DSA:signature", source: openssl-slh-dsa-src}
+
+  # --- libsodium ---
+  - {prefixes: [crypto_box_], asset: "X25519:key-agreement", source: sodium-box}
+  - {prefixes: [crypto_kx_], asset: "X25519:key-agreement", source: sodium-kx}
+  - {prefixes: [crypto_scalarmult_curve25519], asset: "X25519:key-agreement", source: sodium-scalarmult}
+  - {prefixes: [crypto_sign_ed25519], asset: "Ed25519:signature", source: sodium-sign}
+  - {names: [crypto_sign_keypair, crypto_sign_detached, crypto_sign_verify_detached, crypto_sign, crypto_sign_open], asset: "Ed25519:signature", source: sodium-sign}
+  - {prefixes: [crypto_aead_chacha20poly1305_ietf_, crypto_aead_xchacha20poly1305_ietf_], asset: "ChaCha20-Poly1305:cipher", source: sodium-chacha}
+  - {prefixes: [crypto_aead_aes256gcm_], asset: "AES-256:cipher", source: sodium-aesgcm}
+
+  # --- liboqs per-algorithm functions ---
+  - {prefixes: [OQS_KEM_ml_kem_512_], asset: "ML-KEM-512:kem", source: liboqs-mlkem}
+  - {prefixes: [OQS_KEM_ml_kem_768_], asset: "ML-KEM-768:kem", source: liboqs-mlkem}
+  - {prefixes: [OQS_KEM_ml_kem_1024_], asset: "ML-KEM-1024:kem", source: liboqs-mlkem}
+  - {prefixes: [OQS_SIG_ml_dsa_44_], asset: "ML-DSA-44:signature", source: liboqs-mldsa}
+  - {prefixes: [OQS_SIG_ml_dsa_65_], asset: "ML-DSA-65:signature", source: liboqs-mldsa}
+  - {prefixes: [OQS_SIG_ml_dsa_87_], asset: "ML-DSA-87:signature", source: liboqs-mldsa}
+
+# Go packages whose functions in a binary's function table show the code is
+# linked. Exact function names (from the source layer's Go rule pack) are
+# matched first and can give params; packages catch the many small functions
+# the compiler inlines away. A function belongs to a package when its name
+# starts with the package path followed by "." (or "/" for subpackages).
+go_packages:
+  - {packages: [crypto/rsa, crypto/internal/fips140/rsa], asset: "RSA:signature", source: go-fips140}
+  - {packages: [crypto/ecdsa, crypto/internal/fips140/ecdsa], asset: "ECDSA:signature", source: go-fips140}
+  - {packages: [crypto/internal/fips140/ecdh], asset: "ECDH:key-agreement", source: go-fips140}
+  - {packages: [crypto/ed25519, crypto/internal/fips140/ed25519], asset: "Ed25519:signature", source: go-fips140}
+  - {packages: [crypto/dsa], asset: "DSA:signature", source: go-std}
+  - {packages: [crypto/mlkem, crypto/internal/fips140/mlkem], asset: "ML-KEM:kem", source: go-fips140}
+  - {packages: [crypto/internal/fips140/mldsa], asset: "ML-DSA:signature", source: go-fips140}
+  - {packages: [crypto/sha256, crypto/internal/fips140/sha256], asset: "SHA-256:hash", source: go-fips140}
+  - {packages: [crypto/sha512, crypto/internal/fips140/sha512], asset: "SHA-2:hash", source: go-fips140}
+  - {packages: [crypto/sha3, crypto/internal/fips140/sha3], asset: "SHA-3:hash", source: go-fips140}
+  - {packages: [crypto/md5], asset: "MD5:hash", source: go-std}
+  - {packages: [crypto/sha1], asset: "SHA-1:hash", source: go-std}
+  - {packages: [crypto/rc4], asset: "RC4:cipher", source: go-std}
+  - {packages: [crypto/aes, crypto/internal/fips140/aes], asset: "AES:cipher", source: go-fips140}
+  - {packages: [vendor/golang.org/x/crypto/chacha20poly1305, golang.org/x/crypto/chacha20poly1305], asset: "ChaCha20-Poly1305:cipher", source: go-vendor}
+  - {packages: [github.com/cloudflare/circl/kem/mlkem/mlkem512], asset: "ML-KEM-512:kem", source: circl-pkgs}
+  - {packages: [github.com/cloudflare/circl/kem/mlkem/mlkem768], asset: "ML-KEM-768:kem", source: circl-pkgs}
+  - {packages: [github.com/cloudflare/circl/kem/mlkem/mlkem1024], asset: "ML-KEM-1024:kem", source: circl-pkgs}
+  - {packages: [github.com/cloudflare/circl/sign/mldsa/mldsa44], asset: "ML-DSA-44:signature", source: circl-pkgs}
+  - {packages: [github.com/cloudflare/circl/sign/mldsa/mldsa65], asset: "ML-DSA-65:signature", source: circl-pkgs}
+  - {packages: [github.com/cloudflare/circl/sign/mldsa/mldsa87], asset: "ML-DSA-87:signature", source: circl-pkgs}
+
+# APIs that take the algorithm at run time. Reported as notes, not findings.
+generic:
+  source: openssl-kem
+  names: [EVP_PKEY_CTX_new_id, EVP_PKEY_CTX_new_from_name, EVP_PKEY_keygen, EVP_PKEY_sign, EVP_PKEY_verify,
+          EVP_PKEY_derive, EVP_PKEY_encrypt, EVP_PKEY_decrypt, EVP_PKEY_encapsulate, EVP_PKEY_decapsulate,
+          EVP_DigestSign, EVP_DigestVerify, OQS_KEM_new, OQS_SIG_new]
+
+# Byte patterns for stripped binaries with no recognised symbols. Each is
+# checked by a test against a value computed from the standard. `both_endian`
+# also matches the byte-reversed pattern, since implementations store
+# field elements in either order.
+constants:
+  - {name: P-256 field prime, hex: "ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", both_endian: true, asset: "ECDSA-P256:signature", source: sec2}
+  - {name: Curve25519 prime 2^255-19, hex: "7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed", both_endian: true, asset: "X25519:key-agreement", source: rfc7748}
+  - {name: Ed25519 constant d, hex: "52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3", both_endian: true, asset: "Ed25519:signature", source: rfc8032}
+  - {name: SHA-256 initial hash value, hex: "6a09e667bb67ae853c6ef372a54ff53a510e527f9b05688c1f83d9ab5be0cd19", both_endian: true, asset: "SHA-256:hash", source: fips180-4}
+  - {name: rsaEncryption OID, hex: "06092a864886f70d010101", asset: "RSA:signature", source: rfc8017}
+  - {name: secp256r1 OID, hex: "06082a8648ce3d030107", asset: "ECDSA-P256:signature", source: rfc5480}
+  - {name: ML-KEM-512 OID, hex: "0609608648016503040401", asset: "ML-KEM-512:kem", source: csor}
+  - {name: ML-KEM-768 OID, hex: "0609608648016503040402", asset: "ML-KEM-768:kem", source: csor}
+  - {name: ML-KEM-1024 OID, hex: "0609608648016503040403", asset: "ML-KEM-1024:kem", source: csor}
+  - {name: ML-DSA-44 OID, hex: "0609608648016503040311", asset: "ML-DSA-44:signature", source: csor}
+  - {name: ML-DSA-65 OID, hex: "0609608648016503040312", asset: "ML-DSA-65:signature", source: csor}
+  - {name: ML-DSA-87 OID, hex: "0609608648016503040313", asset: "ML-DSA-87:signature", source: csor}
