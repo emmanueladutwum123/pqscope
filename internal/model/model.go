@@ -162,6 +162,12 @@ type Finding struct {
 	Policy     []PolicyResult `json:"policy,omitempty"`
 	Risk       float64        `json:"risk,omitempty"`
 	LinkedIDs  []string       `json:"linked_ids,omitempty"`
+	// Derived names the reconciliation rule that produced this finding, such
+	// as "stale-dependency"; empty for findings observed by a discovery layer.
+	Derived string `json:"derived,omitempty"`
+	// Review explains why reconciliation flagged the finding: another layer
+	// contradicts it.
+	Review string `json:"review,omitempty"`
 }
 
 // ComputeID returns the stable ID for an (asset, location) pair. Only fields

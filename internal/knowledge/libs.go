@@ -310,3 +310,37 @@ func compareSegment(x, y string) int {
 	}
 	return strings.Compare(x, y)
 }
+
+// ByID returns the library with the given ID.
+func (l *Libs) ByID(id string) (Library, bool) {
+	for _, lib := range l.libs {
+		if lib.ID == id {
+			return lib, true
+		}
+	}
+	return Library{}, false
+}
+
+// FirstPQC returns the earliest version from which a library provides a
+// post-quantum or hybrid asset, and those assets' names. ok is false if no
+// version does.
+func (l *Libs) FirstPQC(lib Library) (since string, names []string, ok bool) {
+	for _, c := range lib.Capabilities {
+		var pq []string
+		for _, p := range c.Provides {
+			q := ""
+			if e, found := l.db.ByID(p); found {
+				q = e.Quantum
+			} else {
+				q, _ = l.db.FamilyQuantum(p)
+			}
+			if q == model.QuantumSafe || q == model.QuantumHybrid {
+				pq = append(pq, p)
+			}
+		}
+		if len(pq) > 0 && (!ok || CompareVersions(c.Since, since) < 0) {
+			since, names, ok = c.Since, pq, true
+		}
+	}
+	return since, names, ok
+}
