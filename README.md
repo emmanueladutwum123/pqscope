@@ -9,13 +9,14 @@ layers to expose gaps between what a system declares and what it actually deploy
 
 ## Status
 
-Milestone 5 of 13. Three layers work:
+Milestone 6 of 13. Four layers work:
 
 - **source:** Go and Python code;
 - **config:** nginx, Apache, sshd, openssl.cnf, Kubernetes, and certificates and keys;
-- **deps:** Go, Python, npm, Maven and Cargo manifests.
+- **deps:** Go, Python, npm, Maven and Cargo manifests;
+- **network:** `pqscope net` probes TLS and SSH endpoints.
 
-Binaries and the network aren't scanned yet. `version`, `scan`, `report` and `policy` work.
+Binaries aren't scanned yet. `version`, `scan`, `report`, `policy` and `net` work.
 The other commands exit non-zero with a "not implemented" error, so a stub can't be mistaken
 for a clean scan.
 
@@ -67,6 +68,23 @@ they provide at their version. For example, pyca/cryptography provides ML-KEM fr
 reads TLS and SSH configuration, and certificates, keys and CSRs. Private keys are reported by
 algorithm, size and public-key fingerprint only, and a test checks that their bytes never reach
 any output. See [docs/layers.md](docs/layers.md).
+
+## Network probing
+
+`pqscope net` sends a hand-built TLS 1.3 ClientHello and records the group the server
+selects, which tells X25519MLKEM768 from X25519. It also collects the certificate chain,
+and for SSH it reads the server's banner and KEXINIT. It writes one JSON line per target:
+
+```sh
+pqscope net --targets hosts.txt --exclude optout.txt -o net.jsonl --findings net.json
+pqscope policy net.json
+```
+
+Rate limits, one connection at a time per host, timeouts, at most two retries and the
+exclude list are enforced in code. Read [docs/scanning.md](docs/scanning.md), which covers
+what is sent and how operators opt out, before probing hosts you don't operate. Integration
+tests check the probes against OpenSSL 3.5, Go and OpenSSH servers in Docker (`make
+integration`), and CI runs them on every push.
 
 ## Output formats
 

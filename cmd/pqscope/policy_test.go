@@ -112,7 +112,7 @@ func TestPolicyErrorsExitTwo(t *testing.T) {
 		{[]string{"policy", "--policy", "pci-dss", findings}, "bundled policies: cnsa-2.0, nist-ir-8547-2026"},
 		{[]string{"policy", "--fail-on", "compliant", findings}, "--fail-on"},
 		{[]string{"policy"}, "accepts 1 arg"},
-		{[]string{"net"}, "not implemented"},
+		{[]string{"eval"}, "not implemented"},
 	}
 	for _, tt := range tests {
 		_, stderr, code := run(t, tt.args...)

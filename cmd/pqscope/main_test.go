@@ -97,7 +97,6 @@ func TestStubsFailRatherThanReportCleanScan(t *testing.T) {
 	tests := []struct {
 		args []string
 	}{
-		{[]string{"net", "--targets", "hosts.txt"}},
 		{[]string{"bench"}},
 		{[]string{"eval"}},
 	}

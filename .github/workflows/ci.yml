@@ -21,6 +21,18 @@ jobs:
         with:
           version: v2.15.0
 
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: Network probes against OpenSSL 3.5, Go and OpenSSH servers in Docker
+        run: make integration
+        env:
+          PQSCOPE_REQUIRE_DOCKER: "1"
+
   test:
     runs-on: ubuntu-latest
     steps:

@@ -2,6 +2,49 @@
 
 ## Unreleased
 
+### Milestone 6: network layer
+
+- Add `internal/discover/network`.
+  - **TLS ServerHello probe:** a hand-built TLS 1.3 ClientHello with configurable groups
+    (default X25519MLKEM768, x25519, secp256r1) and real ML-KEM/ECDH key shares. It records
+    the group from the ServerHello or HelloRetryRequest and closes without completing the
+    exchange.
+  - **Certificate collection:** a separate `crypto/tls` handshake.
+  - **SSH probe:** reads the banner and KEXINIT, sending only an identification string that
+    names the project page.
+- Responsible-scanning limits enforced in code, each tested:
+  - a global rate limit (default 50/s, at most 1000), with spacing checked on a fake clock and
+    in real time;
+  - one connection per host;
+  - timeouts (default 5 s, at most 30 s);
+  - at most 2 retries;
+  - an exclude list of names, domains, IPs and CIDRs, checked against every resolved address.
+- Add `pqscope net`. It reads targets from `--targets` and arguments, writes JSONL records
+  with `-o`, and can write findings for `report` and `policy` with `--findings`.
+- Unit tests open no sockets: a pipe dialer connects to in-process Go TLS and SSH servers.
+- Integration tests (`make integration`, a new CI job):
+  - local OpenSSL 3.5+: hybrid, classical, server-preference tiers, and HelloRetryRequest;
+  - OpenSSL 3.5.9 and a Go server in Docker: X25519MLKEM768 versus X25519;
+  - OpenSSH 10.0 in Docker: offers mlkem768x25519-sha256 by default, and not when restricted.
+- Add `docs/scanning.md`, the public page the probes point to, with what is sent, the
+  enforced limits, and how to opt out.
+- The config layer exports name lookups and certificate classification for reuse.
+
+Notes:
+
+- Go ignores the order of `tls.Config.CurvePreferences` and applies its own preference.
+  OpenSSL 3.5+ treats `:`-separated groups as equal and `/` as preference tiers. The tests
+  encode both behaviours.
+- X25519MLKEM768 and its SecP variants are now RFC 10024 in the IANA registry.
+
+Known limits:
+
+- The ServerHello probe offers TLS 1.3 only. A TLS 1.2-only server answers with an alert,
+  and its version and group come from the full handshake instead.
+- SSH results are what the server offers, not what a given client would negotiate.
+- Opt-outs are taken through GitHub issues. Add an email contact before large measurement
+  runs.
+
 ### Milestone 5: dependency and config/key-material layers
 
 - Add `internal/discover/deps`. It parses go.mod, go.sum, requirements*.txt, poetry.lock,
