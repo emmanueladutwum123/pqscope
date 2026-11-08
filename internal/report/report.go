@@ -90,7 +90,9 @@ type Group struct {
 	Name      string
 	Primitive string
 	Quantum   string
-	Migration string // "" when no replacement is needed or recorded
+	Migration string            // "" when no replacement is needed or recorded
+	Policy    map[string]string // policy ID to the most urgent status among the findings
+	Risk      float64           // highest risk among the findings
 	Count     int
 }
 
@@ -102,18 +104,26 @@ func Groups(db *knowledge.DB, findings []model.Finding) []Group {
 	var out []Group
 	for _, f := range findings {
 		k := key{f.Asset.Algorithm, f.Asset.Params, f.Asset.Primitive}
-		if i, ok := index[k]; ok {
-			out[i].Count++
-			continue
+		i, ok := index[k]
+		if !ok {
+			i = len(out)
+			index[k] = i
+			out = append(out, Group{
+				Name:      db.Name(f.Asset),
+				Primitive: f.Asset.Primitive,
+				Quantum:   f.Asset.Quantum,
+				Migration: db.Migration(f.Asset),
+				Policy:    map[string]string{},
+			})
 		}
-		index[k] = len(out)
-		out = append(out, Group{
-			Name:      db.Name(f.Asset),
-			Primitive: f.Asset.Primitive,
-			Quantum:   f.Asset.Quantum,
-			Migration: db.Migration(f.Asset),
-			Count:     1,
-		})
+		g := &out[i]
+		g.Count++
+		g.Risk = max(g.Risk, f.Risk)
+		for _, r := range f.Policy {
+			if cur, seen := g.Policy[r.Policy]; !seen || model.PolicySeverity(r.Status) > model.PolicySeverity(cur) {
+				g.Policy[r.Policy] = r.Status
+			}
+		}
 	}
 	slices.SortStableFunc(out, func(a, b Group) int {
 		return cmp.Or(
@@ -126,28 +136,80 @@ func Groups(db *knowledge.DB, findings []model.Finding) []Group {
 	return out
 }
 
-// Text writes a findings table, an asset summary with migration targets, and
-// the scan summary.
+// PolicyIDs lists the policies that evaluated any finding, in order of first
+// appearance.
+func PolicyIDs(findings []model.Finding) []string {
+	var ids []string
+	for _, f := range findings {
+		for _, r := range f.Policy {
+			if !slices.Contains(ids, r.Policy) {
+				ids = append(ids, r.Policy)
+			}
+		}
+	}
+	return ids
+}
+
+// CountByPolicy counts findings per status under one policy, most urgent
+// first and unknown last, omitting statuses with no findings.
+func CountByPolicy(findings []model.Finding, policyID string) []StatusCount {
+	counts := map[string]int{}
+	for _, f := range findings {
+		for _, r := range f.Policy {
+			if r.Policy == policyID {
+				counts[r.Status]++
+			}
+		}
+	}
+	var out []StatusCount
+	for _, s := range []string{model.PolicyBrokenNow, model.PolicyDisallowedNow, model.PolicyDeprecated,
+		model.PolicyDisallowed, model.PolicyCompliant, model.PolicyUnknown} {
+		if counts[s] > 0 {
+			out = append(out, StatusCount{s, counts[s]})
+		}
+	}
+	return out
+}
+
+func joinCounts(counts []StatusCount) string {
+	parts := make([]string, len(counts))
+	for i, c := range counts {
+		parts[i] = fmt.Sprintf("%d %s", c.Count, c.Status)
+	}
+	return strings.Join(parts, ", ")
+}
+
+// Text writes a findings table, an asset summary with policy statuses and
+// migration targets, and the scan summary.
 func Text(w io.Writer, db *knowledge.DB, findings []model.Finding, sum Summary) error {
 	var b strings.Builder // strings.Builder never fails, so its errors are dropped
 	if len(findings) > 0 {
-		table(&b, "LOCATION\tALGORITHM\tPARAMS\tQUANTUM\tCONFIDENCE\tRULE", func(row func(...any)) {
+		table(&b, "LOCATION\tALGORITHM\tPARAMS\tQUANTUM\tCONFIDENCE\tRISK\tRULE", func(row func(...any)) {
 			for _, f := range findings {
-				row(location(f), f.Asset.Algorithm, f.Asset.Params, f.Asset.Quantum, fmt.Sprintf("%.2f", f.Confidence), cmp.Or(f.RuleID, "-"))
+				row(location(f), f.Asset.Algorithm, f.Asset.Params, f.Asset.Quantum,
+					fmt.Sprintf("%.2f", f.Confidence), fmt.Sprintf("%.2f", f.Risk), cmp.Or(f.RuleID, "-"))
 			}
 		})
 		b.WriteString("\n")
-		table(&b, "ASSET\tPRIMITIVE\tQUANTUM\tFINDINGS\tMIGRATE TO", func(row func(...any)) {
-			for _, g := range Groups(db, findings) {
-				row(g.Name, g.Primitive, g.Quantum, g.Count, cmp.Or(g.Migration, "-"))
-			}
-		})
-		b.WriteString("\n")
-		var parts []string
-		for _, c := range CountByStatus(findings) {
-			parts = append(parts, fmt.Sprintf("%d %s", c.Count, c.Status))
+		policies := PolicyIDs(findings)
+		header := "ASSET\tPRIMITIVE\tQUANTUM\tFINDINGS"
+		for _, id := range policies {
+			header += "\t" + strings.ToUpper(id)
 		}
-		b.WriteString("Quantum status: " + strings.Join(parts, ", ") + "\n")
+		table(&b, header+"\tMIGRATE TO", func(row func(...any)) {
+			for _, g := range Groups(db, findings) {
+				cells := []any{g.Name, g.Primitive, g.Quantum, g.Count}
+				for _, id := range policies {
+					cells = append(cells, cmp.Or(g.Policy[id], "-"))
+				}
+				row(append(cells, cmp.Or(g.Migration, "-"))...)
+			}
+		})
+		b.WriteString("\n")
+		b.WriteString("Quantum status: " + joinCounts(CountByStatus(findings)) + "\n")
+		for _, id := range policies {
+			b.WriteString(id + ": " + joinCounts(CountByPolicy(findings, id)) + "\n")
+		}
 	}
 	b.WriteString(sum.Line(len(findings)) + "\n")
 	_, err := io.WriteString(w, b.String())

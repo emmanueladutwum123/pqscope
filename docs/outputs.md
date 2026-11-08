@@ -50,10 +50,15 @@ Properties in the `pqscope:` namespace record what CycloneDX has no field for:
 
 | Property | Value |
 |---|---|
+| `pqscope:algorithm`, `pqscope:params`, `pqscope:primitive` | The exact asset, so `pqscope policy` can read the CBOM back |
 | `pqscope:quantum` | `vulnerable`, `weakened`, `safe`, `hybrid` or `broken-now` |
 | `pqscope:migration:civilian`, `pqscope:migration:cnsa2` | Replacement entry IDs, when the asset needs one |
-| `pqscope:policy:<name>` | Worst policy verdict across the asset's findings (filled from milestone 4) |
-| `pqscope:risk` | Highest risk score across the asset's findings (filled from milestone 4) |
+| `pqscope:policy:<name>` | Most urgent verdict across the asset's findings, per policy; see [policy.md](policy.md) |
+| `pqscope:risk` | Highest risk score across the asset's findings; see [risk.md](risk.md) |
+
+`pqscope policy` also reads CBOMs from other tools. It matches each algorithm component to the
+knowledge DB by name, parameter set and curve, filtered by primitive. A component that doesn't
+match exactly one entry is evaluated with unknown params.
 
 The CBOM is not lossless. Per-finding confidence and rule IDs are summarised per technique.
 Keep the `--json` output when exact findings matter.
@@ -70,8 +75,9 @@ generated description, its pack notes as `fullDescription`, and its API citation
 | `vulnerable` | `warning` |
 | `weakened`, `hybrid`, `safe` | `note` |
 
-Policy verdicts, which arrive in milestone 4, don't change the level yet. The message names
-the asset and its migration targets. The finding's asset, confidence and migration are in
+Policy verdicts and the risk score are in each result's property bag, and they don't change
+the level. Gate CI with `pqscope policy`, not with SARIF levels. The message names the asset
+and its migration targets. The finding's asset, confidence and migration are in
 the result's property bag, and the finding ID is the partial fingerprint
 `pqscopeFindingId/v1`.
 

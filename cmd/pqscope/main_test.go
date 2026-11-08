@@ -99,7 +99,6 @@ func TestStubsFailRatherThanReportCleanScan(t *testing.T) {
 	}{
 		{[]string{"net", "--targets", "hosts.txt"}},
 		{[]string{"bench"}},
-		{[]string{"policy", "--policy", "nist-ir-8547-2026", "cbom.json"}},
 		{[]string{"eval"}},
 	}
 	for _, tt := range tests {

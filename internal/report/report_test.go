@@ -2,6 +2,7 @@ package report
 
 import (
 	"bytes"
+	"reflect"
 	"regexp"
 	"strings"
 	"testing"
@@ -36,30 +37,41 @@ func finding(t *testing.T, db *knowledge.DB, id, primitive, path string, line in
 	return f
 }
 
+// sample returns findings with policy results and risk filled in, as scan
+// produces them.
 func sample(t *testing.T, db *knowledge.DB) []model.Finding {
-	return []model.Finding{
+	fs := []model.Finding{
 		finding(t, db, "AES-256", "cipher", "a.go", 1),
 		finding(t, db, "RSA-2048", "signature", "a.go", 2),
 		finding(t, db, "RSA-2048", "signature", "b.go", 3),
 		finding(t, db, "MD5", "hash", "c.py", 4),
 		finding(t, db, "X25519MLKEM768", "key-agreement", "d.go", 5),
 	}
+	verdicts := []struct{ nist, cnsa string }{
+		{"compliant", "compliant"}, {"deprecated-2030", "disallowed-now"}, {"deprecated-2030", "unknown"},
+		{"broken-now", "broken-now"}, {"compliant", "disallowed-now"},
+	}
+	for i := range fs {
+		fs[i].Policy = []model.PolicyResult{{Policy: "nist", Status: verdicts[i].nist}, {Policy: "cnsa", Status: verdicts[i].cnsa}}
+		fs[i].Risk = float64(i) / 10
+	}
+	return fs
 }
 
 func TestGroups(t *testing.T) {
 	db := testDB(t)
 	got := Groups(db, sample(t, db))
 	want := []Group{
-		{"MD5", "hash", "broken-now", "civilian: SHA-256; CNSA 2.0: SHA-384", 1},
-		{"RSA-2048", "signature", "vulnerable", "civilian: ML-DSA-65; CNSA 2.0: ML-DSA-87", 2},
-		{"AES-256", "cipher", "weakened", "", 1},
-		{"X25519MLKEM768", "key-agreement", "hybrid", "", 1},
+		{"MD5", "hash", "broken-now", "civilian: SHA-256; CNSA 2.0: SHA-384", map[string]string{"nist": "broken-now", "cnsa": "broken-now"}, 0.3, 1},
+		{"RSA-2048", "signature", "vulnerable", "civilian: ML-DSA-65; CNSA 2.0: ML-DSA-87", map[string]string{"nist": "deprecated-2030", "cnsa": "disallowed-now"}, 0.2, 2},
+		{"AES-256", "cipher", "weakened", "", map[string]string{"nist": "compliant", "cnsa": "compliant"}, 0, 1},
+		{"X25519MLKEM768", "key-agreement", "hybrid", "", map[string]string{"nist": "compliant", "cnsa": "disallowed-now"}, 0.4, 1},
 	}
 	if len(got) != len(want) {
 		t.Fatalf("Groups = %+v", got)
 	}
 	for i := range want {
-		if got[i] != want[i] {
+		if !reflect.DeepEqual(got[i], want[i]) {
 			t.Errorf("group %d = %+v, want %+v", i, got[i], want[i])
 		}
 	}
@@ -103,10 +115,12 @@ func TestText(t *testing.T) {
 	}
 	out := buf.String()
 	for _, want := range []string{
-		"LOCATION", "a.go:2", "test.RSA-2048",
-		"ASSET", "MIGRATE TO",
-		"RSA-2048        signature      vulnerable  2         civilian: ML-DSA-65; CNSA 2.0: ML-DSA-87",
+		"LOCATION", "RISK", "a.go:2", "0.10", "test.RSA-2048",
+		"ASSET           PRIMITIVE      QUANTUM     FINDINGS  NIST             CNSA            MIGRATE TO\n",
+		"RSA-2048        signature      vulnerable  2         deprecated-2030  disallowed-now  civilian: ML-DSA-65; CNSA 2.0: ML-DSA-87",
 		"Quantum status: 1 broken-now, 2 vulnerable, 1 weakened, 1 hybrid\n",
+		"nist: 1 broken-now, 2 deprecated-2030, 2 compliant\n",
+		"cnsa: 1 broken-now, 2 disallowed-now, 1 compliant, 1 unknown\n",
 		"5 findings in 4 files scanned\n",
 	} {
 		if !strings.Contains(out, want) {
@@ -145,7 +159,9 @@ func TestHTML(t *testing.T) {
 		"Target <code>./svc</code>",
 		"5 findings in 4 files scanned",
 		"2026-11-07T00:00:00Z",
-		`<td class="q q-vulnerable">vulnerable</td><td class="num">2</td><td>civilian: ML-DSA-65; CNSA 2.0: ML-DSA-87</td>`,
+		`<td class="q q-vulnerable">vulnerable</td><td class="num">2</td><td class="num">0.20</td><td class="p p-deprecated-2030">deprecated-2030</td><td class="p p-disallowed-now">disallowed-now</td><td>civilian: ML-DSA-65; CNSA 2.0: ML-DSA-87</td>`,
+		`<th>nist</th><th>cnsa</th>`,
+		`<td class="num">0.30</td><td class="p p-broken-now">broken-now</td>`,
 		`<tr data-q="broken-now"><td><code>c.py:4</code></td>`,
 		`<option value="hybrid">hybrid</option>`,
 	} {
@@ -186,5 +202,23 @@ func TestHTMLEmpty(t *testing.T) {
 	out := renderHTML(t, nil)
 	if !strings.Contains(out, "No cryptographic assets found.") || strings.Contains(out, `id="findings"`) {
 		t.Error("empty report should say so and omit the findings table")
+	}
+}
+
+func TestPolicyIDs(t *testing.T) {
+	db := testDB(t)
+	if got := PolicyIDs(sample(t, db)); !reflect.DeepEqual(got, []string{"nist", "cnsa"}) {
+		t.Errorf("PolicyIDs = %v", got)
+	}
+	plain := []model.Finding{finding(t, db, "MD5", "hash", "a.py", 1)}
+	if got := PolicyIDs(plain); got != nil {
+		t.Errorf("PolicyIDs without policy results = %v", got)
+	}
+	var buf bytes.Buffer
+	if err := Text(&buf, db, plain, Summary{}); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(buf.String(), "ASSET  PRIMITIVE  QUANTUM     FINDINGS  MIGRATE TO") {
+		t.Errorf("asset table without policies:\n%s", buf.String())
 	}
 }

@@ -2,6 +2,40 @@
 
 ## Unreleased
 
+### Milestone 4: policy engine, NIST IR 8547 and CNSA 2.0 policies, risk score
+
+- Add `internal/policy` and the bundled policies `policies/nist-ir-8547-2026.yaml` and
+  `policies/cnsa-2.0.yaml`. Every rule cites a document section. The loader requires every
+  knowledge DB (entry, primitive) pair to be matched by exactly one rule. A hand-written test
+  table checks all 66 pairs under both policies.
+- Add `internal/risk`: `risk = exposure × secrecy_lifetime × quantum_status × confidence`, with
+  every weight in `internal/risk/weights.yaml`. See `docs/risk.md`.
+- Add `pqscope policy`, which reads a CBOM (including other tools' CBOMs, best effort) or saved
+  findings. It exits 0 on pass, 1 when any asset reaches `--fail-on` (default
+  `disallowed-2035`), and 2 on errors. CI now runs the built binary as a gate on fixtures that
+  should pass and fail.
+- `pqscope scan` fills each finding's policy verdicts and risk. The terminal and HTML reports
+  show them, and the CBOM records the exact asset so it can be read back.
+- Add the `disallowed-now` policy status, and the `rule`, `schedule` and `at_best` fields of
+  `PolicyResult`.
+- All commands now exit 2 on errors, not 1, so exit code 1 always means a failed policy gate.
+
+Sources read for this milestone: NIST IR 8547 final (October 2026; PDF SHA-256
+`3049cdfd...dc280`), SP 800-131A Rev. 2, FIPS 186-5, draft-becker-cnsa2-tls-profile-05 and
+RFC 9151. IR 8547 final differs from the draft in ways the policy follows. Tables 2 and 4 give
+every quantum-vulnerable family at 112 bits or more the same schedule (deprecated after 2030,
+disallowed after 2035), with no split by strength, and DSA is no longer listed.
+
+Known limits:
+
+- NSA's CNSA 2.0 advisory could not be fetched: media.defense.gov refuses automated clients.
+  NSA's per-equipment-class exclusive-use dates (2030 to 2033) are therefore not encoded, and
+  CNSA 1.0 algorithms carry the 2035 NSM-10 target instead. The knowledge DB's `cnsa2` citation
+  is still the IETF profile. Both need the NSA document.
+- sntrup761x25519 is `unknown` under NIST IR 8547. Whether its X25519 input counts as an
+  approved scheme for the hybrid rule is not settled here.
+- Risk exposure uses path and symbol heuristics, with no reachability analysis.
+
 ### Milestone 3: CBOM, SARIF and reports
 
 - Add `internal/cbom`, which writes a CycloneDX 1.6 CBOM. Each distinct asset is a
@@ -73,8 +107,7 @@ Known limits:
 Known limits:
 
 - CNSA 2.0 is cited through an IETF profile draft, because the NSA PDF could not be fetched
-  by script. Replace this with the NSA document before the policy work in milestone 4.
-- IR 8547 is cited at document level. Section numbers still need to be read from the report
-  itself for milestone 4.
+  by script. Still open after milestone 4; see above.
+- IR 8547 is cited at document level here. Milestone 4's policy cites its sections.
 - Sizes for RSA-1024, RSA-4096, P-224, Ed448, X448 and DH, and ECDSA public keys, come from
   the cited standards and are not cross-checked against an implementation.

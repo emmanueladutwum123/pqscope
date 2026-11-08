@@ -24,7 +24,8 @@ type HTMLOptions struct {
 }
 
 type htmlRow struct {
-	Location, Algorithm, Params, Primitive, Quantum, Confidence, Rule, Evidence string
+	Location, Algorithm, Params, Primitive, Quantum, Confidence, Risk, Rule, Evidence string
+	Statuses                                                                          []string // one per policy, in the order of PolicyIDs
 }
 
 // HTML writes a self-contained HTML report. It loads nothing from the network,
@@ -34,9 +35,21 @@ func HTML(w io.Writer, db *knowledge.DB, findings []model.Finding, sum Summary, 
 	if generated.IsZero() {
 		generated = time.Now()
 	}
+	policies := PolicyIDs(findings)
 	rows := make([]htmlRow, 0, len(findings))
 	for _, f := range findings {
+		statuses := make([]string, len(policies))
+		for i, id := range policies {
+			statuses[i] = "-"
+			for _, r := range f.Policy {
+				if r.Policy == id {
+					statuses[i] = r.Status
+				}
+			}
+		}
 		rows = append(rows, htmlRow{
+			Risk:       fmt.Sprintf("%.2f", f.Risk),
+			Statuses:   statuses,
 			Location:   location(f),
 			Algorithm:  f.Asset.Algorithm,
 			Params:     f.Asset.Params,
@@ -56,5 +69,6 @@ func HTML(w io.Writer, db *knowledge.DB, findings []model.Finding, sum Summary, 
 		"Counts":      CountByStatus(findings),
 		"Groups":      Groups(db, findings),
 		"Rows":        rows,
+		"Policies":    policies,
 	})
 }

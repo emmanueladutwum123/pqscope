@@ -22,6 +22,8 @@ func newScanCmd() *cobra.Command {
 		Long: "Scan a directory or file for cryptographic assets.\n\n" +
 			"Only the source layer is implemented: Go and Python files. Dependencies,\n" +
 			"configuration, binaries and the network are not scanned yet.\n\n" +
+			"Each finding is evaluated under every bundled policy and given a risk score.\n" +
+			"Use `pqscope policy` to gate CI on the result.\n\n" +
 			"A summary goes to standard output, or the findings as JSON with --json.\n" +
 			"-o, --sarif and --html also write a CycloneDX CBOM, a SARIF log and an\n" +
 			"HTML report.",
@@ -41,6 +43,9 @@ func newScanCmd() *cobra.Command {
 			}
 			res, err := s.Scan(cmd.Context(), root)
 			if err != nil {
+				return err
+			}
+			if err := annotate(db, res.Findings); err != nil {
 				return err
 			}
 			sum := report.Summary{

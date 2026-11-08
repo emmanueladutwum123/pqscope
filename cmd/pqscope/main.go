@@ -19,9 +19,25 @@ var version = "dev"
 // script can never mistake a stub for a clean scan.
 var errNotImplemented = errors.New("not implemented")
 
+// Exit codes. A failed policy gate is distinct from an error, so CI can tell
+// "found disallowed crypto" from "could not run".
+const (
+	exitPolicyFailed = 1
+	exitError        = 2
+)
+
 func main() {
-	if err := newRootCmd().Execute(); err != nil {
-		os.Exit(1)
+	os.Exit(exitCode(newRootCmd().Execute()))
+}
+
+func exitCode(err error) int {
+	switch {
+	case err == nil:
+		return 0
+	case errors.Is(err, errPolicyFailed):
+		return exitPolicyFailed
+	default:
+		return exitError
 	}
 }
 
@@ -32,12 +48,11 @@ func newRootCmd() *cobra.Command {
 		SilenceUsage:  true,
 		SilenceErrors: false,
 	}
-	root.AddCommand(newVersionCmd(), newScanCmd(), newReportCmd())
+	root.AddCommand(newVersionCmd(), newScanCmd(), newReportCmd(), newPolicyCmd())
 	for _, stub := range []struct {
 		name, short string
 		milestone   int
 	}{
-		{"policy", "Evaluate a CBOM against a policy", 4},
 		{"net", "Probe network endpoints for negotiated key exchange", 6},
 		{"eval", "Run the evaluation harness", 10},
 		{"bench", "Run migration-cost benchmarks", 11},
