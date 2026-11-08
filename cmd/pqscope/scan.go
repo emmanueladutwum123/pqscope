@@ -2,27 +2,29 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
-	"strings"
-	"text/tabwriter"
 
 	"github.com/spf13/cobra"
 
 	"github.com/emmanueladutwum123/pqscope/internal/discover/source"
 	"github.com/emmanueladutwum123/pqscope/internal/knowledge"
 	"github.com/emmanueladutwum123/pqscope/internal/model"
+	"github.com/emmanueladutwum123/pqscope/internal/report"
 	"github.com/emmanueladutwum123/pqscope/rules"
 )
 
 func newScanCmd() *cobra.Command {
 	var asJSON bool
+	var out outputs
 	cmd := &cobra.Command{
 		Use:   "scan [path]",
 		Short: "Scan source code for cryptographic assets (Go and Python)",
 		Long: "Scan a directory or file for cryptographic assets.\n\n" +
 			"Only the source layer is implemented: Go and Python files. Dependencies,\n" +
-			"configuration, binaries and the network are not scanned yet.",
+			"configuration, binaries and the network are not scanned yet.\n\n" +
+			"A summary goes to standard output, or the findings as JSON with --json.\n" +
+			"-o, --sarif and --html also write a CycloneDX CBOM, a SARIF log and an\n" +
+			"HTML report.",
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			root := "."
@@ -41,49 +43,32 @@ func newScanCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if asJSON {
-				return writeJSON(cmd.OutOrStdout(), res)
+			sum := report.Summary{
+				Target:       root,
+				Counted:      true,
+				FilesScanned: res.FilesScanned,
+				Skipped:      len(res.Skipped),
+				SyntaxErrors: len(res.SyntaxErrors),
 			}
-			return writeText(cmd.OutOrStdout(), res)
+			if err := out.write(db, s, res.Findings, sum); err != nil {
+				return err
+			}
+			if asJSON {
+				return writeJSON(cmd.OutOrStdout(), res.Findings)
+			}
+			return report.Text(cmd.OutOrStdout(), db, res.Findings, sum)
 		},
 	}
-	cmd.Flags().BoolVar(&asJSON, "json", false, "write findings as a JSON array")
+	cmd.Flags().BoolVar(&asJSON, "json", false, "write findings to standard output as a JSON array")
+	out.register(cmd)
 	return cmd
 }
 
-func writeJSON(w io.Writer, res source.Result) error {
+func writeJSON(w io.Writer, findings []model.Finding) error {
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
-	findings := res.Findings
 	if findings == nil {
 		findings = []model.Finding{}
 	}
 	return enc.Encode(findings)
-}
-
-func writeText(w io.Writer, res source.Result) error {
-	var table strings.Builder
-	table.WriteString("LOCATION\tALGORITHM\tPARAMS\tQUANTUM\tCONFIDENCE\tRULE\n")
-	for _, f := range res.Findings {
-		_, _ = fmt.Fprintf(&table, "%s:%d\t%s\t%s\t%s\t%.2f\t%s\n", // strings.Builder never fails
-			f.Location.Path, f.Location.Line, f.Asset.Algorithm, f.Asset.Params,
-			f.Asset.Quantum, f.Confidence, f.RuleID)
-	}
-	tw := tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
-	if _, err := io.WriteString(tw, table.String()); err != nil {
-		return err
-	}
-	if err := tw.Flush(); err != nil {
-		return err
-	}
-
-	summary := fmt.Sprintf("\n%d findings in %d files scanned", len(res.Findings), res.FilesScanned)
-	if n := len(res.Skipped); n > 0 {
-		summary += fmt.Sprintf(", %d skipped", n)
-	}
-	if n := len(res.SyntaxErrors); n > 0 {
-		summary += fmt.Sprintf(", %d with syntax errors", n)
-	}
-	_, err := io.WriteString(w, summary+"\n")
-	return err
 }

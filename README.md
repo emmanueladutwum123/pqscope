@@ -9,10 +9,10 @@ layers to expose gaps between what a system declares and what it actually deploy
 
 ## Status
 
-Milestone 2 of 13. **Only the source layer works, for Go and Python.** Dependencies,
-configuration, binaries and the network aren't scanned yet. Commands other than `version`
-and `scan` exit non-zero with a "not implemented" error, so a stub can't be mistaken for a
-clean scan.
+Milestone 3 of 13. **Only the source layer works, for Go and Python.** Dependencies,
+configuration, binaries and the network aren't scanned yet. `version`, `scan` and `report`
+work. The other commands exit non-zero with a "not implemented" error, so a stub can't be
+mistaken for a clean scan.
 
 ```sh
 $ pqscope scan ./server
@@ -21,10 +21,26 @@ main.go:9   Hybrid     X25519MLKEM768  hybrid      0.90        go.tls.x25519mlke
 main.go:10  X25519     X25519          vulnerable  0.90        go.tls.x25519
 main.go:11  ECDH       P-256           vulnerable  0.90        go.tls.p256
 
+ASSET           PRIMITIVE      QUANTUM     FINDINGS  MIGRATE TO
+ECDH-P256       key-agreement  vulnerable  1         civilian: X25519MLKEM768 (hybrid); CNSA 2.0: ML-KEM-1024
+X25519          key-agreement  vulnerable  1         civilian: X25519MLKEM768 (hybrid); CNSA 2.0: ML-KEM-1024
+X25519MLKEM768  kem            hybrid      1         -
+
+Quantum status: 2 vulnerable, 1 hybrid
 3 findings in 1 files scanned
 ```
 
-Use `--json` to get findings as JSON instead of a table.
+Other output formats:
+
+```sh
+pqscope scan . -o cbom.json --sarif pqscope.sarif --html report.html
+pqscope scan . --json > findings.json      # lossless findings
+pqscope report findings.json --html report.html
+```
+
+The CBOM is CycloneDX 1.6, and the SARIF is 2.1.0 for GitHub code scanning. Tests validate
+both against the official schemas. [docs/outputs.md](docs/outputs.md) describes how findings
+map to each format.
 
 ## Build and test
 
