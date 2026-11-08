@@ -1,0 +1,392 @@
+scope,group_by,key,n,responding,hybrid,pq-only,classical,tls1.2-or-lower,tls-error,unreachable,unresolvable,excluded,hybrid_share,ci95_low,ci95_high
+endpoint,all,all,2638,1960,1130,0,489,341,20,169,489,0,0.5765,0.5545,0.5982
+endpoint,branch,Federal,4,3,0,0,3,0,0,0,1,0,0.0000,0.0000,0.5615
+endpoint,branch,Federal - Executive,2344,1760,990,0,439,331,18,146,420,0,0.5625,0.5392,0.5855
+endpoint,branch,Federal - Judicial,48,22,18,0,3,1,0,0,26,0,0.8182,0.6148,0.9269
+endpoint,branch,Federal - Legislative,242,175,122,0,44,9,2,23,42,0,0.6971,0.6254,0.7604
+endpoint,agency,.gov Administration,44,4,4,0,0,0,1,0,39,0,1.0000,0.5101,1.0000
+endpoint,agency,Access Board,2,2,1,0,0,1,0,0,0,0,0.5000,0.0945,0.9055
+endpoint,agency,Adams Memorial Commission,2,1,0,0,1,0,0,0,1,0,0.0000,0.0000,0.7935
+endpoint,agency,Administrative Conference of the United States,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,Administrative Office of the United States Courts,26,12,9,0,2,1,0,0,14,0,0.7500,0.4677,0.9111
+endpoint,agency,Advisory Council on Historic Preservation,4,1,0,0,0,1,0,1,2,0,0.0000,0.0000,0.7935
+endpoint,agency,American Battle Monuments Commission,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,Appalachian Regional Commission,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,Appraisal Subcommittee of the Federal Financial Institutions Examination Council,2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,Architect of the Capitol,26,12,3,0,8,1,0,3,11,0,0.2500,0.0889,0.5323
+endpoint,agency,"Architect of the Capitol, Office of Inspector General",2,2,1,0,1,0,0,0,0,0,0.5000,0.0945,0.9055
+endpoint,agency,Arctic Research Commission,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,Armed Forces Retirement Home,2,0,0,0,0,0,0,1,1,0,0.0000,0.0000,0.0000
+endpoint,agency,Barry Goldwater Scholarship and Excellence in Education Foundation,4,4,4,0,0,0,0,0,0,0,1.0000,0.5101,1.0000
+endpoint,agency,Board of Governors of the Federal Reserve,26,15,15,0,0,0,0,1,10,0,1.0000,0.7961,1.0000
+endpoint,agency,Capitol Police,4,1,1,0,0,0,0,0,3,0,1.0000,0.2065,1.0000
+endpoint,agency,Central Intelligence Agency,16,3,3,0,0,0,0,3,10,0,1.0000,0.4385,1.0000
+endpoint,agency,Chemical Safety and Hazard Investigation Board,4,4,4,0,0,0,0,0,0,0,1.0000,0.5101,1.0000
+endpoint,agency,Civil Rights Cold Case Records Review Board,2,2,1,0,1,0,0,0,0,0,0.5000,0.0945,0.9055
+endpoint,agency,Commodity Futures Trading Commission,8,6,6,0,0,0,0,0,2,0,1.0000,0.6097,1.0000
+endpoint,agency,Congressional Budget Office,4,2,2,0,0,0,2,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,Consumer Financial Protection Bureau,18,18,18,0,0,0,0,0,0,0,1.0000,0.8241,1.0000
+endpoint,agency,Consumer Product Safety Commission,20,20,20,0,0,0,0,0,0,0,1.0000,0.8389,1.0000
+endpoint,agency,Corporation for National and Community Service,24,11,9,0,2,0,0,1,12,0,0.8182,0.5230,0.9486
+endpoint,agency,Council of the Inspectors General on Integrity and Efficiency,8,6,2,0,4,0,0,0,2,0,0.3333,0.0968,0.7000
+endpoint,agency,Court Services and Offender Supervision Agency for the District of Columbia,6,6,6,0,0,0,0,0,0,0,1.0000,0.6097,1.0000
+endpoint,agency,Defense Nuclear Facilities Safety Board,2,1,1,0,0,0,0,0,1,0,1.0000,0.2065,1.0000
+endpoint,agency,Delta Regional Authority,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,Denali Commission,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,Department of Agriculture,60,51,10,0,5,36,0,1,8,0,0.1961,0.1102,0.3246
+endpoint,agency,Department of Commerce,128,109,81,0,9,19,1,4,14,0,0.7431,0.6538,0.8159
+endpoint,agency,Department of Defense,82,45,23,0,8,14,0,7,30,0,0.5111,0.3700,0.6504
+endpoint,agency,Department of Education,22,20,9,0,10,1,0,0,2,0,0.4500,0.2582,0.6579
+endpoint,agency,Department of Energy,120,81,23,0,26,32,4,10,25,0,0.2840,0.1973,0.3902
+endpoint,agency,Department of Health and Human Services,238,196,97,0,51,48,1,14,27,0,0.4949,0.4257,0.5643
+endpoint,agency,Department of Homeland Security,80,74,70,0,4,0,0,0,6,0,0.9459,0.8691,0.9788
+endpoint,agency,Department of Housing and Urban Development,16,16,7,0,9,0,0,0,0,0,0.4375,0.2310,0.6682
+endpoint,agency,Department of Justice,124,101,83,0,14,4,0,2,21,0,0.8218,0.7358,0.8842
+endpoint,agency,Department of Labor,56,49,43,0,3,3,0,1,6,0,0.8776,0.7576,0.9427
+endpoint,agency,Department of State,60,28,18,0,9,1,3,5,24,0,0.6429,0.4583,0.7929
+endpoint,agency,Department of Transportation,36,26,21,0,2,3,0,4,6,0,0.8077,0.6212,0.9149
+endpoint,agency,Department of Veterans Affairs,10,10,2,0,2,6,0,0,0,0,0.2000,0.0567,0.5098
+endpoint,agency,Department of the Interior,130,97,65,0,16,16,0,16,17,0,0.6701,0.5716,0.7556
+endpoint,agency,Department of the Treasury,176,121,43,0,6,72,4,30,21,0,0.3554,0.2757,0.4439
+endpoint,agency,Election Assistance Commission,8,8,4,0,4,0,0,0,0,0,0.5000,0.2152,0.7848
+endpoint,agency,Environmental Protection Agency,26,15,3,0,9,3,0,4,7,0,0.2000,0.0705,0.4519
+endpoint,agency,Equal Employment Opportunity Commission,2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,Executive Office of the President,136,103,37,0,64,2,0,0,33,0,0.3592,0.2732,0.4554
+endpoint,agency,Export-Import Bank of the United States,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,Farm Credit Administration,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,Farm Credit System Insurance Corporation,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,Federal Communications Commission,8,8,8,0,0,0,0,0,0,0,1.0000,0.6756,1.0000
+endpoint,agency,Federal Deposit Insurance Corporation,10,9,4,0,2,3,0,0,1,0,0.4444,0.1888,0.7333
+endpoint,agency,Federal Election Commission,2,2,1,0,1,0,0,0,0,0,0.5000,0.0945,0.9055
+endpoint,agency,Federal Energy Regulatory Commission,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,Federal Housing Finance Agency,6,5,0,0,3,2,0,0,1,0,0.0000,0.0000,0.4345
+endpoint,agency,Federal Judicial Center,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,Federal Labor Relations Authority,2,2,0,0,1,1,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,Federal Maritime Commission,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,Federal Mediation and Conciliation Service,4,2,0,0,2,0,0,0,2,0,0.0000,0.0000,0.6576
+endpoint,agency,Federal Mine Safety and Health Review Commission,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,Federal Permitting Improvement Council,4,3,0,0,3,0,0,1,0,0,0.0000,0.0000,0.5615
+endpoint,agency,Federal Retirement Thrift Investment Board,10,5,3,0,2,0,0,1,4,0,0.6000,0.2307,0.8824
+endpoint,agency,Federal Trade Commission,28,28,28,0,0,0,0,0,0,0,1.0000,0.8794,1.0000
+endpoint,agency,General Services Administration,182,131,51,0,70,10,4,13,34,0,0.3893,0.3101,0.4748
+endpoint,agency,Government Accountability Office,14,6,3,0,3,0,0,1,7,0,0.5000,0.1876,0.8124
+endpoint,agency,Government Publishing Office,32,28,19,0,4,5,0,1,3,0,0.6786,0.4934,0.8207
+endpoint,agency,Gulf Coast Ecosystem Restoration Council,2,2,1,0,0,1,0,0,0,0,0.5000,0.0945,0.9055
+endpoint,agency,Harry S Truman Scholarship Foundation,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,Institute of Museum and Library Services,6,4,0,0,4,0,0,0,2,0,0.0000,0.0000,0.4899
+endpoint,agency,Inter-American Foundation,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,International Trade Commission,4,2,2,0,0,0,0,0,2,0,1.0000,0.3424,1.0000
+endpoint,agency,James Madison Memorial Fellowship Foundation,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,Japan-United States Friendship Commission,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,John F. Kennedy Center for the Performing Arts,2,0,0,0,0,0,0,0,2,0,0.0000,0.0000,0.0000
+endpoint,agency,Legal Services Corporation,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,Library of Congress,68,58,58,0,0,0,0,4,6,0,1.0000,0.9379,1.0000
+endpoint,agency,Marine Mammal Commission,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,Medicaid and CHIP Payment and Access Commission,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,Medicare Payment Advisory Commission,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,Merit Systems Protection Board,2,2,1,0,1,0,0,0,0,0,0.5000,0.0945,0.9055
+endpoint,agency,Millennium Challenge Corporation,4,2,1,0,0,1,0,1,1,0,0.5000,0.0945,0.9055
+endpoint,agency,Morris K. Udall and Stewart L. Udall Foundation,4,4,0,0,0,4,0,0,0,0,0.0000,0.0000,0.4899
+endpoint,agency,National Aeronautics and Space Administration,8,6,2,0,4,0,0,2,0,0,0.3333,0.0968,0.7000
+endpoint,agency,National Archives and Records Administration,64,62,51,0,10,1,0,2,0,0,0.8226,0.7096,0.8979
+endpoint,agency,National Capital Planning Commission,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,National Council on Disability,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,National Credit Union Administration,4,4,0,0,4,0,0,0,0,0,0.0000,0.0000,0.4899
+endpoint,agency,National Endowment for the Arts,4,3,1,0,2,0,0,0,1,0,0.3333,0.0615,0.7923
+endpoint,agency,National Endowment for the Humanities,4,4,0,0,4,0,0,0,0,0,0.0000,0.0000,0.4899
+endpoint,agency,National Gallery of Art,2,2,1,0,1,0,0,0,0,0,0.5000,0.0945,0.9055
+endpoint,agency,National Labor Relations Board,2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,National Mediation Board,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,"National Railroad Passenger Corporation, Office of Inspector General",2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,National Science Foundation,8,8,2,0,1,5,0,0,0,0,0.2500,0.0715,0.5907
+endpoint,agency,National Transportation Safety Board,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,Northern Border Regional Commission,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,Nuclear Regulatory Commission,4,4,1,0,3,0,0,0,0,0,0.2500,0.0456,0.6994
+endpoint,agency,Occupational Safety and Health Review Commission,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,Office of Congressional Workplace Rights,4,4,2,0,2,0,0,0,0,0,0.5000,0.1500,0.8500
+endpoint,agency,Office of Government Ethics,4,4,0,0,2,2,0,0,0,0,0.0000,0.0000,0.4899
+endpoint,agency,Office of Personnel Management,44,29,6,0,0,23,0,4,11,0,0.2069,0.0985,0.3839
+endpoint,agency,Office of Special Counsel,4,2,2,0,0,0,0,0,2,0,1.0000,0.3424,1.0000
+endpoint,agency,Office of the Director of National Intelligence,30,20,18,0,0,2,0,3,7,0,0.9000,0.6990,0.9721
+endpoint,agency,Open World Leadership Center,4,3,2,0,1,0,0,1,0,0,0.6667,0.2077,0.9385
+endpoint,agency,Peace Corps,6,6,4,0,2,0,0,0,0,0,0.6667,0.3000,0.9032
+endpoint,agency,Pension Benefit Guaranty Corporation,2,2,1,0,1,0,0,0,0,0,0.5000,0.0945,0.9055
+endpoint,agency,Postal Regulatory Commission,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,Presidio Trust,8,8,0,0,8,0,0,0,0,0,0.0000,0.0000,0.3244
+endpoint,agency,Privacy and Civil Liberties Oversight Board,2,0,0,0,0,0,0,2,0,0,0.0000,0.0000,0.0000
+endpoint,agency,Public Buildings Reform Board,2,1,0,0,1,0,0,1,0,0,0.0000,0.0000,0.7935
+endpoint,agency,Railroad Retirement Board,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,Securities and Exchange Commission,4,4,4,0,0,0,0,0,0,0,1.0000,0.5101,1.0000
+endpoint,agency,Selective Service System,2,1,1,0,0,0,0,1,0,0,1.0000,0.2065,1.0000
+endpoint,agency,Small Business Administration,10,7,6,0,1,0,0,2,1,0,0.8571,0.4869,0.9743
+endpoint,agency,Smithsonian Institution,4,3,0,0,3,0,0,0,1,0,0.0000,0.0000,0.5615
+endpoint,agency,Social Security Administration,6,3,1,0,0,2,0,3,0,0,0.3333,0.0615,0.7923
+endpoint,agency,Social Security Advisory Board,2,2,0,0,1,1,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,Southeast Crescent Regional Commission,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,Southwest Border Regional Commission,2,1,1,0,0,0,0,0,1,0,1.0000,0.2065,1.0000
+endpoint,agency,State Justice Institute,2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,Stennis Center for Public Service,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,Supreme Court of the United States,16,5,5,0,0,0,0,0,11,0,1.0000,0.5655,1.0000
+endpoint,agency,Surface Transportation Board,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,Tennessee Valley Authority,4,3,3,0,0,0,0,0,1,0,1.0000,0.4385,1.0000
+endpoint,agency,Trade And Development Agency,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,"U.S. Capitol Police, Office of the Inspector General",2,2,1,0,1,0,0,0,0,0,0.5000,0.0945,0.9055
+endpoint,agency,U.S. Commission for the Preservation of Americas Heritage Abroad,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,agency,U.S. Commission of Fine Arts,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,U.S. Commission on Civil Rights,4,4,2,0,2,0,0,0,0,0,0.5000,0.1500,0.8500
+endpoint,agency,U.S. Commission on International Religious Freedom,2,2,1,0,1,0,0,0,0,0,0.5000,0.0945,0.9055
+endpoint,agency,U.S. Interagency Council on Homelessness,4,4,0,0,4,0,0,0,0,0,0.0000,0.0000,0.4899
+endpoint,agency,U.S. Nuclear Waste Technical Review Board,2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,agency,U.S. Semiquincentennial Commission,6,6,6,0,0,0,0,0,0,0,1.0000,0.6097,1.0000
+endpoint,agency,U.S.-China Economic and Security Review Commission,2,0,0,0,0,0,0,2,0,0,0.0000,0.0000,0.0000
+endpoint,agency,United States AbilityOne Commission,4,3,0,0,3,0,0,0,1,0,0.0000,0.0000,0.5615
+endpoint,agency,United States African Development Foundation,4,2,2,0,0,0,0,2,0,0,1.0000,0.3424,1.0000
+endpoint,agency,United States Agency for Global Media,12,10,10,0,0,0,0,0,2,0,1.0000,0.7225,1.0000
+endpoint,agency,United States Holocaust Memorial Museum,2,1,1,0,0,0,0,0,1,0,1.0000,0.2065,1.0000
+endpoint,agency,United States House of Representatives,58,38,19,0,16,3,0,11,9,0,0.5000,0.3485,0.6515
+endpoint,agency,United States Institute of Peace,2,0,0,0,0,0,0,0,2,0,0.0000,0.0000,0.0000
+endpoint,agency,United States International Development Finance Corporation,10,8,0,0,8,0,0,0,2,0,0.0000,0.0000,0.3244
+endpoint,agency,United States Postal Service,20,4,1,0,2,1,0,3,13,0,0.2500,0.0456,0.6994
+endpoint,agency,United States Senate,6,4,4,0,0,0,0,0,2,0,1.0000,0.5101,1.0000
+endpoint,agency,United States Sentencing Commission,2,1,0,0,1,0,0,0,1,0,0.0000,0.0000,0.7935
+endpoint,agency,United States Tax Court,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,asn,AS102 NSF-HQ-AS - U.S. National Science Foundation,4,4,0,0,1,3,0,0,0,0,0.0000,0.0000,0.4899
+endpoint,asn,"AS10390 TELECHECK - Fiserv Solutions, LLC",2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,asn,AS11724 OCCAS - Comptroller of the Currency,14,14,0,0,0,14,0,0,0,0,0.0000,0.0000,0.2153
+endpoint,asn,AS11985 ASN-SSA - Social Security Administration,2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,asn,AS12037 FDIC-GOV - Federal Deposit Insurance Corporation,3,3,0,0,0,3,0,0,0,0,0.0000,0.0000,0.5615
+endpoint,asn,"AS13335 CLOUDFLARENET - Cloudflare, Inc.",346,346,341,0,0,5,0,0,0,0,0.9855,0.9666,0.9938
+endpoint,asn,AS13506 US-DEPARTMENT-OF-THE-TREASURY - United States Department of the Treasury,57,57,0,0,6,51,0,0,0,0,0.0000,0.0000,0.0631
+endpoint,asn,AS13788 USCOURTS - US Courts,3,3,0,0,2,1,0,0,0,0,0.0000,0.0000,0.5615
+endpoint,asn,"AS14061 DIGITALOCEAN-ASN - DigitalOcean, LLC",1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+endpoint,asn,AS14298 EPA-NET - Environmental Protection Agency,10,10,0,0,7,3,0,0,0,0,0.0000,0.0000,0.2775
+endpoint,asn,AS14524 SERCO-NA - SERCO NA,1,1,0,0,0,1,0,0,0,0,0.0000,0.0000,0.7935
+endpoint,asn,"AS14618 AMAZON-AES - Amazon.com, Inc.",189,189,52,0,110,27,0,0,0,0,0.2751,0.2164,0.3428
+endpoint,asn,AS15130 USDOJ-GOV - U. S. Department of Justice,3,3,0,0,2,1,0,0,0,0,0.0000,0.0000,0.5615
+endpoint,asn,AS16 LBL - Lawrence Berkeley National Laboratory,1,1,0,0,0,1,0,0,0,0,0.0000,0.0000,0.7935
+endpoint,asn,"AS16509 AMAZON-02 - Amazon.com, Inc.",277,277,219,0,46,12,0,0,0,0,0.7906,0.7389,0.8344
+endpoint,asn,AS16524 METTEL - MetTel,45,45,0,0,37,8,0,0,0,0,0.0000,0.0000,0.0787
+endpoint,asn,"AS16625 AKAMAI-AS - Akamai Technologies, Inc.",4,4,4,0,0,0,0,0,0,0,1.0000,0.5101,1.0000
+endpoint,asn,"AS174 COGENT-174 - Cogent Communications, LLC",2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,asn,AS1842 USGS-AS - Department of Interior United States Geological Survey,4,4,0,0,4,0,0,0,0,0,0.0000,0.0000,0.4899
+endpoint,asn,AS19133 BIRD-HOSTING - Bird Hosting Inc.,4,4,0,0,4,0,0,0,0,0,0.0000,0.0000,0.4899
+endpoint,asn,"AS209 CENTURYLINK-US-LEGACY-QWEST - CenturyLink Communications, LLC",1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+endpoint,asn,"AS209242 CLOUDFLARESPECTRUM Cloudflare London, LLC",12,12,12,0,0,0,0,0,0,0,1.0000,0.7575,1.0000
+endpoint,asn,AS20940 AKAMAI-ASN1 Akamai International B.V.,431,431,394,0,0,37,0,0,0,0,0.9142,0.8839,0.9371
+endpoint,asn,AS22284 AS22284-DOI-OPS - U.S. Department of the Interior,14,14,0,0,7,7,0,0,0,0,0.0000,0.0000,0.2153
+endpoint,asn,"AS22772 LOGIN - Login, Inc.",4,4,0,0,0,4,0,0,0,0,0.0000,0.0000,0.4899
+endpoint,asn,AS2384 AOCNET - Architect of the Capitol,1,1,0,0,0,1,0,0,0,0,0.0000,0.0000,0.7935
+endpoint,asn,AS2576 DOT-AS - U. S. Department of Transportation,5,5,0,0,3,2,0,0,0,0,0.0000,0.0000,0.4345
+endpoint,asn,AS2577 DNIC-AS-02577 - United States Department of Defense (DoD),1,1,0,0,0,1,0,0,0,0,0.0000,0.0000,0.7935
+endpoint,asn,AS25773 RADWARE-CLOUD-SERVICES - RADWARE INC.,2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,asn,AS25829 SMITHSONIAN - Smithsonian Institution,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+endpoint,asn,AS25996 FBICJIS - FBI Criminal Justice Information Services,7,7,0,0,6,1,0,0,0,0,0.0000,0.0000,0.3543
+endpoint,asn,"AS2635 AUTOMATTIC - Automattic, Inc",85,85,0,0,85,0,0,0,0,0,0.0000,0.0000,0.0432
+endpoint,asn,AS26810 HHSNET-NOC-ASN - U.S. Dept. of Health and Human Services,11,11,0,0,2,9,0,0,0,0,0.0000,0.0000,0.2588
+endpoint,asn,AS27016 NRC-NET - United States Nuclear Regulatory Commission,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+endpoint,asn,"AS27482 AECP-AS - American Eagle Computer Products, Inc.",3,3,0,0,0,3,0,0,0,0,0.0000,0.0000,0.5615
+endpoint,asn,AS292 ESNET-WEST - ESnet,1,1,0,0,0,1,0,0,0,0,0.0000,0.0000,0.7935
+endpoint,asn,AS293 ESNET - ESnet,6,6,0,0,4,2,0,0,0,0,0.0000,0.0000,0.3903
+endpoint,asn,AS29992 VA-TMP-CORE - U.S. Department of Veterans Affairs,6,6,0,0,0,6,0,0,0,0,0.0000,0.0000,0.3903
+endpoint,asn,AS30148 SUCURI-SEC - Sucuri,8,8,8,0,0,0,0,0,0,0,1.0000,0.6756,1.0000
+endpoint,asn,AS30313 IRS - Internal Revenue Service,3,3,0,0,0,3,0,0,0,0,0.0000,0.0000,0.5615
+endpoint,asn,AS3134 USAID-ASN - U.S. Agency for International Development,1,1,0,0,0,1,0,0,0,0,0.0000,0.0000,0.7935
+endpoint,asn,AS3152 FNAL-AS - Fermi National Accelerator Laboratory (Fermilab),1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+endpoint,asn,AS32982 DOE-HQ - U.S. Department of Energy,18,18,2,0,5,11,0,0,0,0,0.1111,0.0310,0.3280
+endpoint,asn,AS33132 CROWNCASTLE-AS33132 - Crown Castle Fiber LLC,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+endpoint,asn,"AS33652 CMCS - Comcast Cable Communications, LLC",2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,asn,AS33738 UNITED-STATES-HOLOCAUST-MEMORIAL-MUSEUM - United States Holocaust Memorial Museum,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+endpoint,asn,"AS3423 ATTIS-ASN3423 - AT&T Enterprises, LLC",6,6,0,0,6,0,0,0,0,0,0.0000,0.0000,0.3903
+endpoint,asn,AS3428 ESNET-AS - ESnet,4,4,0,0,0,4,0,0,0,0,0.0000,0.0000,0.4899
+endpoint,asn,AS3477 NOAA-NWAVE - National Oceanic and Atmospheric Administration,14,14,2,0,1,11,0,0,0,0,0.1429,0.0401,0.3994
+endpoint,asn,AS3527 NIH-NET - National Institutes of Health,7,7,0,0,2,5,0,0,0,0,0.0000,0.0000,0.3543
+endpoint,asn,AS36351 SOFTLAYER - IBM Cloud,2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,asn,AS3705 GPO-NET - U.S. Government Publishing Office,3,3,0,0,0,3,0,0,0,0,0.0000,0.0000,0.5615
+endpoint,asn,AS377 SNLA-NET-AS - Sandia National Laboratories,2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,asn,AS393689 NLM-NCCS - National Library of Medicine,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+endpoint,asn,AS395700 OMB-ASN - Executive Office Of The President,10,10,0,0,10,0,0,0,0,0,0.0000,0.0000,0.2775
+endpoint,asn,AS396098 DOE-HANFORD - U.S. Department of Energy - Hanford,2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,asn,AS396982 GOOGLE-CLOUD-PLATFORM - Google LLC,18,18,13,0,5,0,0,0,0,0,0.7222,0.4913,0.8750
+endpoint,asn,"AS397182 SERVICENOW-WAVE - SERVICENOW, INC.",4,4,0,0,2,2,0,0,0,0,0.0000,0.0000,0.4899
+endpoint,asn,AS4046 FAA - Federal Aviation Administration,1,1,0,0,0,1,0,0,0,0,0.0000,0.0000,0.7935
+endpoint,asn,"AS40857 PAECOM - IT-CNP, Inc.",2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,asn,AS4155 USDA-1 - USDA,33,33,2,0,3,28,0,0,0,0,0.0606,0.0168,0.1961
+endpoint,asn,"AS4185 ATTIS-ASN4185 - AT&T Enterprises, LLC",1,1,0,0,0,1,0,0,0,0,0.0000,0.0000,0.7935
+endpoint,asn,AS43 BNL-AS - Brookhaven National Laboratory,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+endpoint,asn,AS43515 YOUTUBE Google Ireland Limited,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,asn,AS46846 DOE-HQ-COOP - U.S. Department of Energy,1,1,0,0,0,1,0,0,0,0,0.0000,0.0000,0.7935
+endpoint,asn,AS49 US-NATIONAL-INSTITUTE-OF-STANDARDS-AND-TECHNOLOGY - National Institute of Standards and Technology,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+endpoint,asn,AS50 ORNL-MSRNET - Oak Ridge National Laboratory,8,8,0,0,6,2,0,0,0,0,0.0000,0.0000,0.3244
+endpoint,asn,"AS53831 SQUARESPACE - Squarespace, Inc.",4,4,4,0,0,0,0,0,0,0,1.0000,0.5101,1.0000
+endpoint,asn,"AS54113 FASTLY - Fastly, Inc.",16,16,16,0,0,0,0,0,0,0,1.0000,0.8064,1.0000
+endpoint,asn,AS54521 THE-NATIONAL-GALLERY-OF-ART - National Gallery of Art,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+endpoint,asn,"AS54641 IMH-IAD - InMotion Hosting, Inc.",2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,asn,AS5663 EDCNET - Department of Interior United States Geological Survey,3,3,0,0,1,2,0,0,0,0,0.0000,0.0000,0.5615
+endpoint,asn,AS5766 IHS-MD-AS - Indian Health Service,2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,asn,AS5852 DNIC-ASBLK-05800-06055 - United States Department of Defense (DoD),4,4,0,0,1,3,0,0,0,0,0.0000,0.0000,0.4899
+endpoint,asn,AS589 UNT - University of North Texas,8,8,0,0,8,0,0,0,0,0,0.0000,0.0000,0.3244
+endpoint,asn,AS6026 DNIC-ASBLK-05800-06055 - United States Department of Defense (DoD),2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,asn,AS63949 AKAMAI-LINODE-AP - Akamai Connected Cloud,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,asn,AS6939 HURRICANE - Hurricane Electric LLC,2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,asn,AS70 NLM-GW - National Library of Medicine,5,5,0,0,2,3,0,0,0,0,0.0000,0.0000,0.4345
+endpoint,asn,AS701 UUNET - Verizon Business,3,3,0,0,3,0,0,0,0,0,0.0000,0.0000,0.5615
+endpoint,asn,"AS7018 ATT-INTERNET4 - AT&T Enterprises, LLC",4,4,0,0,4,0,0,0,0,0,0.0000,0.0000,0.4899
+endpoint,asn,AS7046 RFC2270-UUNET-CUSTOMER - Verizon Business,1,1,0,0,0,1,0,0,0,0,0.0000,0.0000,0.7935
+endpoint,asn,AS7764 CENSUSBUREAU - National Oceanic and Atmospheric Administration,2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,asn,"AS7784 ATLANTECH - Atlantech Online, Inc.",2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,asn,AS7872 USAP-ASN - United States Antarctic Program,2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+endpoint,asn,AS8070 MICROSOFT-CORP-MSN-AS-BLOCK - Microsoft Corporation,18,18,1,0,17,0,0,0,0,0,0.0556,0.0099,0.2576
+endpoint,asn,AS8075 MICROSOFT-CORP-MSN-AS-BLOCK - Microsoft Corporation,102,102,50,0,26,26,0,0,0,0,0.4902,0.3953,0.5858
+endpoint,asn,AS8076 HUD - Department of Housing and Urban Development,7,7,0,0,7,0,0,0,0,0,0.0000,0.0000,0.3543
+endpoint,asn,AS8987 GOVCLOUD - Amazon,45,45,6,0,36,3,0,0,0,0,0.1333,0.0626,0.2618
+domain,all,all,1319,1053,666,0,227,160,10,68,188,0,0.6325,0.6029,0.6611
+domain,branch,Federal,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+domain,branch,Federal - Executive,1172,942,574,0,211,157,9,56,165,0,0.6093,0.5778,0.6400
+domain,branch,Federal - Judicial,24,16,13,0,3,0,0,0,8,0,0.8125,0.5699,0.9341
+domain,branch,Federal - Legislative,121,93,79,0,11,3,1,12,15,0,0.8495,0.7630,0.9082
+domain,agency,.gov Administration,22,2,2,0,0,0,1,0,19,0,1.0000,0.3424,1.0000
+domain,agency,Access Board,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Adams Memorial Commission,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Administrative Conference of the United States,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Administrative Office of the United States Courts,13,10,8,0,2,0,0,0,3,0,0.8000,0.4902,0.9433
+domain,agency,Advisory Council on Historic Preservation,2,1,0,0,0,1,0,0,1,0,0.0000,0.0000,0.7935
+domain,agency,American Battle Monuments Commission,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Appalachian Regional Commission,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Appraisal Subcommittee of the Federal Financial Institutions Examination Council,1,1,0,0,0,1,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Architect of the Capitol,13,7,3,0,4,0,0,2,4,0,0.4286,0.1582,0.7495
+domain,agency,"Architect of the Capitol, Office of Inspector General",1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Arctic Research Commission,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Armed Forces Retirement Home,1,0,0,0,0,0,0,1,0,0,0.0000,0.0000,0.0000
+domain,agency,Barry Goldwater Scholarship and Excellence in Education Foundation,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+domain,agency,Board of Governors of the Federal Reserve,13,8,8,0,0,0,0,1,4,0,1.0000,0.6756,1.0000
+domain,agency,Capitol Police,2,1,1,0,0,0,0,0,1,0,1.0000,0.2065,1.0000
+domain,agency,Central Intelligence Agency,8,2,2,0,0,0,0,2,4,0,1.0000,0.3424,1.0000
+domain,agency,Chemical Safety and Hazard Investigation Board,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+domain,agency,Civil Rights Cold Case Records Review Board,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Commodity Futures Trading Commission,4,3,3,0,0,0,0,0,1,0,1.0000,0.4385,1.0000
+domain,agency,Congressional Budget Office,2,1,1,0,0,0,1,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Consumer Financial Protection Bureau,9,9,9,0,0,0,0,0,0,0,1.0000,0.7009,1.0000
+domain,agency,Consumer Product Safety Commission,10,10,10,0,0,0,0,0,0,0,1.0000,0.7225,1.0000
+domain,agency,Corporation for National and Community Service,12,9,8,0,1,0,0,1,2,0,0.8889,0.5650,0.9801
+domain,agency,Council of the Inspectors General on Integrity and Efficiency,4,3,1,0,2,0,0,0,1,0,0.3333,0.0615,0.7923
+domain,agency,Court Services and Offender Supervision Agency for the District of Columbia,3,3,3,0,0,0,0,0,0,0,1.0000,0.4385,1.0000
+domain,agency,Defense Nuclear Facilities Safety Board,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Delta Regional Authority,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Denali Commission,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Department of Agriculture,30,26,7,0,3,16,0,1,3,0,0.2692,0.1370,0.4608
+domain,agency,Department of Commerce,64,58,48,0,5,5,1,1,4,0,0.8276,0.7109,0.9036
+domain,agency,Department of Defense,41,26,14,0,5,7,0,4,11,0,0.5385,0.3546,0.7124
+domain,agency,Department of Education,11,10,5,0,5,0,0,0,1,0,0.5000,0.2366,0.7634
+domain,agency,Department of Energy,60,45,16,0,12,17,1,5,9,0,0.3556,0.2322,0.5016
+domain,agency,Department of Health and Human Services,119,103,61,0,21,21,1,6,9,0,0.5922,0.4957,0.6822
+domain,agency,Department of Homeland Security,40,37,35,0,2,0,0,0,3,0,0.9459,0.8230,0.9850
+domain,agency,Department of Housing and Urban Development,8,8,4,0,4,0,0,0,0,0,0.5000,0.2152,0.7848
+domain,agency,Department of Justice,62,53,43,0,7,3,0,0,9,0,0.8113,0.6864,0.8941
+domain,agency,Department of Labor,28,26,24,0,1,1,0,0,2,0,0.9231,0.7586,0.9786
+domain,agency,Department of State,30,19,14,0,5,0,0,1,10,0,0.7368,0.5121,0.8819
+domain,agency,Department of Transportation,18,16,15,0,0,1,0,0,2,0,0.9375,0.7167,0.9889
+domain,agency,Department of Veterans Affairs,5,5,1,0,1,3,0,0,0,0,0.2000,0.0362,0.6245
+domain,agency,Department of the Interior,65,52,34,0,9,9,0,6,7,0,0.6538,0.5180,0.7685
+domain,agency,Department of the Treasury,88,69,30,0,3,36,2,9,8,0,0.4348,0.3243,0.5521
+domain,agency,Election Assistance Commission,4,4,2,0,2,0,0,0,0,0,0.5000,0.1500,0.8500
+domain,agency,Environmental Protection Agency,13,8,3,0,4,1,0,2,3,0,0.3750,0.1368,0.6943
+domain,agency,Equal Employment Opportunity Commission,1,1,0,0,0,1,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Executive Office of the President,68,52,19,0,32,1,0,0,16,0,0.3654,0.2480,0.5013
+domain,agency,Export-Import Bank of the United States,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Farm Credit Administration,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Farm Credit System Insurance Corporation,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Federal Communications Commission,4,4,4,0,0,0,0,0,0,0,1.0000,0.5101,1.0000
+domain,agency,Federal Deposit Insurance Corporation,5,5,2,0,1,2,0,0,0,0,0.4000,0.1176,0.7693
+domain,agency,Federal Election Commission,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Federal Energy Regulatory Commission,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Federal Housing Finance Agency,3,3,0,0,2,1,0,0,0,0,0.0000,0.0000,0.5615
+domain,agency,Federal Judicial Center,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Federal Labor Relations Authority,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Federal Maritime Commission,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Federal Mediation and Conciliation Service,2,1,0,0,1,0,0,0,1,0,0.0000,0.0000,0.7935
+domain,agency,Federal Mine Safety and Health Review Commission,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Federal Permitting Improvement Council,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+domain,agency,Federal Retirement Thrift Investment Board,5,3,2,0,1,0,0,1,1,0,0.6667,0.2077,0.9385
+domain,agency,Federal Trade Commission,14,14,14,0,0,0,0,0,0,0,1.0000,0.7847,1.0000
+domain,agency,General Services Administration,91,70,33,0,32,5,3,4,14,0,0.4714,0.3590,0.5868
+domain,agency,Government Accountability Office,7,3,2,0,1,0,0,1,3,0,0.6667,0.2077,0.9385
+domain,agency,Government Publishing Office,16,14,10,0,2,2,0,1,1,0,0.7143,0.4535,0.8828
+domain,agency,Gulf Coast Ecosystem Restoration Council,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Harry S Truman Scholarship Foundation,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Institute of Museum and Library Services,3,2,0,0,2,0,0,0,1,0,0.0000,0.0000,0.6576
+domain,agency,Inter-American Foundation,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,International Trade Commission,2,1,1,0,0,0,0,0,1,0,1.0000,0.2065,1.0000
+domain,agency,James Madison Memorial Fellowship Foundation,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Japan-United States Friendship Commission,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,John F. Kennedy Center for the Performing Arts,1,0,0,0,0,0,0,0,1,0,0.0000,0.0000,0.0000
+domain,agency,Legal Services Corporation,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Library of Congress,34,30,30,0,0,0,0,2,2,0,1.0000,0.8865,1.0000
+domain,agency,Marine Mammal Commission,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Medicaid and CHIP Payment and Access Commission,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Medicare Payment Advisory Commission,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Merit Systems Protection Board,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Millennium Challenge Corporation,2,1,1,0,0,0,0,1,0,0,1.0000,0.2065,1.0000
+domain,agency,Morris K. Udall and Stewart L. Udall Foundation,2,2,0,0,0,2,0,0,0,0,0.0000,0.0000,0.6576
+domain,agency,National Aeronautics and Space Administration,4,3,1,0,2,0,0,1,0,0,0.3333,0.0615,0.7923
+domain,agency,National Archives and Records Administration,32,31,26,0,5,0,0,1,0,0,0.8387,0.6737,0.9291
+domain,agency,National Capital Planning Commission,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,National Council on Disability,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,National Credit Union Administration,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+domain,agency,National Endowment for the Arts,2,2,1,0,1,0,0,0,0,0,0.5000,0.0945,0.9055
+domain,agency,National Endowment for the Humanities,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+domain,agency,National Gallery of Art,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,National Labor Relations Board,1,1,0,0,0,1,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,National Mediation Board,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,"National Railroad Passenger Corporation, Office of Inspector General",1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,National Science Foundation,4,4,2,0,0,2,0,0,0,0,0.5000,0.1500,0.8500
+domain,agency,National Transportation Safety Board,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Northern Border Regional Commission,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Nuclear Regulatory Commission,2,2,1,0,1,0,0,0,0,0,0.5000,0.0945,0.9055
+domain,agency,Occupational Safety and Health Review Commission,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Office of Congressional Workplace Rights,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+domain,agency,Office of Government Ethics,2,2,0,0,1,1,0,0,0,0,0.0000,0.0000,0.6576
+domain,agency,Office of Personnel Management,22,15,3,0,0,12,0,2,5,0,0.2000,0.0705,0.4519
+domain,agency,Office of Special Counsel,2,1,1,0,0,0,0,0,1,0,1.0000,0.2065,1.0000
+domain,agency,Office of the Director of National Intelligence,15,11,9,0,0,2,0,2,2,0,0.8182,0.5230,0.9486
+domain,agency,Open World Leadership Center,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+domain,agency,Peace Corps,3,3,2,0,1,0,0,0,0,0,0.6667,0.2077,0.9385
+domain,agency,Pension Benefit Guaranty Corporation,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Postal Regulatory Commission,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Presidio Trust,4,4,0,0,4,0,0,0,0,0,0.0000,0.0000,0.4899
+domain,agency,Privacy and Civil Liberties Oversight Board,1,0,0,0,0,0,0,1,0,0,0.0000,0.0000,0.0000
+domain,agency,Public Buildings Reform Board,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Railroad Retirement Board,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Securities and Exchange Commission,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+domain,agency,Selective Service System,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Small Business Administration,5,4,4,0,0,0,0,1,0,0,1.0000,0.5101,1.0000
+domain,agency,Smithsonian Institution,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+domain,agency,Social Security Administration,3,3,1,0,0,2,0,0,0,0,0.3333,0.0615,0.7923
+domain,agency,Social Security Advisory Board,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Southeast Crescent Regional Commission,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,Southwest Border Regional Commission,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,State Justice Institute,1,1,0,0,0,1,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Stennis Center for Public Service,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Supreme Court of the United States,8,3,3,0,0,0,0,0,5,0,1.0000,0.4385,1.0000
+domain,agency,Surface Transportation Board,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,Tennessee Valley Authority,2,2,2,0,0,0,0,0,0,0,1.0000,0.3424,1.0000
+domain,agency,Trade And Development Agency,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,"U.S. Capitol Police, Office of the Inspector General",1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,U.S. Commission for the Preservation of Americas Heritage Abroad,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,U.S. Commission of Fine Arts,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,U.S. Commission on Civil Rights,2,2,1,0,1,0,0,0,0,0,0.5000,0.0945,0.9055
+domain,agency,U.S. Commission on International Religious Freedom,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,U.S. Interagency Council on Homelessness,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+domain,agency,U.S. Nuclear Waste Technical Review Board,1,1,0,0,0,1,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,U.S. Semiquincentennial Commission,3,3,3,0,0,0,0,0,0,0,1.0000,0.4385,1.0000
+domain,agency,U.S.-China Economic and Security Review Commission,1,0,0,0,0,0,0,1,0,0,0.0000,0.0000,0.0000
+domain,agency,United States AbilityOne Commission,2,2,0,0,2,0,0,0,0,0,0.0000,0.0000,0.6576
+domain,agency,United States African Development Foundation,2,1,1,0,0,0,0,1,0,0,1.0000,0.2065,1.0000
+domain,agency,United States Agency for Global Media,6,5,5,0,0,0,0,0,1,0,1.0000,0.5655,1.0000
+domain,agency,United States Holocaust Memorial Museum,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000
+domain,agency,United States House of Representatives,29,20,19,0,0,1,0,5,4,0,0.9500,0.7639,0.9911
+domain,agency,United States Institute of Peace,1,0,0,0,0,0,0,0,1,0,0.0000,0.0000,0.0000
+domain,agency,United States International Development Finance Corporation,5,4,0,0,4,0,0,0,1,0,0.0000,0.0000,0.4899
+domain,agency,United States Postal Service,10,3,1,0,1,1,0,1,6,0,0.3333,0.0615,0.7923
+domain,agency,United States Senate,3,3,3,0,0,0,0,0,0,0,1.0000,0.4385,1.0000
+domain,agency,United States Sentencing Commission,1,1,0,0,1,0,0,0,0,0,0.0000,0.0000,0.7935
+domain,agency,United States Tax Court,1,1,1,0,0,0,0,0,0,0,1.0000,0.2065,1.0000

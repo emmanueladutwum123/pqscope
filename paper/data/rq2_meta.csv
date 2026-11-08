@@ -1,0 +1,16 @@
+key,value
+endpoints,2638
+domains,1319
+scan_first_utc,2026-11-08T17:48:18Z
+scan_last_utc,2026-11-08T17:56:16Z
+dotgov_source,https://raw.githubusercontent.com/cisagov/dotgov-data/ecf014742c39275aa41f695a7c0000130d8c8ba6/current-federal.csv
+asn_source,https://iptoasn.com/data/ip2asn-combined.tsv.gz
+asn_sha256,1634a0e449f3ee11088bba85493447a51007b44dff3ac18328f1f2d9127c0a9e
+asn_last_modified,"Sun, 01 Nov 2026 09:38:50 GMT"
+run_start_utc,2026-11-08T17:48:18Z
+run_end_utc,2026-11-08T17:56:29Z
+rate_connections_per_second,10
+probe,"pqscope net defaults: ClientHello offering X25519MLKEM768, x25519, secp256r1 with key shares for the first two; then a crypto/tls handshake for certificates"
+exclude_entries,0
+vantage,home internet connection (consumer ISP); macOS host (Apple M2); the source address has no reverse DNS pointing to the project
+pqscope_revision,e5766e0
