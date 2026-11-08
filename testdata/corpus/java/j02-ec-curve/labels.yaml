@@ -1,0 +1,5 @@
+kind: positive
+description: "EC key pair on secp384r1"
+expect:
+  - {file: Main.java, line: 6, algorithm: ECDSA, params: "P-384", primitive: signature}
+  - {file: Main.java, line: 7, algorithm: ECDSA, params: "P-384", primitive: signature}

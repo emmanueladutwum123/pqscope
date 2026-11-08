@@ -1,0 +1,5 @@
+kind: positive
+description: "Ed25519 keys and signature"
+expect:
+  - {file: Main.java, line: 6, algorithm: EdDSA, params: "Ed25519", primitive: signature}
+  - {file: Main.java, line: 7, algorithm: EdDSA, params: "Ed25519", primitive: signature}

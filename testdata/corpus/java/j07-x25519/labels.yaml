@@ -1,0 +1,5 @@
+kind: positive
+description: "X25519 agreement and named parameters"
+expect:
+  - {file: Main.java, line: 8, algorithm: X25519, params: "X25519", primitive: key-agreement}
+  - {file: Main.java, line: 9, algorithm: X25519, params: "X25519", primitive: key-agreement}

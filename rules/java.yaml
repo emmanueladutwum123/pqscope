@@ -1,0 +1,210 @@
+# Java rule pack. Symbols are fully qualified class members; the engine
+# resolves single-type imports, `import pkg.*;` and fully qualified names.
+# JCA factories take the algorithm as a string, so most rules select the asset
+# from the first argument; names follow the JDK 25 Standard Algorithm Names,
+# which match case-insensitively. Every rule cites its documentation.
+version: 1
+lang: java
+rules:
+  - id: java.jca.keypairgenerator
+    call: java.security.KeyPairGenerator.getInstance
+    params_from: arg[0]
+    select:
+      RSA: {primitive: signature, algorithm: RSA}
+      RSASSA-PSS: {primitive: signature, algorithm: RSA}
+      EC: {primitive: signature, algorithm: ECDSA}
+      DSA: {primitive: signature, algorithm: DSA}
+      DH: {primitive: key-agreement, algorithm: DH}
+      DiffieHellman: {primitive: key-agreement, algorithm: DH}
+      X25519: {primitive: key-agreement, algorithm: X25519, params: X25519}
+      X448: {primitive: key-agreement, algorithm: X448, params: X448}
+      Ed25519: {primitive: signature, algorithm: EdDSA, params: Ed25519}
+      Ed448: {primitive: signature, algorithm: EdDSA, params: Ed448}
+      EdDSA: {primitive: signature, algorithm: EdDSA}
+      ML-KEM: {primitive: kem, algorithm: ML-KEM}
+      ML-KEM-512: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-512}
+      ML-KEM-768: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-768}
+      ML-KEM-1024: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-1024}
+      ML-DSA: {primitive: signature, algorithm: ML-DSA}
+      ML-DSA-44: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-44}
+      ML-DSA-65: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-65}
+      ML-DSA-87: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-87}
+    confidence: 0.9
+    source: https://docs.oracle.com/en/java/javase/25/docs/specs/security/standard-names.html#keypairgenerator-algorithms
+    notes: The key size is set by a later initialize() call on the generator, which is not traced.
+
+  - id: java.jca.signature
+    call: java.security.Signature.getInstance
+    params_from: arg[0]
+    select:
+      MD5withRSA: {primitive: signature, algorithm: RSA}
+      SHA1withRSA: {primitive: signature, algorithm: RSA}
+      SHA224withRSA: {primitive: signature, algorithm: RSA}
+      SHA256withRSA: {primitive: signature, algorithm: RSA}
+      SHA384withRSA: {primitive: signature, algorithm: RSA}
+      SHA512withRSA: {primitive: signature, algorithm: RSA}
+      RSASSA-PSS: {primitive: signature, algorithm: RSA}
+      SHA1withECDSA: {primitive: signature, algorithm: ECDSA}
+      SHA256withECDSA: {primitive: signature, algorithm: ECDSA}
+      SHA384withECDSA: {primitive: signature, algorithm: ECDSA}
+      SHA512withECDSA: {primitive: signature, algorithm: ECDSA}
+      SHA1withDSA: {primitive: signature, algorithm: DSA}
+      SHA256withDSA: {primitive: signature, algorithm: DSA}
+      Ed25519: {primitive: signature, algorithm: EdDSA, params: Ed25519}
+      Ed448: {primitive: signature, algorithm: EdDSA, params: Ed448}
+      EdDSA: {primitive: signature, algorithm: EdDSA}
+      ML-DSA: {primitive: signature, algorithm: ML-DSA}
+      ML-DSA-44: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-44}
+      ML-DSA-65: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-65}
+      ML-DSA-87: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-87}
+    confidence: 0.9
+    source: https://docs.oracle.com/en/java/javase/25/docs/specs/security/standard-names.html#signature-algorithms
+
+  - id: java.jca.keyagreement
+    call: javax.crypto.KeyAgreement.getInstance
+    params_from: arg[0]
+    select:
+      ECDH: {primitive: key-agreement, algorithm: ECDH}
+      DH: {primitive: key-agreement, algorithm: DH}
+      DiffieHellman: {primitive: key-agreement, algorithm: DH}
+      X25519: {primitive: key-agreement, algorithm: X25519, params: X25519}
+      X448: {primitive: key-agreement, algorithm: X448, params: X448}
+    confidence: 0.9
+    source: https://docs.oracle.com/en/java/javase/25/docs/specs/security/standard-names.html#keyagreement-algorithms
+
+  - id: java.jca.kem
+    call: javax.crypto.KEM.getInstance
+    params_from: arg[0]
+    select:
+      ML-KEM: {primitive: kem, algorithm: ML-KEM}
+      ML-KEM-512: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-512}
+      ML-KEM-768: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-768}
+      ML-KEM-1024: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-1024}
+    confidence: 0.9
+    source: https://docs.oracle.com/en/java/javase/25/docs/api/java.base/javax/crypto/KEM.html
+
+  - id: java.jca.cipher
+    call: javax.crypto.Cipher.getInstance
+    params_from: arg[0]
+    select:
+      AES_128/*: {primitive: cipher, algorithm: AES, params: "128"}
+      AES_192/*: {primitive: cipher, algorithm: AES, params: "192"}
+      AES_256/*: {primitive: cipher, algorithm: AES, params: "256"}
+      AES: {primitive: cipher, algorithm: AES}
+      AES/*: {primitive: cipher, algorithm: AES}
+      DESede*: {primitive: cipher, algorithm: 3DES, params: 3-key}
+      TripleDES*: {primitive: cipher, algorithm: 3DES, params: 3-key}
+      DES: {primitive: cipher, algorithm: DES, params: "56"}
+      DES/*: {primitive: cipher, algorithm: DES, params: "56"}
+      RC4: {primitive: cipher, algorithm: RC4, params: unknown}
+      ARCFOUR: {primitive: cipher, algorithm: RC4, params: unknown}
+      ChaCha20-Poly1305: {primitive: cipher, algorithm: ChaCha20-Poly1305, params: ChaCha20-Poly1305}
+      RSA: {primitive: pke, algorithm: RSA}
+      RSA/*: {primitive: pke, algorithm: RSA}
+    confidence: 0.9
+    source: https://docs.oracle.com/en/java/javase/25/docs/specs/security/standard-names.html#cipher-algorithm-names
+    notes: Transformations ("AES/GCM/NoPadding") are matched on their algorithm part.
+
+  - id: java.jca.messagedigest
+    call: java.security.MessageDigest.getInstance
+    params_from: arg[0]
+    select:
+      MD5: {primitive: hash, algorithm: MD5, params: MD5}
+      SHA-1: {primitive: hash, algorithm: SHA-1, params: SHA-1}
+      SHA1: {primitive: hash, algorithm: SHA-1, params: SHA-1}
+      SHA-256: {primitive: hash, algorithm: SHA-2, params: SHA-256}
+      SHA-384: {primitive: hash, algorithm: SHA-2, params: SHA-384}
+      SHA-512: {primitive: hash, algorithm: SHA-2, params: SHA-512}
+      SHA3-256: {primitive: hash, algorithm: SHA-3, params: SHA3-256}
+      SHA3-512: {primitive: hash, algorithm: SHA-3, params: SHA3-512}
+    confidence: 0.9
+    source: https://docs.oracle.com/en/java/javase/25/docs/specs/security/standard-names.html#messagedigest-algorithms
+
+  - id: java.jca.mac
+    call: javax.crypto.Mac.getInstance
+    params_from: arg[0]
+    select:
+      HmacSHA1: {primitive: mac, algorithm: HMAC, params: SHA-1}
+      HmacSHA256: {primitive: mac, algorithm: HMAC, params: SHA-256}
+      HmacSHA384: {primitive: mac, algorithm: HMAC, params: SHA-384}
+      HmacSHA512: {primitive: mac, algorithm: HMAC, params: SHA-512}
+    confidence: 0.9
+    source: https://docs.oracle.com/en/java/javase/25/docs/specs/security/standard-names.html#mac-algorithms
+
+  - id: java.jca.keygenerator
+    call: javax.crypto.KeyGenerator.getInstance
+    params_from: arg[0]
+    select:
+      AES: {primitive: cipher, algorithm: AES}
+      DESede: {primitive: cipher, algorithm: 3DES, params: 3-key}
+      HmacSHA256: {primitive: mac, algorithm: HMAC, params: SHA-256}
+      HmacSHA512: {primitive: mac, algorithm: HMAC, params: SHA-512}
+    confidence: 0.85
+    source: https://docs.oracle.com/en/java/javase/25/docs/specs/security/standard-names.html#keygenerator-algorithms
+
+  - id: java.spec.ecgenparameterspec
+    call: java.security.spec.ECGenParameterSpec
+    asset: {primitive: signature, algorithm: ECDSA}
+    params_from: arg[0]
+    params_map: {secp256r1: P-256, prime256v1: P-256, NIST P-256: P-256, secp384r1: P-384, NIST P-384: P-384, secp521r1: P-521, NIST P-521: P-521}
+    confidence: 0.85
+    source: https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/security/spec/ECGenParameterSpec.html
+    notes: An EC curve is reported as ECDSA; the same key could be used for ECDH.
+
+  - id: java.spec.rsakeygenparameterspec
+    call: java.security.spec.RSAKeyGenParameterSpec
+    asset: {primitive: signature, algorithm: RSA}
+    params_from: arg[0]
+    confidence: 0.9
+    source: https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/security/spec/RSAKeyGenParameterSpec.html
+
+  - id: java.spec.named.x25519
+    ref: java.security.spec.NamedParameterSpec.X25519
+    asset: {primitive: key-agreement, algorithm: X25519, params: X25519}
+    confidence: 0.9
+    source: https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/security/spec/NamedParameterSpec.html
+  - id: java.spec.named.x448
+    ref: java.security.spec.NamedParameterSpec.X448
+    asset: {primitive: key-agreement, algorithm: X448, params: X448}
+    confidence: 0.9
+    source: https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/security/spec/NamedParameterSpec.html
+  - id: java.spec.named.ed25519
+    ref: java.security.spec.NamedParameterSpec.ED25519
+    asset: {primitive: signature, algorithm: EdDSA, params: Ed25519}
+    confidence: 0.9
+    source: https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/security/spec/NamedParameterSpec.html
+  - id: java.spec.named.ed448
+    ref: java.security.spec.NamedParameterSpec.ED448
+    asset: {primitive: signature, algorithm: EdDSA, params: Ed448}
+    confidence: 0.9
+    source: https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/security/spec/NamedParameterSpec.html
+  - id: java.spec.named.ml-kem-512
+    ref: java.security.spec.NamedParameterSpec.ML_KEM_512
+    asset: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-512}
+    confidence: 0.9
+    source: https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/security/spec/NamedParameterSpec.html
+  - id: java.spec.named.ml-kem-768
+    ref: java.security.spec.NamedParameterSpec.ML_KEM_768
+    asset: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-768}
+    confidence: 0.9
+    source: https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/security/spec/NamedParameterSpec.html
+  - id: java.spec.named.ml-kem-1024
+    ref: java.security.spec.NamedParameterSpec.ML_KEM_1024
+    asset: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-1024}
+    confidence: 0.9
+    source: https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/security/spec/NamedParameterSpec.html
+  - id: java.spec.named.ml-dsa-44
+    ref: java.security.spec.NamedParameterSpec.ML_DSA_44
+    asset: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-44}
+    confidence: 0.9
+    source: https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/security/spec/NamedParameterSpec.html
+  - id: java.spec.named.ml-dsa-65
+    ref: java.security.spec.NamedParameterSpec.ML_DSA_65
+    asset: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-65}
+    confidence: 0.9
+    source: https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/security/spec/NamedParameterSpec.html
+  - id: java.spec.named.ml-dsa-87
+    ref: java.security.spec.NamedParameterSpec.ML_DSA_87
+    asset: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-87}
+    confidence: 0.9
+    source: https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/security/spec/NamedParameterSpec.html

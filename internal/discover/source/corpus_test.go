@@ -112,7 +112,7 @@ func scoreCase(want []label, got []model.Finding) (tally, []string) {
 
 func TestCorpus(t *testing.T) {
 	s := testScanner(t)
-	for _, lang := range []string{"go", "python"} {
+	for _, lang := range []string{"go", "python", "java", "c", "js"} {
 		t.Run(lang, func(t *testing.T) {
 			dirs, err := filepath.Glob(filepath.Join(corpusDir, lang, "*"))
 			if err != nil {

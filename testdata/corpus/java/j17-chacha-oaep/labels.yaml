@@ -1,0 +1,5 @@
+kind: positive
+description: "ChaCha20-Poly1305 and RSA-OAEP ciphers"
+expect:
+  - {file: Main.java, line: 5, algorithm: ChaCha20-Poly1305, params: "ChaCha20-Poly1305", primitive: cipher}
+  - {file: Main.java, line: 6, algorithm: RSA, params: "unknown", primitive: pke}

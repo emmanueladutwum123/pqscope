@@ -1,0 +1,6 @@
+kind: positive
+description: "SHA-256, SHA-1 and MD5"
+expect:
+  - {file: main.c, line: 6, algorithm: SHA-2, params: "SHA-256", primitive: hash}
+  - {file: main.c, line: 7, algorithm: SHA-1, params: "SHA-1", primitive: hash}
+  - {file: main.c, line: 8, algorithm: MD5, params: "MD5", primitive: hash}

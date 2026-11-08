@@ -1,0 +1,5 @@
+kind: positive
+description: "EC keys by name and by NID"
+expect:
+  - {file: main.c, line: 5, algorithm: ECDSA, params: "P-384", primitive: signature}
+  - {file: main.c, line: 6, algorithm: ECDSA, params: "P-256", primitive: signature}

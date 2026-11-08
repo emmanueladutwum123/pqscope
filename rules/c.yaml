@@ -1,0 +1,223 @@
+# C and C++ rule pack. These APIs are global C functions, so symbols are bare
+# function names. Macro and enum constants passed as arguments (EVP_PKEY_RSA,
+# NID_secp384r1, OQS_KEM_alg_ml_kem_768, BCRYPT_RSA_ALGORITHM) are matched by
+# name. Every rule cites its documentation.
+version: 1
+lang: c
+rules:
+  # --- OpenSSL 3: generic key generation ---
+  - id: c.openssl.evp-pkey-ctx-new-id
+    call: EVP_PKEY_CTX_new_id
+    params_from: arg[0]
+    select:
+      EVP_PKEY_RSA: {primitive: signature, algorithm: RSA}
+      EVP_PKEY_RSA_PSS: {primitive: signature, algorithm: RSA}
+      EVP_PKEY_EC: {primitive: signature, algorithm: ECDSA}
+      EVP_PKEY_DSA: {primitive: signature, algorithm: DSA}
+      EVP_PKEY_DH: {primitive: key-agreement, algorithm: DH}
+      EVP_PKEY_X25519: {primitive: key-agreement, algorithm: X25519, params: X25519}
+      EVP_PKEY_X448: {primitive: key-agreement, algorithm: X448, params: X448}
+      EVP_PKEY_ED25519: {primitive: signature, algorithm: EdDSA, params: Ed25519}
+      EVP_PKEY_ED448: {primitive: signature, algorithm: EdDSA, params: Ed448}
+    confidence: 0.9
+    source: https://docs.openssl.org/3.5/man3/EVP_PKEY_CTX_new/
+  - id: c.openssl.evp-pkey-by-name
+    call: [EVP_PKEY_CTX_new_from_name]
+    params_from: arg[1]
+    select: &openssl_names
+      RSA: {primitive: signature, algorithm: RSA}
+      RSA-PSS: {primitive: signature, algorithm: RSA}
+      EC: {primitive: signature, algorithm: ECDSA}
+      DSA: {primitive: signature, algorithm: DSA}
+      DH: {primitive: key-agreement, algorithm: DH}
+      X25519: {primitive: key-agreement, algorithm: X25519, params: X25519}
+      X448: {primitive: key-agreement, algorithm: X448, params: X448}
+      ED25519: {primitive: signature, algorithm: EdDSA, params: Ed25519}
+      ED448: {primitive: signature, algorithm: EdDSA, params: Ed448}
+      ML-KEM-512: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-512}
+      ML-KEM-768: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-768}
+      ML-KEM-1024: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-1024}
+      ML-DSA-44: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-44}
+      ML-DSA-65: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-65}
+      ML-DSA-87: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-87}
+      X25519MLKEM768: {primitive: kem, algorithm: Hybrid, params: X25519MLKEM768}
+    confidence: 0.9
+    source: https://docs.openssl.org/3.5/man3/EVP_PKEY_CTX_new/
+  - id: c.openssl.evp-pkey-q-keygen
+    call: EVP_PKEY_Q_keygen
+    params_from: arg[2]
+    select: *openssl_names
+    confidence: 0.9
+    source: https://docs.openssl.org/3.5/man3/EVP_PKEY_Q_keygen/
+    notes: The key size or curve in the variadic arguments is not read.
+
+  # --- OpenSSL: RSA ---
+  - id: c.openssl.rsa-generate
+    call: [RSA_generate_key_ex, EVP_PKEY_CTX_set_rsa_keygen_bits]
+    asset: {primitive: signature, algorithm: RSA}
+    params_from: arg[1]
+    confidence: 0.95
+    source: https://docs.openssl.org/3.5/man3/RSA_generate_key/
+  - id: c.openssl.evp-rsa-gen
+    call: EVP_RSA_gen
+    asset: {primitive: signature, algorithm: RSA}
+    params_from: arg[0]
+    confidence: 0.95
+    source: https://docs.openssl.org/3.5/man3/EVP_RSA_gen/
+  - id: c.openssl.rsa-new
+    call: [RSA_new, RSA_sign, RSA_verify]
+    asset: {primitive: signature, algorithm: RSA}
+    confidence: 0.9
+    source: https://docs.openssl.org/3.5/man3/RSA_new/
+  - id: c.openssl.rsa-encrypt
+    call: [RSA_public_encrypt, RSA_private_decrypt]
+    asset: {primitive: pke, algorithm: RSA}
+    confidence: 0.9
+    source: https://docs.openssl.org/3.5/man3/RSA_public_encrypt/
+
+  # --- OpenSSL: EC, DH, DSA ---
+  - id: c.openssl.ec-curve
+    call: EC_KEY_new_by_curve_name
+    asset: {primitive: signature, algorithm: ECDSA}
+    params_from: arg[0]
+    params_map: {NID_X9_62_prime256v1: P-256, NID_secp384r1: P-384, NID_secp521r1: P-521, NID_secp224r1: P-224}
+    confidence: 0.85
+    source: https://docs.openssl.org/3.5/man3/EC_KEY_new/
+    notes: An EC key is reported as ECDSA; the same key could be used for ECDH.
+  - id: c.openssl.evp-ec-gen
+    call: EVP_EC_gen
+    asset: {primitive: signature, algorithm: ECDSA}
+    params_from: arg[0]
+    params_map: {P-256: P-256, prime256v1: P-256, P-384: P-384, secp384r1: P-384, P-521: P-521, secp521r1: P-521}
+    confidence: 0.85
+    source: https://docs.openssl.org/3.5/man3/EVP_EC_gen/
+  - id: c.openssl.ecdsa
+    call: [ECDSA_sign, ECDSA_verify, ECDSA_do_sign, ECDSA_do_verify]
+    asset: {primitive: signature, algorithm: ECDSA}
+    confidence: 0.9
+    source: https://docs.openssl.org/3.5/man3/ECDSA_sign/
+  - id: c.openssl.ecdh
+    call: ECDH_compute_key
+    asset: {primitive: key-agreement, algorithm: ECDH}
+    confidence: 0.9
+    source: https://github.com/openssl/openssl/blob/openssl-3.5.0/util/libcrypto.num
+  - id: c.openssl.dh
+    call: [DH_new, DH_generate_key, DH_compute_key]
+    asset: {primitive: key-agreement, algorithm: DH}
+    confidence: 0.9
+    source: https://docs.openssl.org/3.5/man3/DH_generate_key/
+  - id: c.openssl.dsa
+    call: [DSA_new, DSA_sign, DSA_verify]
+    asset: {primitive: signature, algorithm: DSA}
+    confidence: 0.9
+    source: https://docs.openssl.org/3.5/man3/DSA_new/
+
+  # --- OpenSSL: digests ---
+  - {id: c.openssl.md5, call: [EVP_md5, MD5, MD5_Init], asset: {primitive: hash, algorithm: MD5, params: MD5}, confidence: 0.9, source: "https://docs.openssl.org/3.5/man3/MD5/"}
+  - {id: c.openssl.sha1, call: [EVP_sha1, SHA1, SHA1_Init], asset: {primitive: hash, algorithm: SHA-1, params: SHA-1}, confidence: 0.9, source: "https://docs.openssl.org/3.5/man3/SHA256_Init/"}
+  - {id: c.openssl.sha256, call: [EVP_sha256, SHA256, SHA256_Init], asset: {primitive: hash, algorithm: SHA-2, params: SHA-256}, confidence: 0.9, source: "https://docs.openssl.org/3.5/man3/EVP_sha224/"}
+  - {id: c.openssl.sha384, call: [EVP_sha384, SHA384], asset: {primitive: hash, algorithm: SHA-2, params: SHA-384}, confidence: 0.9, source: "https://docs.openssl.org/3.5/man3/EVP_sha224/"}
+  - {id: c.openssl.sha512, call: [EVP_sha512, SHA512], asset: {primitive: hash, algorithm: SHA-2, params: SHA-512}, confidence: 0.9, source: "https://docs.openssl.org/3.5/man3/EVP_sha224/"}
+  - {id: c.openssl.sha3-256, call: EVP_sha3_256, asset: {primitive: hash, algorithm: SHA-3, params: SHA3-256}, confidence: 0.9, source: "https://docs.openssl.org/3.5/man3/EVP_sha3_224/"}
+  - id: c.openssl.digest-by-name
+    call: [EVP_get_digestbyname]
+    params_from: arg[0]
+    select: &digest_names
+      MD5: {primitive: hash, algorithm: MD5, params: MD5}
+      SHA1: {primitive: hash, algorithm: SHA-1, params: SHA-1}
+      SHA-1: {primitive: hash, algorithm: SHA-1, params: SHA-1}
+      SHA256: {primitive: hash, algorithm: SHA-2, params: SHA-256}
+      SHA-256: {primitive: hash, algorithm: SHA-2, params: SHA-256}
+      SHA2-256: {primitive: hash, algorithm: SHA-2, params: SHA-256}
+      SHA384: {primitive: hash, algorithm: SHA-2, params: SHA-384}
+      SHA512: {primitive: hash, algorithm: SHA-2, params: SHA-512}
+      SHA3-256: {primitive: hash, algorithm: SHA-3, params: SHA3-256}
+    confidence: 0.9
+    source: https://docs.openssl.org/3.5/man3/EVP_get_digestbyname/
+  - id: c.openssl.md-fetch
+    call: EVP_MD_fetch
+    params_from: arg[1]
+    select: *digest_names
+    confidence: 0.9
+    source: https://docs.openssl.org/3.5/man3/EVP_MD_fetch/
+
+  # --- OpenSSL: ciphers ---
+  - {id: c.openssl.aes128, call: [EVP_aes_128_gcm, EVP_aes_128_cbc, EVP_aes_128_ctr, EVP_aes_128_ecb], asset: {primitive: cipher, algorithm: AES, params: "128"}, confidence: 0.9, source: "https://docs.openssl.org/3.5/man3/EVP_aes_128_gcm/"}
+  - {id: c.openssl.aes192, call: [EVP_aes_192_gcm, EVP_aes_192_cbc], asset: {primitive: cipher, algorithm: AES, params: "192"}, confidence: 0.9, source: "https://docs.openssl.org/3.5/man3/EVP_aes_128_gcm/"}
+  - {id: c.openssl.aes256, call: [EVP_aes_256_gcm, EVP_aes_256_cbc, EVP_aes_256_ctr, EVP_aes_256_ecb], asset: {primitive: cipher, algorithm: AES, params: "256"}, confidence: 0.9, source: "https://docs.openssl.org/3.5/man3/EVP_aes_128_gcm/"}
+  - {id: c.openssl.3des, call: [EVP_des_ede3_cbc, EVP_des_ede3], asset: {primitive: cipher, algorithm: 3DES, params: 3-key}, confidence: 0.9, source: "https://docs.openssl.org/3.5/man3/EVP_des_cbc/"}
+  - {id: c.openssl.des, call: [EVP_des_cbc, EVP_des_ecb], asset: {primitive: cipher, algorithm: DES, params: "56"}, confidence: 0.9, source: "https://docs.openssl.org/3.5/man3/EVP_des_cbc/"}
+  - {id: c.openssl.rc4, call: EVP_rc4, asset: {primitive: cipher, algorithm: RC4, params: unknown}, confidence: 0.9, source: "https://docs.openssl.org/3.5/man3/EVP_rc4/"}
+  - {id: c.openssl.chacha, call: EVP_chacha20_poly1305, asset: {primitive: cipher, algorithm: ChaCha20-Poly1305, params: ChaCha20-Poly1305}, confidence: 0.9, source: "https://docs.openssl.org/3.5/man3/EVP_chacha20/"}
+  - id: c.openssl.cipher-fetch
+    call: EVP_CIPHER_fetch
+    params_from: arg[1]
+    select:
+      AES-128-*: {primitive: cipher, algorithm: AES, params: "128"}
+      AES-192-*: {primitive: cipher, algorithm: AES, params: "192"}
+      AES-256-*: {primitive: cipher, algorithm: AES, params: "256"}
+      DES-EDE3*: {primitive: cipher, algorithm: 3DES, params: 3-key}
+      RC4: {primitive: cipher, algorithm: RC4, params: unknown}
+      ChaCha20-Poly1305: {primitive: cipher, algorithm: ChaCha20-Poly1305, params: ChaCha20-Poly1305}
+    confidence: 0.9
+    source: https://docs.openssl.org/3.5/man3/EVP_CIPHER_fetch/
+
+  # --- libsodium ---
+  - {id: c.sodium.box, call: [crypto_box_keypair, crypto_box_easy, crypto_box_seal, crypto_kx_keypair, crypto_scalarmult_curve25519, crypto_scalarmult], asset: {primitive: key-agreement, algorithm: X25519, params: X25519}, confidence: 0.9, source: "https://doc.libsodium.org/public-key_cryptography/authenticated_encryption"}
+  - {id: c.sodium.sign, call: [crypto_sign_keypair, crypto_sign_detached, crypto_sign, crypto_sign_ed25519_keypair], asset: {primitive: signature, algorithm: EdDSA, params: Ed25519}, confidence: 0.9, source: "https://doc.libsodium.org/public-key_cryptography/public-key_signatures"}
+  - {id: c.sodium.chacha, call: [crypto_aead_chacha20poly1305_ietf_encrypt, crypto_aead_xchacha20poly1305_ietf_encrypt], asset: {primitive: cipher, algorithm: ChaCha20-Poly1305, params: ChaCha20-Poly1305}, confidence: 0.9, source: "https://doc.libsodium.org/secret-key_cryptography/aead/chacha20-poly1305/ietf_chacha20-poly1305_construction"}
+  - {id: c.sodium.aesgcm, call: crypto_aead_aes256gcm_encrypt, asset: {primitive: cipher, algorithm: AES, params: "256"}, confidence: 0.9, source: "https://doc.libsodium.org/secret-key_cryptography/aead/aes-256-gcm"}
+
+  # --- liboqs ---
+  - id: c.liboqs.kem-new
+    call: OQS_KEM_new
+    params_from: arg[0]
+    select:
+      OQS_KEM_alg_ml_kem_512: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-512}
+      OQS_KEM_alg_ml_kem_768: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-768}
+      OQS_KEM_alg_ml_kem_1024: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-1024}
+      ML-KEM-512: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-512}
+      ML-KEM-768: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-768}
+      ML-KEM-1024: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-1024}
+    confidence: 0.9
+    source: https://github.com/open-quantum-safe/liboqs/blob/0.12.0/src/kem/kem.h
+  - id: c.liboqs.sig-new
+    call: OQS_SIG_new
+    params_from: arg[0]
+    select:
+      OQS_SIG_alg_ml_dsa_44: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-44}
+      OQS_SIG_alg_ml_dsa_65: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-65}
+      OQS_SIG_alg_ml_dsa_87: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-87}
+      ML-DSA-44: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-44}
+      ML-DSA-65: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-65}
+      ML-DSA-87: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-87}
+    confidence: 0.9
+    source: https://github.com/open-quantum-safe/liboqs/blob/0.12.0/src/sig/sig.h
+  - {id: c.liboqs.ml-kem-768, call: [OQS_KEM_ml_kem_768_keypair, OQS_KEM_ml_kem_768_encaps, OQS_KEM_ml_kem_768_new], asset: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-768}, confidence: 0.95, source: "https://github.com/open-quantum-safe/liboqs/blob/0.12.0/src/kem/ml_kem/kem_ml_kem.h"}
+
+  # --- Windows CNG ---
+  - id: c.cng.open-algorithm
+    call: BCryptOpenAlgorithmProvider
+    params_from: arg[1]
+    select:
+      BCRYPT_RSA_ALGORITHM: {primitive: signature, algorithm: RSA}
+      BCRYPT_ECDSA_ALGORITHM: {primitive: signature, algorithm: ECDSA}
+      BCRYPT_ECDSA_P256_ALGORITHM: {primitive: signature, algorithm: ECDSA, params: P-256}
+      BCRYPT_ECDSA_P384_ALGORITHM: {primitive: signature, algorithm: ECDSA, params: P-384}
+      BCRYPT_ECDH_ALGORITHM: {primitive: key-agreement, algorithm: ECDH}
+      BCRYPT_ECDH_P256_ALGORITHM: {primitive: key-agreement, algorithm: ECDH, params: P-256}
+      BCRYPT_ECDH_P384_ALGORITHM: {primitive: key-agreement, algorithm: ECDH, params: P-384}
+      BCRYPT_DH_ALGORITHM: {primitive: key-agreement, algorithm: DH}
+      BCRYPT_DSA_ALGORITHM: {primitive: signature, algorithm: DSA}
+      BCRYPT_AES_ALGORITHM: {primitive: cipher, algorithm: AES}
+      BCRYPT_3DES_ALGORITHM: {primitive: cipher, algorithm: 3DES, params: 3-key}
+      BCRYPT_RC4_ALGORITHM: {primitive: cipher, algorithm: RC4, params: unknown}
+      BCRYPT_MD5_ALGORITHM: {primitive: hash, algorithm: MD5, params: MD5}
+      BCRYPT_SHA1_ALGORITHM: {primitive: hash, algorithm: SHA-1, params: SHA-1}
+      BCRYPT_SHA256_ALGORITHM: {primitive: hash, algorithm: SHA-2, params: SHA-256}
+      BCRYPT_SHA384_ALGORITHM: {primitive: hash, algorithm: SHA-2, params: SHA-384}
+      BCRYPT_SHA512_ALGORITHM: {primitive: hash, algorithm: SHA-2, params: SHA-512}
+      BCRYPT_MLKEM_ALGORITHM: {primitive: kem, algorithm: ML-KEM}
+      BCRYPT_MLDSA_ALGORITHM: {primitive: signature, algorithm: ML-DSA}
+    confidence: 0.9
+    source: https://learn.microsoft.com/en-us/windows/win32/seccng/cng-algorithm-identifiers

@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Wildcard import resolves the class"
+expect:
+  - {file: Main.java, line: 5, algorithm: DSA, params: "unknown", primitive: signature}

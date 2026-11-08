@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Fully qualified class without an import"
+expect:
+  - {file: Main.java, line: 3, algorithm: SHA-2, params: "SHA-512", primitive: hash}

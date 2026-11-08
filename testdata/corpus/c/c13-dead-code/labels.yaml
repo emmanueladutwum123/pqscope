@@ -1,0 +1,3 @@
+kind: hard-negative
+description: "Crypto only under #if 0 and if (0)"
+expect: []

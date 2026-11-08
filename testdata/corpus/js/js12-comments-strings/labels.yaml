@@ -1,0 +1,3 @@
+kind: hard-negative
+description: "Names only in comments and strings"
+expect: []

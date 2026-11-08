@@ -1,0 +1,5 @@
+kind: positive
+description: "node-forge RSA and SHA-1"
+expect:
+  - {file: main.js, line: 3, algorithm: RSA, params: "3072", primitive: signature}
+  - {file: main.js, line: 4, algorithm: SHA-1, params: "SHA-1", primitive: hash}

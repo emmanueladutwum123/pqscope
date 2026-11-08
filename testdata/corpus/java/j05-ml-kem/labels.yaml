@@ -1,0 +1,5 @@
+kind: positive
+description: "ML-KEM through KEM and KeyPairGenerator (JDK 24+)"
+expect:
+  - {file: Main.java, line: 6, algorithm: ML-KEM, params: "ML-KEM-768", primitive: kem}
+  - {file: Main.java, line: 7, algorithm: ML-KEM, params: "ML-KEM-768", primitive: kem}

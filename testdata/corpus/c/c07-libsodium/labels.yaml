@@ -1,0 +1,5 @@
+kind: positive
+description: "libsodium box and sign keys"
+expect:
+  - {file: main.c, line: 4, algorithm: X25519, params: "X25519", primitive: key-agreement}
+  - {file: main.c, line: 5, algorithm: EdDSA, params: "Ed25519", primitive: signature}

@@ -1,0 +1,5 @@
+kind: positive
+description: "liboqs ML-KEM and ML-DSA"
+expect:
+  - {file: main.c, line: 4, algorithm: ML-KEM, params: "ML-KEM-768", primitive: kem}
+  - {file: main.c, line: 5, algorithm: ML-DSA, params: "ML-DSA-87", primitive: signature}

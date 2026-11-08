@@ -1,0 +1,4 @@
+kind: positive
+description: "RSA key pair with modulusLength"
+expect:
+  - {file: main.js, line: 3, algorithm: RSA, params: "2048", primitive: signature}

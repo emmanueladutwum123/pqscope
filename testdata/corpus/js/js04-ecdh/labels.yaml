@@ -1,0 +1,4 @@
+kind: positive
+description: "ECDH on prime256v1"
+expect:
+  - {file: main.js, line: 3, algorithm: ECDH, params: "P-256", primitive: key-agreement}

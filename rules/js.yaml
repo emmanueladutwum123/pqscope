@@ -1,0 +1,144 @@
+# JavaScript and TypeScript rule pack. Symbols are "<module>.<member path>";
+# the engine resolves ES imports, require() (including destructuring), the
+# "node:" prefix, and the global WebCrypto object (crypto, window.crypto).
+# Every rule cites its documentation.
+version: 1
+lang: js
+rules:
+  # --- Node.js crypto ---
+  - id: js.node.generate-key-pair
+    call: [crypto.generateKeyPairSync, crypto.generateKeyPair]
+    params_from: arg[0]
+    select:
+      rsa: {primitive: signature, algorithm: RSA}
+      rsa-pss: {primitive: signature, algorithm: RSA}
+      dsa: {primitive: signature, algorithm: DSA}
+      ec: {primitive: signature, algorithm: ECDSA}
+      ed25519: {primitive: signature, algorithm: EdDSA, params: Ed25519}
+      ed448: {primitive: signature, algorithm: EdDSA, params: Ed448}
+      x25519: {primitive: key-agreement, algorithm: X25519, params: X25519}
+      x448: {primitive: key-agreement, algorithm: X448, params: X448}
+      dh: {primitive: key-agreement, algorithm: DH}
+      ml-kem-512: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-512}
+      ml-kem-768: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-768}
+      ml-kem-1024: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-1024}
+      ml-dsa-44: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-44}
+      ml-dsa-65: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-65}
+      ml-dsa-87: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-87}
+    select_params_from: ["arg[1].modulusLength", "arg[1].namedCurve"]
+    params_map: {prime256v1: P-256, secp384r1: P-384, secp521r1: P-521}
+    confidence: 0.9
+    source: https://nodejs.org/api/crypto.html#cryptogeneratekeypairtype-options-callback
+  - id: js.node.create-hash
+    call: crypto.createHash
+    params_from: arg[0]
+    select:
+      md5: {primitive: hash, algorithm: MD5, params: MD5}
+      sha1: {primitive: hash, algorithm: SHA-1, params: SHA-1}
+      sha256: {primitive: hash, algorithm: SHA-2, params: SHA-256}
+      sha384: {primitive: hash, algorithm: SHA-2, params: SHA-384}
+      sha512: {primitive: hash, algorithm: SHA-2, params: SHA-512}
+      sha3-256: {primitive: hash, algorithm: SHA-3, params: SHA3-256}
+      sha3-512: {primitive: hash, algorithm: SHA-3, params: SHA3-512}
+    confidence: 0.9
+    source: https://nodejs.org/api/crypto.html#cryptocreatehashalgorithm-options
+  - id: js.node.create-hmac
+    call: crypto.createHmac
+    params_from: arg[0]
+    select:
+      sha1: {primitive: mac, algorithm: HMAC, params: SHA-1}
+      sha256: {primitive: mac, algorithm: HMAC, params: SHA-256}
+      sha384: {primitive: mac, algorithm: HMAC, params: SHA-384}
+      sha512: {primitive: mac, algorithm: HMAC, params: SHA-512}
+    confidence: 0.9
+    source: https://nodejs.org/api/crypto.html#cryptocreatehmacalgorithm-key-options
+  - id: js.node.create-cipheriv
+    call: [crypto.createCipheriv, crypto.createDecipheriv]
+    params_from: arg[0]
+    select:
+      aes-128-*: {primitive: cipher, algorithm: AES, params: "128"}
+      aes-192-*: {primitive: cipher, algorithm: AES, params: "192"}
+      aes-256-*: {primitive: cipher, algorithm: AES, params: "256"}
+      aes128*: {primitive: cipher, algorithm: AES, params: "128"}
+      aes256*: {primitive: cipher, algorithm: AES, params: "256"}
+      des-ede3*: {primitive: cipher, algorithm: 3DES, params: 3-key}
+      des-cbc: {primitive: cipher, algorithm: DES, params: "56"}
+      des-ecb: {primitive: cipher, algorithm: DES, params: "56"}
+      rc4: {primitive: cipher, algorithm: RC4, params: unknown}
+      chacha20-poly1305: {primitive: cipher, algorithm: ChaCha20-Poly1305, params: ChaCha20-Poly1305}
+    confidence: 0.9
+    source: https://nodejs.org/api/crypto.html#cryptocreatecipherivalgorithm-key-iv-options
+  - id: js.node.create-ecdh
+    call: crypto.createECDH
+    asset: {primitive: key-agreement, algorithm: ECDH}
+    params_from: arg[0]
+    params_map: {prime256v1: P-256, secp384r1: P-384, secp521r1: P-521}
+    confidence: 0.9
+    source: https://nodejs.org/api/crypto.html#cryptocreateecdhcurvename
+  - id: js.node.dh-group
+    call: [crypto.getDiffieHellman, crypto.createDiffieHellmanGroup]
+    asset: {primitive: key-agreement, algorithm: DH}
+    params_from: arg[0]
+    params_map: {modp14: "2048", modp15: "3072"}
+    confidence: 0.9
+    source: https://nodejs.org/api/crypto.html#cryptogetdiffiehellmangroupname
+
+  # --- WebCrypto (browsers, Node, Deno) ---
+  - id: js.webcrypto.generate-key
+    call: [crypto.subtle.generateKey, crypto.subtle.importKey, crypto.webcrypto.subtle.generateKey]
+    params_from: arg[0].name
+    select:
+      RSASSA-PKCS1-v1_5: {primitive: signature, algorithm: RSA}
+      RSA-PSS: {primitive: signature, algorithm: RSA}
+      RSA-OAEP: {primitive: pke, algorithm: RSA}
+      ECDSA: {primitive: signature, algorithm: ECDSA}
+      ECDH: {primitive: key-agreement, algorithm: ECDH}
+      Ed25519: {primitive: signature, algorithm: EdDSA, params: Ed25519}
+      X25519: {primitive: key-agreement, algorithm: X25519, params: X25519}
+      AES-GCM: {primitive: cipher, algorithm: AES}
+      AES-CBC: {primitive: cipher, algorithm: AES}
+      AES-CTR: {primitive: cipher, algorithm: AES}
+      HMAC: {primitive: mac, algorithm: HMAC}
+    select_params_from: ["arg[0].modulusLength", "arg[0].namedCurve", "arg[0].length"]
+    confidence: 0.85
+    source: https://www.w3.org/TR/WebCryptoAPI/#algorithm-overview
+    notes: Only an object literal (or a same-file constant) with a literal name is read; importKey's algorithm is its third argument and is not read.
+
+  # --- node-forge ---
+  - id: js.forge.rsa
+    call: node-forge.pki.rsa.generateKeyPair
+    asset: {primitive: signature, algorithm: RSA}
+    params_from: ["arg[0].bits", "arg[0]"]
+    confidence: 0.9
+    source: https://github.com/digitalbazaar/forge#rsa
+  - {id: js.forge.ed25519, call: node-forge.pki.ed25519.generateKeyPair, asset: {primitive: signature, algorithm: EdDSA, params: Ed25519}, confidence: 0.9, source: "https://github.com/digitalbazaar/forge#ed25519"}
+  - {id: js.forge.md5, call: node-forge.md.md5.create, asset: {primitive: hash, algorithm: MD5, params: MD5}, confidence: 0.9, source: "https://github.com/digitalbazaar/forge#md5"}
+  - {id: js.forge.sha1, call: node-forge.md.sha1.create, asset: {primitive: hash, algorithm: SHA-1, params: SHA-1}, confidence: 0.9, source: "https://github.com/digitalbazaar/forge#sha1"}
+  - {id: js.forge.sha256, call: node-forge.md.sha256.create, asset: {primitive: hash, algorithm: SHA-2, params: SHA-256}, confidence: 0.9, source: "https://github.com/digitalbazaar/forge#sha256"}
+
+  # --- jsrsasign ---
+  - id: js.jsrsasign.generate-keypair
+    call: jsrsasign.KEYUTIL.generateKeypair
+    params_from: arg[0]
+    select:
+      RSA: {primitive: signature, algorithm: RSA}
+      EC: {primitive: signature, algorithm: ECDSA}
+    select_params_from: ["arg[1]"]
+    params_map: {secp256r1: P-256, secp384r1: P-384, secp521r1: P-521}
+    confidence: 0.85
+    source: https://kjur.github.io/jsrsasign/api/symbols/KEYUTIL.html
+
+  # --- noble (pure JS) ---
+  - {id: js.noble.ml-kem-512, ref: ["@noble/post-quantum/ml-kem.js.ml_kem512", "@noble/post-quantum/ml-kem.ml_kem512"], asset: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-512}, confidence: 0.9, source: "https://github.com/paulmillr/noble-post-quantum#ml-kem--kyber-shared-secrets"}
+  - {id: js.noble.ml-kem-768, ref: ["@noble/post-quantum/ml-kem.js.ml_kem768", "@noble/post-quantum/ml-kem.ml_kem768"], asset: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-768}, confidence: 0.9, source: "https://github.com/paulmillr/noble-post-quantum#ml-kem--kyber-shared-secrets"}
+  - {id: js.noble.ml-kem-1024, ref: ["@noble/post-quantum/ml-kem.js.ml_kem1024", "@noble/post-quantum/ml-kem.ml_kem1024"], asset: {primitive: kem, algorithm: ML-KEM, params: ML-KEM-1024}, confidence: 0.9, source: "https://github.com/paulmillr/noble-post-quantum#ml-kem--kyber-shared-secrets"}
+  - {id: js.noble.ml-dsa-44, ref: ["@noble/post-quantum/ml-dsa.js.ml_dsa44", "@noble/post-quantum/ml-dsa.ml_dsa44"], asset: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-44}, confidence: 0.9, source: "https://github.com/paulmillr/noble-post-quantum#ml-dsa--dilithium-signatures"}
+  - {id: js.noble.ml-dsa-65, ref: ["@noble/post-quantum/ml-dsa.js.ml_dsa65", "@noble/post-quantum/ml-dsa.ml_dsa65"], asset: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-65}, confidence: 0.9, source: "https://github.com/paulmillr/noble-post-quantum#ml-dsa--dilithium-signatures"}
+  - {id: js.noble.ml-dsa-87, ref: ["@noble/post-quantum/ml-dsa.js.ml_dsa87", "@noble/post-quantum/ml-dsa.ml_dsa87"], asset: {primitive: signature, algorithm: ML-DSA, params: ML-DSA-87}, confidence: 0.9, source: "https://github.com/paulmillr/noble-post-quantum#ml-dsa--dilithium-signatures"}
+  - {id: js.noble.x25519, ref: ["@noble/curves/ed25519.js.x25519", "@noble/curves/ed25519.x25519"], asset: {primitive: key-agreement, algorithm: X25519, params: X25519}, confidence: 0.9, source: "https://github.com/paulmillr/noble-curves"}
+  - {id: js.noble.ed25519, ref: ["@noble/curves/ed25519.js.ed25519", "@noble/curves/ed25519.ed25519"], asset: {primitive: signature, algorithm: EdDSA, params: Ed25519}, confidence: 0.9, source: "https://github.com/paulmillr/noble-curves"}
+  - {id: js.noble.p256, ref: ["@noble/curves/nist.js.p256", "@noble/curves/nist.p256", "@noble/curves/p256.p256"], asset: {primitive: signature, algorithm: ECDSA, params: P-256}, confidence: 0.85, source: "https://github.com/paulmillr/noble-curves", notes: "The curve object serves ECDSA and ECDH alike; reported as ECDSA."}
+
+  # --- TweetNaCl ---
+  - {id: js.tweetnacl.box, call: [tweetnacl.box.keyPair, tweetnacl.box, tweetnacl.scalarMult], asset: {primitive: key-agreement, algorithm: X25519, params: X25519}, confidence: 0.9, source: "https://github.com/dchest/tweetnacl-js#public-key-authenticated-encryption-box"}
+  - {id: js.tweetnacl.sign, call: [tweetnacl.sign.keyPair, tweetnacl.sign.detached, tweetnacl.sign], asset: {primitive: signature, algorithm: EdDSA, params: Ed25519}, confidence: 0.9, source: "https://github.com/dchest/tweetnacl-js#signatures"}

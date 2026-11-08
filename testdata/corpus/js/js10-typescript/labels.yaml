@@ -1,0 +1,5 @@
+kind: positive
+description: "Node crypto from TypeScript"
+expect:
+  - {file: main.ts, line: 5, algorithm: AES, params: "128", primitive: cipher}
+  - {file: main.ts, line: 7, algorithm: SHA-2, params: "SHA-512", primitive: hash}

@@ -1,0 +1,5 @@
+kind: positive
+description: "Windows CNG providers"
+expect:
+  - {file: main.c, line: 6, algorithm: RSA, params: "unknown", primitive: signature}
+  - {file: main.c, line: 7, algorithm: SHA-2, params: "SHA-256", primitive: hash}

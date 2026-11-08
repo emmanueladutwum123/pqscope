@@ -1,0 +1,5 @@
+kind: positive
+description: "ECDH and DH key agreement"
+expect:
+  - {file: Main.java, line: 5, algorithm: ECDH, params: "unknown", primitive: key-agreement}
+  - {file: Main.java, line: 6, algorithm: DH, params: "unknown", primitive: key-agreement}

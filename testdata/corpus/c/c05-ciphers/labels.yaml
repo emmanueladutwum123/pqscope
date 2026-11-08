@@ -1,0 +1,6 @@
+kind: positive
+description: "AES-256-GCM, 3DES and ChaCha20-Poly1305"
+expect:
+  - {file: main.c, line: 4, algorithm: AES, params: "256", primitive: cipher}
+  - {file: main.c, line: 5, algorithm: 3DES, params: "3-key", primitive: cipher}
+  - {file: main.c, line: 6, algorithm: ChaCha20-Poly1305, params: "ChaCha20-Poly1305", primitive: cipher}

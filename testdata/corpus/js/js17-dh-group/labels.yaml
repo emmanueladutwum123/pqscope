@@ -1,0 +1,4 @@
+kind: positive
+description: "Named Diffie-Hellman group"
+expect:
+  - {file: main.js, line: 3, algorithm: DH, params: "2048", primitive: key-agreement}

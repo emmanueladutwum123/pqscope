@@ -1,0 +1,5 @@
+kind: positive
+description: "MD5 and SHA-1 digests"
+expect:
+  - {file: Main.java, line: 5, algorithm: MD5, params: "MD5", primitive: hash}
+  - {file: Main.java, line: 6, algorithm: SHA-1, params: "SHA-1", primitive: hash}

@@ -1,0 +1,6 @@
+kind: positive
+description: "Signature, digest and MAC factories"
+expect:
+  - {file: Main.java, line: 7, algorithm: RSA, params: "unknown", primitive: signature}
+  - {file: Main.java, line: 8, algorithm: SHA-2, params: "SHA-256", primitive: hash}
+  - {file: Main.java, line: 9, algorithm: HMAC, params: "SHA-256", primitive: mac}

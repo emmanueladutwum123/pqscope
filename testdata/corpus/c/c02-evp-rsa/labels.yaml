@@ -1,0 +1,5 @@
+kind: positive
+description: "EVP RSA key generation with key bits"
+expect:
+  - {file: main.c, line: 5, algorithm: RSA, params: "3072", primitive: signature}
+  - {file: main.c, line: 7, algorithm: RSA, params: "3072", primitive: signature}

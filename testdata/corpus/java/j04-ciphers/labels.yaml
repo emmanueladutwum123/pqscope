@@ -1,0 +1,6 @@
+kind: positive
+description: "AES-GCM, 3DES and a 256-bit AES key"
+expect:
+  - {file: Main.java, line: 6, algorithm: AES, params: "unknown", primitive: cipher}
+  - {file: Main.java, line: 7, algorithm: 3DES, params: "3-key", primitive: cipher}
+  - {file: Main.java, line: 8, algorithm: AES, params: "256", primitive: cipher}

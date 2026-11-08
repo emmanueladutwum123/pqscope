@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Algorithm name computed at run time (expected miss)"
+expect:
+  - {file: main.js, line: 3, algorithm: SHA-2, params: "SHA-256", primitive: hash}

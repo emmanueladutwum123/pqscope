@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Digest taken as a function pointer (expected miss)"
+expect:
+  - {file: main.c, line: 4, algorithm: SHA-1, params: "SHA-1", primitive: hash}

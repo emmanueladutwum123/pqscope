@@ -1,0 +1,4 @@
+kind: positive
+description: "jsrsasign EC key pair"
+expect:
+  - {file: main.js, line: 3, algorithm: ECDSA, params: "P-256", primitive: signature}

@@ -1,0 +1,6 @@
+kind: positive
+description: "OpenSSL from C++"
+expect:
+  - {file: main.cpp, line: 4, algorithm: AES, params: "128", primitive: cipher}
+  - {file: main.cpp, line: 5, algorithm: SHA-2, params: "SHA-384", primitive: hash}
+  - {file: main.cpp, line: 6, algorithm: EdDSA, params: "Ed25519", primitive: signature}

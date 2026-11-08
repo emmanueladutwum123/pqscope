@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Algorithm name built by concatenation (expected miss)"
+expect:
+  - {file: Main.java, line: 5, algorithm: SHA-2, params: "SHA-256", primitive: hash}

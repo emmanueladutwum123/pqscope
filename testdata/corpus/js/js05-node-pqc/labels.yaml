@@ -1,0 +1,5 @@
+kind: positive
+description: "ML-KEM and ML-DSA in Node 24+"
+expect:
+  - {file: main.js, line: 3, algorithm: ML-KEM, params: "ML-KEM-768", primitive: kem}
+  - {file: main.js, line: 4, algorithm: ML-DSA, params: "ML-DSA-65", primitive: signature}

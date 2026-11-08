@@ -1,0 +1,4 @@
+kind: positive
+description: "Hashing in a TSX component"
+expect:
+  - {file: main.tsx, line: 4, algorithm: SHA-1, params: "SHA-1", primitive: hash}

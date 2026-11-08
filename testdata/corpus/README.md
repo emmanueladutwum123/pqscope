@@ -1,6 +1,7 @@
 # Ground-truth corpus
 
-Each case is a directory `<lang>/<case>/` holding one source file and a `labels.yaml`:
+Each case is a directory `<lang>/<case>/` holding one source file and a `labels.yaml`. The
+languages are `go`, `python`, `java`, `c` (C and C++) and `js` (JavaScript and TypeScript).
 
 ```yaml
 kind: positive            # positive | hard-positive | hard-negative
@@ -42,3 +43,10 @@ only.
 The same author wrote the rules and the labels, so these scores measure consistency with the
 convention above more than real-world accuracy. The independent evaluation, with competitor
 tools and a larger corpus, belongs to milestone 10.
+
+## Generated cases
+
+The `java`, `c` and `js` cases were written with an inline-marker generator: each expected
+finding was marked on its source line, and the marker was turned into the label. Labels therefore
+always point at the right line. They still record what the code does, including findings pqscope
+is known to miss (`j13`, `c16`, `js15`) and params it can't resolve.

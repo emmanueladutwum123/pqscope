@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Algorithm name in a static final field"
+expect:
+  - {file: Main.java, line: 7, algorithm: RSA, params: "unknown", primitive: signature}
