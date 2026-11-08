@@ -1,0 +1,186 @@
+# NIST IR 8547 (final, October 2026), "Transition to Post-Quantum Cryptography
+# Standards", as a pqscope policy.
+#
+# Every (knowledge DB entry, primitive) pair must be matched by exactly one rule;
+# the loader and tests enforce this. Section numbers were read from the final
+# report (PDF SHA-256 3049cdfdd7c20417cf588a3d55ace6e8813982d1499502b7ef69e9593b2dc280).
+#
+# How IR 8547 maps to statuses:
+#   - Tables 2 and 4 give every quantum-vulnerable family at >= 112 bits the same
+#     schedule: deprecated after 2030, disallowed after 2035. That is
+#     deprecated-2030. The final report does not split it by strength.
+#   - Strengths below 112 bits, and DSA, are already disallowed by SP 800-131A
+#     Rev. 2 and FIPS 186-5: disallowed-now.
+#   - Assets the knowledge DB marks broken-now are broken-now here too.
+#   - IR 8547 lists approved PQC and symmetric algorithms in Tables 3, 5, 6 and 8:
+#     compliant.
+version: 1
+id: nist-ir-8547-2026
+title: NIST IR 8547 (final, October 2026)
+
+sources:
+  ir8547: {title: "NIST IR 8547, Transition to Post-Quantum Cryptography Standards (final, October 2026)", url: "https://doi.org/10.6028/NIST.IR.8547"}
+  sp800-131a: {title: "NIST SP 800-131A Rev. 2, Transitioning the Use of Cryptographic Algorithms and Key Lengths", url: "https://doi.org/10.6028/NIST.SP.800-131Ar2"}
+  fips186-5: {title: "FIPS 186-5, Digital Signature Standard", url: "https://doi.org/10.6028/NIST.FIPS.186-5"}
+  rfc7465: {title: "RFC 7465, Prohibiting RC4 Cipher Suites", url: "https://www.rfc-editor.org/rfc/rfc7465"}
+
+rules:
+  # --- Quantum-vulnerable public key at >= 112 bits ---
+  - id: rsa-signature
+    entries: [RSA-2048, RSA-3072, RSA-4096]
+    primitives: [signature]
+    status: deprecated-2030
+    schedule: Deprecated after 2030; disallowed after 2035
+    legacy_use: Signature verification of already-protected data after disallowance is governed by SP 800-131A.
+    cite: {source: ir8547, section: "Sec. 4.1.1, Table 2"}
+  - id: rsa-key-transport
+    entries: [RSA-2048, RSA-3072, RSA-4096]
+    primitives: [pke]
+    status: deprecated-2030
+    schedule: Deprecated after 2030; disallowed after 2035
+    cite: {source: ir8547, section: "Sec. 4.1.2, Table 4 (RSA, SP 800-56B)"}
+  - id: ecdsa
+    entries: [ECDSA-P224, ECDSA-P256, ECDSA-P384, ECDSA-P521]
+    status: deprecated-2030
+    schedule: Deprecated after 2030; disallowed after 2035
+    cite: {source: ir8547, section: "Sec. 4.1.1, Table 2"}
+  - id: eddsa
+    entries: [Ed25519, Ed448]
+    status: deprecated-2030
+    schedule: Deprecated after 2030; disallowed after 2035
+    note: Table 2 lists EdDSA at >= 128 bits; Ed25519 and Ed448 both qualify.
+    cite: {source: ir8547, section: "Sec. 4.1.1, Table 2"}
+  - id: ecdh
+    entries: [ECDH-P256, ECDH-P384, ECDH-P521]
+    status: deprecated-2030
+    schedule: Deprecated after 2030; disallowed after 2035
+    cite: {source: ir8547, section: "Sec. 4.1.2, Table 4 (Elliptic Curve DH and MQV)"}
+  - id: montgomery-ecdh
+    entries: [X25519, X448]
+    status: deprecated-2030
+    schedule: Deprecated after 2030; disallowed after 2035
+    note: >-
+      Table 4 does not name curves. Sec. 4.1.2 states that NIST will deprecate all
+      quantum-vulnerable cryptography after 2030 and disallow it after 2035, which covers
+      X25519 and X448 whatever their current approval status under SP 800-56A.
+    cite: {source: ir8547, section: "Sec. 4.1.2"}
+  - id: ffdh-mqv
+    entries: [DH-2048, DH-3072, MQV]
+    status: deprecated-2030
+    schedule: Deprecated after 2030; disallowed after 2035
+    note: MQV strength depends on its group; this row assumes >= 112 bits.
+    cite: {source: ir8547, section: "Sec. 4.1.2, Table 4 (Finite Field DH and MQV)"}
+
+  # --- Already disallowed ---
+  - id: rsa-below-112
+    entries: [RSA-1024]
+    status: disallowed-now
+    schedule: Disallowed for signature generation and key transport (< 112 bits)
+    legacy_use: Signature verification and decryption of already-protected data.
+    cite: {source: sp800-131a, section: "Sec. 3, Table 2; Sec. 6, Table 5"}
+  - id: dsa
+    entries: [DSA-1024, DSA-2048, DSA-3072]
+    status: disallowed-now
+    schedule: No longer approved for signature generation
+    legacy_use: Verification of signatures generated before FIPS 186-5.
+    cite: {source: fips186-5, section: "Sec. 4"}
+
+  # --- Post-quantum ---
+  - id: ml-kem
+    entries: [ML-KEM-512, ML-KEM-768, ML-KEM-1024]
+    status: compliant
+    schedule: Approved
+    note: NIST recommends ML-KEM-768 as the default parameter set.
+    cite: {source: ir8547, section: "Sec. 4.1.2, Table 5"}
+  - id: ml-dsa
+    entries: [ML-DSA-44, ML-DSA-65, ML-DSA-87]
+    status: compliant
+    schedule: Approved
+    cite: {source: ir8547, section: "Sec. 4.1.1, Table 3"}
+  - id: slh-dsa
+    entries: [SLH-DSA-128s, SLH-DSA-128f, SLH-DSA-192s, SLH-DSA-192f, SLH-DSA-256s, SLH-DSA-256f]
+    status: compliant
+    schedule: Approved
+    cite: {source: ir8547, section: "Sec. 4.1.1, Table 3"}
+  - id: hybrid-ml-kem
+    entries: [X25519MLKEM768, SecP256r1MLKEM768, SecP384r1MLKEM1024, mlkem768x25519-sha256]
+    status: compliant
+    schedule: Approved while one input is an approved scheme
+    note: An ML-KEM component makes the combination FIPS 140-validatable even if the other input is disallowed.
+    cite: {source: ir8547, section: "Sec. 4.1.2; Sec. 3.2.1"}
+  - id: sntrup761-hybrid
+    entries: [sntrup761x25519-sha512]
+    status: unknown
+    schedule: Not addressed
+    note: >-
+      sntrup761 is not an approved KEM (Sec. 4.1.2 names ML-KEM as the only one). Whether the
+      X25519 input counts as an approved scheme for the Sec. 3.2.1 hybrid rule is not settled
+      here.
+    cite: {source: ir8547, section: "Sec. 3.2.1; Sec. 4.1.2"}
+  - id: sntrup761
+    entries: [sntrup761]
+    status: disallowed-now
+    schedule: Not an approved key-establishment scheme
+    note: ML-KEM is the only approved post-quantum KEM; HQC will be once published.
+    cite: {source: ir8547, section: "Sec. 4.1.2"}
+
+  # --- Symmetric ---
+  - id: aes
+    entries: [AES-128, AES-192, AES-256]
+    status: compliant
+    schedule: Approved
+    cite: {source: ir8547, section: "Sec. 4.1.3, Table 6"}
+  - id: chacha20-poly1305
+    entries: [ChaCha20-Poly1305]
+    status: disallowed-now
+    schedule: Not a NIST-approved algorithm
+    note: IR 8547 Table 7 lists Ascon-AEAD128 as the approved AEAD besides AES modes.
+    cite: {source: ir8547, section: "Sec. 4.1.3, Table 7"}
+  - id: 3des
+    entries: [3DES]
+    status: broken-now
+    schedule: Three-key TDEA encryption disallowed after 2023
+    legacy_use: Decryption of already-protected data.
+    cite: {source: sp800-131a, section: "Sec. 2, Table 1"}
+  - id: des
+    entries: [DES]
+    status: broken-now
+    schedule: Not approved (56-bit key)
+    cite: {source: sp800-131a, section: "Sec. 2, Table 1 (DES is not listed as approved)"}
+  - id: rc4
+    entries: [RC4]
+    status: broken-now
+    schedule: Not approved
+    cite: {source: rfc7465, section: "Sec. 2"}
+  - id: md5
+    entries: [MD5]
+    status: broken-now
+    schedule: Not an approved hash function
+    cite: {source: ir8547, section: "Sec. 4.1.3, Table 8 (MD5 is not listed)"}
+  - id: sha-1
+    entries: [SHA-1]
+    status: broken-now
+    schedule: Deprecated for all remaining uses; disallowed in FIPS-validated modules after 2030
+    note: Collision strength is below 80 bits. SP 800-131A already disallows it for signature generation.
+    cite: {source: ir8547, section: "Sec. 4.1.3, Table 8 and footnote 4"}
+  - id: sha-2
+    entries: [SHA-256, SHA-384, SHA-512]
+    status: compliant
+    schedule: Approved
+    cite: {source: ir8547, section: "Sec. 4.1.3, Table 8"}
+  - id: sha-3
+    entries: [SHA3-256, SHA3-512]
+    status: compliant
+    schedule: Approved
+    cite: {source: ir8547, section: "Sec. 4.1.3, Table 8"}
+  - id: hmac-sha-2
+    entries: [HMAC-SHA-256, HMAC-SHA-384, HMAC-SHA-512]
+    status: compliant
+    schedule: Approved
+    cite: {source: sp800-131a, section: "Sec. 10, Table 9"}
+  - id: hmac-sha-1
+    entries: [HMAC-SHA-1]
+    status: deprecated-2030
+    schedule: Deprecated now; disallowed in FIPS-validated modules after 2030
+    note: Footnote 4 deprecates SHA-1 for all remaining applications, which includes HMAC.
+    cite: {source: ir8547, section: "Sec. 4.1.3, footnote 4"}

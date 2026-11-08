@@ -1,0 +1,112 @@
+# CNSA 2.0, the NSA suite for National Security Systems, as a pqscope policy.
+#
+# Every (knowledge DB entry, primitive) pair must be matched by exactly one rule;
+# the loader and tests enforce this.
+#
+# Sources, all NSA-authored: the CNSA 2.0 TLS 1.3 profile states the suite, and
+# RFC 9151 states the CNSA 1.0 algorithms that the profile calls a bridge. The
+# NSA advisory itself (CSA "Announcing the Commercial National Security
+# Algorithm Suite 2.0") could not be retrieved by script, so NSA's
+# per-equipment-class exclusive-use dates (2030-2033) are NOT encoded here.
+# Until they are, CNSA 1.0 algorithms carry the NSM-10 2035 target that
+# IR 8547 Sec. 4 restates.
+#
+# How CNSA 2.0 maps to statuses:
+#   - The suite (ML-KEM-1024, ML-DSA-87, AES-256, SHA-384, SHA-512): compliant.
+#   - CNSA 1.0 algorithms (RSA-3072/4096, P-384, DH-3072): disallowed-2035.
+#   - Everything else, including ML-KEM-768, ML-DSA-65, SLH-DSA and hybrids:
+#     disallowed-now, because a CNSA-compliant system must not accept it.
+#   - Assets the knowledge DB marks broken-now are broken-now here too.
+version: 1
+id: cnsa-2.0
+title: CNSA 2.0 (NSA Commercial National Security Algorithm Suite 2.0)
+
+sources:
+  cnsa2-tls: {title: "draft-becker-cnsa2-tls-profile-05, CNSA Suite 2.0 Profile for TLS 1.3 (NSA authors, July 2026)", url: "https://www.ietf.org/archive/id/draft-becker-cnsa2-tls-profile-05.html"}
+  rfc9151: {title: "RFC 9151, CNSA Suite Profile for TLS and DTLS 1.2 and 1.3 (CNSA 1.0)", url: "https://www.rfc-editor.org/rfc/rfc9151"}
+  ir8547: {title: "NIST IR 8547, Transition to Post-Quantum Cryptography Standards (final, October 2026)", url: "https://doi.org/10.6028/NIST.IR.8547"}
+
+rules:
+  # --- The CNSA 2.0 suite ---
+  - id: ml-kem-1024
+    entries: [ML-KEM-1024]
+    status: compliant
+    schedule: In the suite
+    cite: {source: cnsa2-tls, section: "Sec. 3; Sec. 4"}
+  - id: ml-dsa-87
+    entries: [ML-DSA-87]
+    status: compliant
+    schedule: In the suite
+    note: HashML-DSA is not permitted (Sec. 4); pqscope does not distinguish it yet.
+    cite: {source: cnsa2-tls, section: "Sec. 3; Sec. 4"}
+  - id: aes-256
+    entries: [AES-256]
+    status: compliant
+    schedule: In the suite
+    cite: {source: cnsa2-tls, section: "Sec. 3; Sec. 4"}
+  - id: sha-384-512
+    entries: [SHA-384, SHA-512]
+    status: compliant
+    schedule: In the suite
+    cite: {source: cnsa2-tls, section: "Sec. 3"}
+  - id: hmac-sha-384-512
+    entries: [HMAC-SHA-384, HMAC-SHA-512]
+    status: compliant
+    schedule: Built on a suite hash
+    note: The profile requires HKDF, which is HMAC-based, with SHA-384 (Sec. 4).
+    cite: {source: cnsa2-tls, section: "Sec. 3; Sec. 4"}
+
+  # --- CNSA 1.0, a bridge to CNSA 2.0 ---
+  - id: cnsa1-rsa
+    entries: [RSA-3072, RSA-4096]
+    status: disallowed-2035
+    schedule: CNSA 1.0 bridge; quantum-resistant migration due by 2035
+    note: NSA's earlier exclusive-use dates for each equipment class are not encoded yet; see the file header.
+    cite: {source: rfc9151, section: "Sec. 4; Sec. 5.2"}
+  - id: cnsa1-p384
+    entries: [ECDSA-P384, ECDH-P384]
+    status: disallowed-2035
+    schedule: CNSA 1.0 bridge; quantum-resistant migration due by 2035
+    note: NSA's earlier exclusive-use dates for each equipment class are not encoded yet; see the file header.
+    cite: {source: rfc9151, section: "Sec. 4; Sec. 5.1"}
+  - id: cnsa1-dh
+    entries: [DH-3072]
+    status: disallowed-2035
+    schedule: CNSA 1.0 bridge; quantum-resistant migration due by 2035
+    note: NSA's earlier exclusive-use dates for each equipment class are not encoded yet; see the file header.
+    cite: {source: rfc9151, section: "Sec. 4; Sec. 5.3"}
+
+  # --- Outside both suites ---
+  - id: classical-outside-cnsa
+    entries: [RSA-1024, RSA-2048, ECDSA-P224, ECDSA-P256, ECDSA-P521, ECDH-P256, ECDH-P521,
+              X25519, X448, Ed25519, Ed448, DH-2048, MQV, DSA-1024, DSA-2048, DSA-3072]
+    status: disallowed-now
+    schedule: Never in CNSA 1.0 or 2.0
+    note: RFC 9151 Sec. 8 requires only the curves, RSA moduli and groups of Sec. 5.
+    cite: {source: rfc9151, section: "Sec. 4; Sec. 5; Sec. 8"}
+  - id: pqc-outside-suite
+    entries: [ML-KEM-512, ML-KEM-768, ML-DSA-44, ML-DSA-65,
+              SLH-DSA-128s, SLH-DSA-128f, SLH-DSA-192s, SLH-DSA-192f, SLH-DSA-256s, SLH-DSA-256f, sntrup761]
+    status: disallowed-now
+    schedule: Not in the suite
+    note: Only ML-KEM-1024 and ML-DSA-87 are accepted; SLH-DSA is not in the suite.
+    cite: {source: cnsa2-tls, section: "Sec. 4; Sec. 7.2.1; Sec. 8.1"}
+  - id: hybrids
+    entries: [X25519MLKEM768, SecP256r1MLKEM768, SecP384r1MLKEM1024, mlkem768x25519-sha256, sntrup761x25519-sha512]
+    status: disallowed-now
+    schedule: Not accepted by a CNSA-compliant TLS server
+    note: >-
+      Sec. 7.2.1 rejects any key-establishment algorithm other than ML-KEM-1024, which
+      includes SecP384r1MLKEM1024. The profile does not discuss hybrids directly.
+    cite: {source: cnsa2-tls, section: "Sec. 7.2.1"}
+  - id: symmetric-outside-suite
+    entries: [AES-128, AES-192, ChaCha20-Poly1305, SHA-256, SHA3-256, SHA3-512, HMAC-SHA-256, HMAC-SHA-1]
+    status: disallowed-now
+    schedule: Not in the suite
+    note: The only TLS 1.3 cipher suite accepted is TLS_AES_256_GCM_SHA384 (Sec. 7.1).
+    cite: {source: cnsa2-tls, section: "Sec. 3; Sec. 4; Sec. 7.1"}
+  - id: broken
+    entries: [3DES, DES, RC4, MD5, SHA-1]
+    status: broken-now
+    schedule: Not in the suite; insecure against classical attack
+    cite: {source: cnsa2-tls, section: "Sec. 3"}
