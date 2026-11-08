@@ -1,0 +1,9 @@
+layer: network
+kind: positive
+description: "OpenSSH 10 limited to curve25519-sha256"
+expect:
+  - {file: target, line: 0, algorithm: X25519, params: "X25519", primitive: key-agreement}
+  - {file: target, line: 0, algorithm: SHA-2, params: "SHA-256", primitive: hash}
+  - {file: target, line: 0, algorithm: EdDSA, params: "Ed25519", primitive: signature}
+  - {file: target, line: 0, algorithm: AES, params: "256", primitive: cipher}
+  - {file: target, line: 0, algorithm: HMAC, params: "SHA-256", primitive: mac}

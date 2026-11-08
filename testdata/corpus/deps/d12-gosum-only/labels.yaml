@@ -1,0 +1,5 @@
+layer: deps
+kind: positive
+description: "go.sum without go.mod, x/crypto 0.38"
+expect:
+  - {file: go.sum, line: 1, algorithm: Hybrid, params: "mlkem768x25519-sha256", primitive: kem}

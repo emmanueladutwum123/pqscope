@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Algorithm passed as a parameter (expected miss)"
+expect:
+  - {file: Main.java, line: 8, algorithm: SHA-1, params: "SHA-1", primitive: hash}

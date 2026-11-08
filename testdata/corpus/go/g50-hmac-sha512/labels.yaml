@@ -1,0 +1,5 @@
+kind: positive
+description: "HMAC with SHA-512"
+expect:
+  - {file: main.go, line: 9, algorithm: HMAC, params: "SHA-512", primitive: mac}
+  - {file: main.go, line: 9, algorithm: SHA-2, params: "SHA-512", primitive: hash}

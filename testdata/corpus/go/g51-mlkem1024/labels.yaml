@@ -1,0 +1,4 @@
+kind: positive
+description: "ML-KEM-1024 key generation"
+expect:
+  - {file: main.go, line: 6, algorithm: ML-KEM, params: "ML-KEM-1024", primitive: kem}

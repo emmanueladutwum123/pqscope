@@ -1,0 +1,5 @@
+kind: positive
+description: "x/crypto/ssh host key algorithms"
+expect:
+  - {file: main.go, line: 6, algorithm: EdDSA, params: "Ed25519", primitive: signature}
+  - {file: main.go, line: 7, algorithm: RSA, params: "unknown", primitive: signature}

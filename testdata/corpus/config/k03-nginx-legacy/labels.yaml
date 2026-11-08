@@ -1,0 +1,9 @@
+layer: config
+kind: positive
+description: "nginx with 3DES and RC4 suites"
+expect:
+  - {file: nginx.conf, line: 2, algorithm: RSA, params: "unknown", primitive: pke}
+  - {file: nginx.conf, line: 2, algorithm: 3DES, params: "3-key", primitive: cipher}
+  - {file: nginx.conf, line: 2, algorithm: SHA-1, params: "SHA-1", primitive: hash}
+  - {file: nginx.conf, line: 2, algorithm: RC4, params: "unknown", primitive: cipher}
+  - {file: nginx.conf, line: 2, algorithm: MD5, params: "MD5", primitive: hash}

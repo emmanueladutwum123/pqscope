@@ -8,7 +8,10 @@ cd "$(dirname "$0")"
 docker run --rm -v "$PWD:/w" -w /w alpine:3.22 sh -c '
 	apk add --no-cache gcc musl-dev openssl-dev >/dev/null
 	gcc -O0 -o crypto-elf src/crypto.c -lcrypto
-	gcc -O0 -static -s -o constants-elf-stripped src/constants.c'
+	gcc -O0 -static -s -o constants-elf-stripped src/constants.c
+	apk add --no-cache libsodium-dev >/dev/null
+	gcc -O0 -o sodium-elf src/sodium.c -lsodium
+	gcc -O0 -o hello-elf src/hello.c'
 
 # PE, importing from a libcrypto DLL through an import library (Debian mingw-w64).
 docker run --rm -v "$PWD:/w" -w /w debian:trixie-slim sh -c '
@@ -20,4 +23,4 @@ docker run --rm -v "$PWD:/w" -w /w debian:trixie-slim sh -c '
 ssl="$(brew --prefix openssl@3)"
 clang -O0 -o crypto-macho src/crypto.c -L"$ssl/lib" -lcrypto
 
-shasum -a 256 crypto-elf constants-elf-stripped crypto.exe crypto-macho
+shasum -a 256 crypto-elf constants-elf-stripped sodium-elf hello-elf crypto.exe crypto-macho

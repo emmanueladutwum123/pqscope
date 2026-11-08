@@ -1,0 +1,13 @@
+layer: deps
+kind: positive
+description: "Go module with toolchain 1.26 and CIRCL"
+expect:
+  - {file: go.mod, line: 3, algorithm: ML-KEM, params: "ML-KEM-768", primitive: kem}
+  - {file: go.mod, line: 3, algorithm: ML-KEM, params: "ML-KEM-1024", primitive: kem}
+  - {file: go.mod, line: 3, algorithm: Hybrid, params: "X25519MLKEM768", primitive: kem}
+  - {file: go.mod, line: 3, algorithm: Hybrid, params: "SecP256r1MLKEM768", primitive: kem}
+  - {file: go.mod, line: 3, algorithm: Hybrid, params: "SecP384r1MLKEM1024", primitive: kem}
+  - {file: go.mod, line: 5, algorithm: ML-KEM, params: "unknown", primitive: kem}
+  - {file: go.mod, line: 5, algorithm: ML-DSA, params: "unknown", primitive: signature}
+  - {file: go.mod, line: 5, algorithm: Hybrid, params: "X25519MLKEM768", primitive: kem}
+  - {file: go.mod, line: 5, algorithm: SLH-DSA, params: "unknown", primitive: signature}

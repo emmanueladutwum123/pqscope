@@ -1,0 +1,6 @@
+layer: config
+kind: positive
+description: "ssh_config client settings"
+expect:
+  - {file: ssh_config, line: 2, algorithm: Hybrid, params: "sntrup761x25519-sha512", primitive: kem}
+  - {file: ssh_config, line: 3, algorithm: ChaCha20-Poly1305, params: "ChaCha20-Poly1305", primitive: cipher}

@@ -1,0 +1,8 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  annotations:
+    note: "rotate RSA keys yearly"
+spec:
+  replicas: 2

@@ -1,0 +1,8 @@
+layer: network
+kind: positive
+description: "OpenSSH 10 offering mlkem768x25519-sha256"
+expect:
+  - {file: target, line: 0, algorithm: Hybrid, params: "mlkem768x25519-sha256", primitive: kem}
+  - {file: target, line: 0, algorithm: EdDSA, params: "Ed25519", primitive: signature}
+  - {file: target, line: 0, algorithm: AES, params: "256", primitive: cipher}
+  - {file: target, line: 0, algorithm: HMAC, params: "SHA-256", primitive: mac}

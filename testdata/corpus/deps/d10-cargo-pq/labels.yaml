@@ -1,0 +1,9 @@
+layer: deps
+kind: positive
+description: "Cargo.lock with rustls 0.23.22 and OpenSSL 3.5"
+expect:
+  - {file: Cargo.lock, line: 4, algorithm: Hybrid, params: "X25519MLKEM768", primitive: kem}
+  - {file: Cargo.lock, line: 8, algorithm: ML-KEM, params: "unknown", primitive: kem}
+  - {file: Cargo.lock, line: 8, algorithm: ML-DSA, params: "unknown", primitive: signature}
+  - {file: Cargo.lock, line: 8, algorithm: SLH-DSA, params: "unknown", primitive: signature}
+  - {file: Cargo.lock, line: 8, algorithm: Hybrid, params: "X25519MLKEM768", primitive: kem}

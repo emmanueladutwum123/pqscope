@@ -1,0 +1,7 @@
+layer: deps
+kind: positive
+description: "package-lock with noble-post-quantum"
+expect:
+  - {file: package-lock.json, line: 6, algorithm: ML-KEM, params: "unknown", primitive: kem}
+  - {file: package-lock.json, line: 6, algorithm: ML-DSA, params: "unknown", primitive: signature}
+  - {file: package-lock.json, line: 6, algorithm: SLH-DSA, params: "unknown", primitive: signature}

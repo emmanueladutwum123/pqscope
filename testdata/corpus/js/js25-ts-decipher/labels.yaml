@@ -1,0 +1,4 @@
+kind: positive
+description: "createDecipheriv with 3DES in TypeScript"
+expect:
+  - {file: main.ts, line: 3, algorithm: 3DES, params: "3-key", primitive: cipher}

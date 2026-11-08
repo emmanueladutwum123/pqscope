@@ -1,0 +1,4 @@
+layer: config
+kind: hard-negative
+description: "sshd lists that only remove algorithms"
+expect: []

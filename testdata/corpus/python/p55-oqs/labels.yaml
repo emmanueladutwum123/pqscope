@@ -1,0 +1,4 @@
+kind: positive
+description: "liboqs-python ML-KEM"
+expect:
+  - {file: main.py, line: 3, algorithm: ML-KEM, params: "ML-KEM-1024", primitive: kem}

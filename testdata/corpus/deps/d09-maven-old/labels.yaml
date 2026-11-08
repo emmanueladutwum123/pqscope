@@ -1,0 +1,4 @@
+layer: deps
+kind: hard-negative
+description: "pom.xml with Bouncy Castle 1.70"
+expect: []

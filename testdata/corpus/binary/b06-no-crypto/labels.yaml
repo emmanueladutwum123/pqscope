@@ -1,0 +1,4 @@
+layer: binary
+kind: hard-negative
+description: "ELF with no cryptography"
+expect: []

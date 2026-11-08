@@ -1,0 +1,6 @@
+layer: config
+kind: positive
+description: "Self-signed ECDSA P-384 certificate"
+expect:
+  - {file: server.pem, line: 1, algorithm: ECDSA, params: "P-384", primitive: signature}
+  - {file: server.pem, line: 1, algorithm: SHA-2, params: "SHA-384", primitive: hash}

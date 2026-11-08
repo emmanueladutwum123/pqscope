@@ -1,0 +1,5 @@
+kind: positive
+description: "ECDH and DH legacy calls"
+expect:
+  - {file: main.c, line: 6, algorithm: ECDH, params: "unknown", primitive: key-agreement}
+  - {file: main.c, line: 7, algorithm: DH, params: "unknown", primitive: key-agreement}

@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Algorithm in a template literal with a substitution (expected miss)"
+expect:
+  - {file: main.js, line: 4, algorithm: SHA-2, params: "SHA-256", primitive: hash}

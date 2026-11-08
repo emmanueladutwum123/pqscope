@@ -1,0 +1,5 @@
+kind: positive
+description: "RSA key size through RSAKeyGenParameterSpec"
+expect:
+  - {file: Main.java, line: 7, algorithm: RSA, params: "3072", primitive: signature}
+  - {file: Main.java, line: 8, algorithm: RSA, params: "3072", primitive: signature}

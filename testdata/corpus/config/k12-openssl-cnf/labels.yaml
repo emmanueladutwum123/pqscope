@@ -1,0 +1,10 @@
+layer: config
+kind: positive
+description: "openssl.cnf system defaults"
+expect:
+  - {file: openssl.cnf, line: 2, algorithm: Hybrid, params: "X25519MLKEM768", primitive: kem}
+  - {file: openssl.cnf, line: 2, algorithm: ECDH, params: "P-256", primitive: key-agreement}
+  - {file: openssl.cnf, line: 3, algorithm: ECDH, params: "unknown", primitive: key-agreement}
+  - {file: openssl.cnf, line: 3, algorithm: RSA, params: "unknown", primitive: signature}
+  - {file: openssl.cnf, line: 3, algorithm: AES, params: "256", primitive: cipher}
+  - {file: openssl.cnf, line: 3, algorithm: SHA-2, params: "SHA-384", primitive: hash}

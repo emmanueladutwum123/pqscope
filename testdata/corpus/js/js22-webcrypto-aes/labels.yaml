@@ -1,0 +1,5 @@
+kind: positive
+description: "WebCrypto AES-GCM and HMAC keys"
+expect:
+  - {file: main.js, line: 2, algorithm: AES, params: "256", primitive: cipher}
+  - {file: main.js, line: 3, algorithm: HMAC, params: "unknown", primitive: mac}

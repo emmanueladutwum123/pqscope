@@ -1,0 +1,6 @@
+layer: config
+kind: positive
+description: "cert-manager Certificate key algorithms"
+expect:
+  - {file: certs.yaml, line: 7, algorithm: RSA, params: "4096", primitive: signature}
+  - {file: certs.yaml, line: 16, algorithm: EdDSA, params: "Ed25519", primitive: signature}

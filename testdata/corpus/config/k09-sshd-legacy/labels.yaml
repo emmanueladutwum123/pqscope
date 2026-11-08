@@ -1,0 +1,10 @@
+layer: config
+kind: positive
+description: "sshd with legacy algorithms"
+expect:
+  - {file: sshd_config, line: 1, algorithm: DH, params: "2048", primitive: key-agreement}
+  - {file: sshd_config, line: 1, algorithm: SHA-1, params: "SHA-1", primitive: hash}
+  - {file: sshd_config, line: 2, algorithm: RSA, params: "unknown", primitive: signature}
+  - {file: sshd_config, line: 2, algorithm: SHA-1, params: "SHA-1", primitive: hash}
+  - {file: sshd_config, line: 3, algorithm: AES, params: "128", primitive: cipher}
+  - {file: sshd_config, line: 4, algorithm: HMAC, params: "SHA-1", primitive: mac}

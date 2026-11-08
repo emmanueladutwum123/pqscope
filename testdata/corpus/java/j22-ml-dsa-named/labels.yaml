@@ -1,0 +1,5 @@
+kind: positive
+description: "ML-DSA-87 through NamedParameterSpec"
+expect:
+  - {file: Main.java, line: 6, algorithm: ML-DSA, params: "ML-DSA-87", primitive: signature}
+  - {file: Main.java, line: 7, algorithm: ML-DSA, params: "ML-DSA-87", primitive: signature}

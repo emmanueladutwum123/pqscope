@@ -1,0 +1,6 @@
+layer: config
+kind: positive
+description: "nginx with hybrid and classical groups"
+expect:
+  - {file: nginx.conf, line: 3, algorithm: Hybrid, params: "X25519MLKEM768", primitive: kem}
+  - {file: nginx.conf, line: 3, algorithm: X25519, params: "X25519", primitive: key-agreement}

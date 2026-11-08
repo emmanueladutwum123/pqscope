@@ -1,0 +1,7 @@
+layer: binary
+kind: positive
+description: "ELF linked against libsodium"
+expect:
+  - {file: sodium-elf, line: 0, algorithm: X25519, params: "X25519", primitive: key-agreement}
+  - {file: sodium-elf, line: 0, algorithm: EdDSA, params: "Ed25519", primitive: signature}
+  - {file: sodium-elf, line: 0, algorithm: ChaCha20-Poly1305, params: "ChaCha20-Poly1305", primitive: cipher}

@@ -1,0 +1,6 @@
+layer: config
+kind: positive
+description: "DER-encoded RSA-3072 certificate"
+expect:
+  - {file: server.der, line: 1, algorithm: RSA, params: "3072", primitive: signature}
+  - {file: server.der, line: 1, algorithm: SHA-2, params: "SHA-256", primitive: hash}

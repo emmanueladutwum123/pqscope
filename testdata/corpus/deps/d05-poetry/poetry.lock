@@ -1,0 +1,7 @@
+[[package]]
+name = "cryptography"
+version = "48.0.0"
+description = "cryptography"
+
+[metadata]
+lock-version = "2.0"

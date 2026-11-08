@@ -1,0 +1,10 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <dependencies>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-jdk15on</artifactId>
+      <version>1.70</version>
+    </dependency>
+  </dependencies>
+</project>

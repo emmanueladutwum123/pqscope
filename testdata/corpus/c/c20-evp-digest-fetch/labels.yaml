@@ -1,0 +1,5 @@
+kind: positive
+description: "EVP_MD_fetch and EVP_get_digestbyname"
+expect:
+  - {file: main.c, line: 4, algorithm: SHA-2, params: "SHA-256", primitive: hash}
+  - {file: main.c, line: 5, algorithm: MD5, params: "MD5", primitive: hash}

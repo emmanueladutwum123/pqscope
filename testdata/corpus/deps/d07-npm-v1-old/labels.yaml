@@ -1,0 +1,4 @@
+layer: deps
+kind: hard-negative
+description: "Lockfile v1 with classical-only libraries"
+expect: []

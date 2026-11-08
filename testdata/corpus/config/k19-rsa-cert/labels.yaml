@@ -1,0 +1,6 @@
+layer: config
+kind: positive
+description: "Self-signed RSA-2048 certificate"
+expect:
+  - {file: server.crt, line: 1, algorithm: RSA, params: "2048", primitive: signature}
+  - {file: server.crt, line: 1, algorithm: SHA-2, params: "SHA-256", primitive: hash}

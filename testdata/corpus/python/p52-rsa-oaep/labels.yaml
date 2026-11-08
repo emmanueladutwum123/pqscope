@@ -1,0 +1,6 @@
+kind: positive
+description: "RSA-OAEP encryption"
+expect:
+  - {file: main.py, line: 4, algorithm: RSA, params: "4096", primitive: signature}
+  - {file: main.py, line: 5, algorithm: RSA, params: "unknown", primitive: pke}
+  - {file: main.py, line: 5, algorithm: SHA-2, params: "SHA-256", primitive: hash}

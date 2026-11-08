@@ -1,0 +1,6 @@
+layer: deps
+kind: positive
+description: "poetry.lock with cryptography 48"
+expect:
+  - {file: poetry.lock, line: 2, algorithm: ML-KEM, params: "unknown", primitive: kem}
+  - {file: poetry.lock, line: 2, algorithm: ML-DSA, params: "unknown", primitive: signature}

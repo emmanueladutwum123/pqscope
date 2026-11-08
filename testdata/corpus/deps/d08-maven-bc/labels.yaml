@@ -1,0 +1,7 @@
+layer: deps
+kind: positive
+description: "pom.xml with Bouncy Castle 1.80 via a property"
+expect:
+  - {file: pom.xml, line: 9, algorithm: ML-KEM, params: "unknown", primitive: kem}
+  - {file: pom.xml, line: 9, algorithm: ML-DSA, params: "unknown", primitive: signature}
+  - {file: pom.xml, line: 9, algorithm: SLH-DSA, params: "unknown", primitive: signature}

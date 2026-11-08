@@ -1,0 +1,3 @@
+kind: hard-negative
+description: "Crypto only in a comment and under if false"
+expect: []

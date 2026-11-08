@@ -1,0 +1,6 @@
+kind: positive
+description: "pyca ECDSA signing on P-384"
+expect:
+  - {file: main.py, line: 4, algorithm: ECDSA, params: "P-384", primitive: signature}
+  - {file: main.py, line: 5, algorithm: ECDSA, params: "unknown", primitive: signature}
+  - {file: main.py, line: 5, algorithm: SHA-2, params: "SHA-384", primitive: hash}

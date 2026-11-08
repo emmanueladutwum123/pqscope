@@ -1,0 +1,9 @@
+layer: binary
+kind: positive
+description: "PE importing from a libcrypto DLL"
+expect:
+  - {file: crypto.exe, line: 0, algorithm: RSA, params: "unknown", primitive: signature}
+  - {file: crypto.exe, line: 0, algorithm: ECDSA, params: "unknown", primitive: signature}
+  - {file: crypto.exe, line: 0, algorithm: SHA-2, params: "SHA-256", primitive: hash}
+  - {file: crypto.exe, line: 0, algorithm: AES, params: "256", primitive: cipher}
+  - {file: crypto.exe, line: 0, algorithm: MD5, params: "MD5", primitive: hash}

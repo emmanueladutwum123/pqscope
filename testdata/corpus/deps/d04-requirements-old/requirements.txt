@@ -1,0 +1,2 @@
+cryptography==47.0.0
+pycryptodome>=3.20

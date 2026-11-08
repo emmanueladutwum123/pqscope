@@ -1,0 +1,9 @@
+layer: config
+kind: positive
+description: "nginx TLS 1.2 cipher list"
+expect:
+  - {file: nginx.conf, line: 2, algorithm: ECDH, params: "unknown", primitive: key-agreement}
+  - {file: nginx.conf, line: 2, algorithm: RSA, params: "unknown", primitive: signature}
+  - {file: nginx.conf, line: 2, algorithm: AES, params: "128", primitive: cipher}
+  - {file: nginx.conf, line: 2, algorithm: SHA-2, params: "SHA-256", primitive: hash}
+  - {file: nginx.conf, line: 2, algorithm: DH, params: "unknown", primitive: key-agreement}

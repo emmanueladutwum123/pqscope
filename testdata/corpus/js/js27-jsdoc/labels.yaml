@@ -1,0 +1,3 @@
+kind: hard-negative
+description: "Algorithm names in JSDoc and JSON"
+expect: []

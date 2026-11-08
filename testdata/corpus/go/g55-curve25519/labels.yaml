@@ -1,0 +1,4 @@
+kind: positive
+description: "x/crypto curve25519 scalar multiplication"
+expect:
+  - {file: main.go, line: 6, algorithm: X25519, params: "X25519", primitive: key-agreement}

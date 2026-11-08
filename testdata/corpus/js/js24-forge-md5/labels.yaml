@@ -1,0 +1,5 @@
+kind: positive
+description: "node-forge MD5 and SHA-256"
+expect:
+  - {file: main.js, line: 3, algorithm: MD5, params: "MD5", primitive: hash}
+  - {file: main.js, line: 4, algorithm: SHA-2, params: "SHA-256", primitive: hash}

@@ -1,0 +1,4 @@
+layer: deps
+kind: hard-negative
+description: "cryptography 47 and unpinned PyCryptodome"
+expect: []

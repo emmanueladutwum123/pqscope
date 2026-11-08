@@ -1,0 +1,8 @@
+layer: network
+kind: positive
+description: "OpenSSL 3.5 limited to X25519"
+expect:
+  - {file: target, line: 0, algorithm: X25519, params: "X25519", primitive: key-agreement}
+  - {file: target, line: 0, algorithm: AES, params: "128", primitive: cipher}
+  - {file: target, line: 0, algorithm: SHA-2, params: "SHA-256", primitive: hash}
+  - {file: target, line: 0, algorithm: ECDSA, params: "P-256", primitive: signature}

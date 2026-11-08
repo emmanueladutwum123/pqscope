@@ -1,0 +1,4 @@
+layer: config
+kind: hard-negative
+description: "Cipher keywords that need OpenSSL to expand"
+expect: []

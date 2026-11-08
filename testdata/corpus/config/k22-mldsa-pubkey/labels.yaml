@@ -1,0 +1,5 @@
+layer: config
+kind: positive
+description: "ML-DSA-65 public key (OpenSSL 3.5+)"
+expect:
+  - {file: mldsa.pem, line: 1, algorithm: ML-DSA, params: "ML-DSA-65", primitive: signature}

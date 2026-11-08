@@ -1,0 +1,6 @@
+kind: positive
+description: "libsodium AEADs and key exchange"
+expect:
+  - {file: main.c, line: 4, algorithm: ChaCha20-Poly1305, params: "ChaCha20-Poly1305", primitive: cipher}
+  - {file: main.c, line: 5, algorithm: AES, params: "256", primitive: cipher}
+  - {file: main.c, line: 6, algorithm: X25519, params: "X25519", primitive: key-agreement}

@@ -1,0 +1,4 @@
+kind: positive
+description: "Certificate template with a signature algorithm"
+expect:
+  - {file: main.go, line: 6, algorithm: ECDSA, params: "unknown", primitive: signature}

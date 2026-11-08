@@ -1,0 +1,4 @@
+kind: positive
+description: "PyCryptodome ECC key"
+expect:
+  - {file: main.py, line: 3, algorithm: ECDSA, params: "P-256", primitive: signature}

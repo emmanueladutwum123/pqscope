@@ -1,0 +1,8 @@
+layer: config
+kind: positive
+description: "sshd with post-quantum key exchange first"
+expect:
+  - {file: sshd_config, line: 1, algorithm: Hybrid, params: "mlkem768x25519-sha256", primitive: kem}
+  - {file: sshd_config, line: 1, algorithm: X25519, params: "X25519", primitive: key-agreement}
+  - {file: sshd_config, line: 1, algorithm: SHA-2, params: "SHA-256", primitive: hash}
+  - {file: sshd_config, line: 2, algorithm: EdDSA, params: "Ed25519", primitive: signature}

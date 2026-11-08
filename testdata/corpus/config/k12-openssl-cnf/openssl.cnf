@@ -1,0 +1,3 @@
+[system_default_sect]
+Groups = X25519MLKEM768:secp256r1
+CipherString = ECDHE-RSA-AES256-GCM-SHA384

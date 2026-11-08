@@ -1,0 +1,4 @@
+layer: deps
+kind: hard-negative
+description: "Only packages with no crypto capability entry"
+expect: []

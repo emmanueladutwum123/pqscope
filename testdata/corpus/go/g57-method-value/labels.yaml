@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Hash constructor passed as a value"
+expect:
+  - {file: main.go, line: 8, algorithm: SHA-2, params: "SHA-256", primitive: hash}

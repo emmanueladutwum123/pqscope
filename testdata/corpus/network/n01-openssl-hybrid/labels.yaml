@@ -1,0 +1,8 @@
+layer: network
+kind: positive
+description: "OpenSSL 3.5 negotiating X25519MLKEM768"
+expect:
+  - {file: target, line: 0, algorithm: Hybrid, params: "X25519MLKEM768", primitive: kem}
+  - {file: target, line: 0, algorithm: AES, params: "128", primitive: cipher}
+  - {file: target, line: 0, algorithm: SHA-2, params: "SHA-256", primitive: hash}
+  - {file: target, line: 0, algorithm: ECDSA, params: "P-256", primitive: signature}

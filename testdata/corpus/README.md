@@ -1,7 +1,25 @@
 # Ground-truth corpus
 
-Each case is a directory `<lang>/<case>/` holding one source file and a `labels.yaml`. The
-languages are `go`, `python`, `java`, `c` (C and C++) and `js` (JavaScript and TypeScript).
+Each case is a directory `<group>/<case>/` holding its files and a `labels.yaml`. Source cases are
+grouped by language: `go`, `python`, `java`, `c` (C and C++) and `js` (JavaScript and TypeScript).
+The other layers each have a group: `config`, `deps`, `binary` and `network`. There are 202 cases
+in all; `paper/data/rq1_corpus.csv` lists them.
+
+Layer-specific conventions:
+
+- **config:** each directive line is labeled with every algorithm family it enables. A certificate,
+  key or CSR is labeled at line 1 with its key and, for certificates and CSRs, its signature
+  digest. Key material was generated with OpenSSL, and the private keys were discarded, so none
+  is committed.
+- **deps:** each manifest line is labeled only with the post-quantum capabilities the package
+  provides at its version (ML-KEM, ML-DSA, SLH-DSA, hybrids). Hard negatives are versions without
+  any.
+- **binary:** each binary is labeled at line 0 with the families it imports, or the constants a
+  stripped binary contains. The binaries are copies of `testdata/binaries`, built by its
+  `build.sh`.
+- **network:** `server.env` and `server.sh` describe a server that `eval/run.sh` runs in Docker.
+  Findings are labeled at file `target`, line 0. Servers pin their algorithms explicitly, so the
+  labels don't depend on software defaults.
 
 ```yaml
 kind: positive            # positive | hard-positive | hard-negative

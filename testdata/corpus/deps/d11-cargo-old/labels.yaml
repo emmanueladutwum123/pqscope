@@ -1,0 +1,4 @@
+layer: deps
+kind: hard-negative
+description: "Cargo.lock with rustls 0.23.10, ring and OpenSSL 3.4"
+expect: []

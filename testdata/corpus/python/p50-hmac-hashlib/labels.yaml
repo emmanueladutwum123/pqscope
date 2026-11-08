@@ -1,0 +1,5 @@
+kind: positive
+description: "hmac.new with a hashlib digest"
+expect:
+  - {file: main.py, line: 4, algorithm: HMAC, params: "SHA-256", primitive: mac}
+  - {file: main.py, line: 4, algorithm: SHA-2, params: "SHA-256", primitive: hash}

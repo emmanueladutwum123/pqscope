@@ -1,0 +1,1 @@
+apk add --no-cache openssh-server >/dev/null && ssh-keygen -A >/dev/null && exec /usr/sbin/sshd -D -e -p 2222 -o HostKeyAlgorithms=ssh-ed25519 -o Ciphers=aes256-gcm@openssh.com -o MACs=hmac-sha2-256 -o KexAlgorithms=curve25519-sha256

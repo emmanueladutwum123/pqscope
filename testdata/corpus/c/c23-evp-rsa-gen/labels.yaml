@@ -1,0 +1,4 @@
+kind: positive
+description: "EVP_RSA_gen with a literal size"
+expect:
+  - {file: main.c, line: 4, algorithm: RSA, params: "3072", primitive: signature}

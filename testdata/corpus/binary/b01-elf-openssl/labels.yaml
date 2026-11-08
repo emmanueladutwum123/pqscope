@@ -1,0 +1,9 @@
+layer: binary
+kind: positive
+description: "ELF linked against OpenSSL 3.5"
+expect:
+  - {file: crypto-elf, line: 0, algorithm: RSA, params: "unknown", primitive: signature}
+  - {file: crypto-elf, line: 0, algorithm: ECDSA, params: "unknown", primitive: signature}
+  - {file: crypto-elf, line: 0, algorithm: SHA-2, params: "SHA-256", primitive: hash}
+  - {file: crypto-elf, line: 0, algorithm: AES, params: "256", primitive: cipher}
+  - {file: crypto-elf, line: 0, algorithm: MD5, params: "MD5", primitive: hash}

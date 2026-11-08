@@ -1,0 +1,5 @@
+kind: positive
+description: "EVP_CIPHER_fetch with names"
+expect:
+  - {file: main.c, line: 4, algorithm: AES, params: "256", primitive: cipher}
+  - {file: main.c, line: 5, algorithm: 3DES, params: "3-key", primitive: cipher}

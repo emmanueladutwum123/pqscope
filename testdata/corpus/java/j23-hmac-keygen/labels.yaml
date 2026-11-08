@@ -1,0 +1,5 @@
+kind: positive
+description: "HMAC key generator and Mac"
+expect:
+  - {file: Main.java, line: 6, algorithm: HMAC, params: "SHA-512", primitive: mac}
+  - {file: Main.java, line: 7, algorithm: HMAC, params: "SHA-512", primitive: mac}

@@ -1,0 +1,6 @@
+layer: config
+kind: positive
+description: "authorized_keys with Ed25519 and ECDSA keys"
+expect:
+  - {file: authorized_keys, line: 1, algorithm: EdDSA, params: "Ed25519", primitive: signature}
+  - {file: authorized_keys, line: 2, algorithm: ECDSA, params: "P-256", primitive: signature}

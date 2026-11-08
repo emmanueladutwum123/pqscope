@@ -1,0 +1,4 @@
+layer: deps
+kind: hard-negative
+description: "Go 1.22 and an old CIRCL: no post-quantum capability"
+expect: []

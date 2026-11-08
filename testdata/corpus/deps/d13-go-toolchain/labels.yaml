@@ -1,0 +1,7 @@
+layer: deps
+kind: positive
+description: "go 1.23 with toolchain go1.24.2"
+expect:
+  - {file: go.mod, line: 5, algorithm: ML-KEM, params: "ML-KEM-768", primitive: kem}
+  - {file: go.mod, line: 5, algorithm: ML-KEM, params: "ML-KEM-1024", primitive: kem}
+  - {file: go.mod, line: 5, algorithm: Hybrid, params: "X25519MLKEM768", primitive: kem}

@@ -1,0 +1,5 @@
+kind: positive
+description: "Windows CNG ML-KEM and ECDSA P-384"
+expect:
+  - {file: main.c, line: 6, algorithm: ML-KEM, params: "unknown", primitive: kem}
+  - {file: main.c, line: 7, algorithm: ECDSA, params: "P-384", primitive: signature}

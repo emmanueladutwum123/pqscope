@@ -1,0 +1,6 @@
+kind: positive
+description: "noble Ed25519, X25519 and P-256"
+expect:
+  - {file: main.mjs, line: 4, algorithm: EdDSA, params: "Ed25519", primitive: signature}
+  - {file: main.mjs, line: 5, algorithm: X25519, params: "X25519", primitive: key-agreement}
+  - {file: main.mjs, line: 6, algorithm: ECDSA, params: "P-256", primitive: signature}

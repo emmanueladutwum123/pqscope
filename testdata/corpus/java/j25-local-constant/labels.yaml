@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Transformation in a local variable"
+expect:
+  - {file: Main.java, line: 6, algorithm: AES, params: "128", primitive: cipher}

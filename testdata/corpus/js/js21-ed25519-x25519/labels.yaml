@@ -1,0 +1,5 @@
+kind: positive
+description: "Ed25519 and X25519 key pairs"
+expect:
+  - {file: main.js, line: 3, algorithm: EdDSA, params: "Ed25519", primitive: signature}
+  - {file: main.js, line: 4, algorithm: X25519, params: "X25519", primitive: key-agreement}

@@ -1,0 +1,6 @@
+layer: binary
+kind: hard-positive
+description: "Stripped static ELF with only crypto constants"
+expect:
+  - {file: constants-elf-stripped, line: 0, algorithm: ECDSA, params: "P-256", primitive: signature}
+  - {file: constants-elf-stripped, line: 0, algorithm: ML-KEM, params: "ML-KEM-768", primitive: kem}

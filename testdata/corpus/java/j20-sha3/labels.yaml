@@ -1,0 +1,4 @@
+kind: positive
+description: "SHA3-256 digest"
+expect:
+  - {file: Main.java, line: 5, algorithm: SHA-3, params: "SHA3-256", primitive: hash}

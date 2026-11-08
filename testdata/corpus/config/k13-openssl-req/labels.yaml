@@ -1,0 +1,6 @@
+layer: config
+kind: positive
+description: "openssl.cnf request defaults"
+expect:
+  - {file: openssl.cnf, line: 2, algorithm: RSA, params: "4096", primitive: signature}
+  - {file: openssl.cnf, line: 3, algorithm: SHA-2, params: "SHA-256", primitive: hash}

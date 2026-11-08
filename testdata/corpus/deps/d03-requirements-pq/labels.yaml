@@ -1,0 +1,8 @@
+layer: deps
+kind: positive
+description: "cryptography 48 and liboqs-python"
+expect:
+  - {file: requirements.txt, line: 1, algorithm: ML-KEM, params: "unknown", primitive: kem}
+  - {file: requirements.txt, line: 1, algorithm: ML-DSA, params: "unknown", primitive: signature}
+  - {file: requirements.txt, line: 2, algorithm: ML-KEM, params: "unknown", primitive: kem}
+  - {file: requirements.txt, line: 2, algorithm: ML-DSA, params: "unknown", primitive: signature}

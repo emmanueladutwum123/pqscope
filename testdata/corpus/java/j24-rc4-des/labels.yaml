@@ -1,0 +1,5 @@
+kind: positive
+description: "Broken ciphers RC4 and DES"
+expect:
+  - {file: Main.java, line: 5, algorithm: RC4, params: "unknown", primitive: cipher}
+  - {file: Main.java, line: 6, algorithm: DES, params: "56", primitive: cipher}

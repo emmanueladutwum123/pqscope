@@ -1,0 +1,4 @@
+kind: hard-positive
+description: "Key size in a single-assignment local"
+expect:
+  - {file: main.c, line: 5, algorithm: RSA, params: "4096", primitive: signature}

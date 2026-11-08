@@ -1,0 +1,4 @@
+kind: positive
+description: "EC key pair with namedCurve"
+expect:
+  - {file: main.js, line: 3, algorithm: ECDSA, params: "P-384", primitive: signature}

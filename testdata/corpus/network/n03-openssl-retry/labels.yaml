@@ -1,0 +1,8 @@
+layer: network
+kind: hard-positive
+description: "OpenSSL 3.5 accepting only secp256r1 (HelloRetryRequest)"
+expect:
+  - {file: target, line: 0, algorithm: ECDH, params: "P-256", primitive: key-agreement}
+  - {file: target, line: 0, algorithm: AES, params: "128", primitive: cipher}
+  - {file: target, line: 0, algorithm: SHA-2, params: "SHA-256", primitive: hash}
+  - {file: target, line: 0, algorithm: ECDSA, params: "P-256", primitive: signature}

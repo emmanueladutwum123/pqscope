@@ -1,0 +1,1 @@
+apk add --no-cache openssl >/dev/null && openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:P-256 -nodes -subj /CN=pqscope-eval -days 1 -keyout /tmp/k.pem -out /tmp/c.pem -sha256 2>/dev/null && exec openssl s_server -accept 4433 -cert /tmp/c.pem -key /tmp/k.pem -tls1_3 -quiet -ciphersuites TLS_AES_128_GCM_SHA256 -groups X25519MLKEM768:X25519
