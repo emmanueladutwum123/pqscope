@@ -1,0 +1,56 @@
+# pqscope risk weights: every number the risk score uses is here.
+#
+#   risk = exposure × secrecy_lifetime × quantum_status × confidence
+#
+# Each factor is in [0, 1], so risk is too. The score ranks findings for
+# migration; it is not a probability. The values are judgement calls,
+# documented in docs/risk.md, and the paper ablates them (milestone 10).
+version: 1
+
+# How reachable the code or service is. A finding takes the first class that
+# applies, in this order: test, network, internal.
+exposure:
+  network: 1.0   # observed on the wire, server configuration, or TLS/SSH API use
+  internal: 0.6  # other production code, dependencies and binaries
+  test: 0.2      # tests, examples and fixtures
+
+# Mosca's inequality: migrate now if data shelf-life + migration time exceeds the
+# time until a cryptographically relevant quantum computer. Confidentiality
+# primitives are exposed to harvest-now-decrypt-later, so recorded traffic is
+# at risk today. A signature only needs to resist forgery until it is verified
+# or the key is rotated.
+secrecy_lifetime:
+  kem: 1.0
+  key-agreement: 1.0
+  pke: 1.0
+  cipher: 0.8
+  signature: 0.5
+  mac: 0.3
+  hash: 0.3
+
+# How badly a quantum computer, or a classical one, breaks the primitive.
+quantum_status:
+  broken-now: 1.0
+  vulnerable: 0.9
+  weakened: 0.2
+  hybrid: 0.05
+  safe: 0.0
+
+# Path heuristics for exposure. Directory and file names ignore case; suffixes
+# and prefixes match case-sensitively.
+test_paths:
+  dirs: [test, tests, testdata, testing, __tests__, spec, example, examples, _examples, sample, samples, demo, fixtures]
+  file_suffixes: [_test.go, _test.py, .test.js, .spec.js, .test.ts, .spec.ts, Test.java]
+  file_prefixes: [test_]
+  files: [conftest.py]
+
+# Layers whose findings are network-facing by nature.
+network_layers: [network, config]
+
+# Source findings whose symbol starts with one of these are treated as
+# network-facing: they configure TLS or SSH directly.
+network_symbols:
+  - crypto/tls.
+  - golang.org/x/crypto/ssh.
+  - ssl.
+  - paramiko.
