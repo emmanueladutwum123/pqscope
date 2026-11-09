@@ -18,8 +18,28 @@ appendices hold the sections IMC requires: Ethics, Open Science and Generative A
 - Write the Generative AI appendix (`sections/appendix.tex`). IMC requires it, and the
   placeholder says what it needs to cover.
 - Create the anonymized artifact repository with [Anonymous GitHub](https://anonymous.4open.science)
-  and put its link on the submission site. Terms to replace: `emmanueladutwum123`,
-  `emmanueladutwum`, `Emmanuel`, `Adutwum`, `pqscope`. It can't see inside compressed files,
+  and put its link on the submission site. It exists:
+  `https://anonymous.4open.science/r/pq-readiness-imc27`, pinned to a commit, expiring
+  7 November 2027. Matching is case-insensitive but whole-word, and `_` is part of a word, so
+  compounds need their own lines, longest first:
+
+  ```
+  emmanueladutwum123
+  emmanueladutwum
+  Emmanuel
+  Adutwum
+  PQSCOPE_REQUIRE_DOCKER=>ANONPQ_REQUIRE_DOCKER
+  PQSCOPE_RUN_MAIN=>ANONPQ_RUN_MAIN
+  pqscope_revision=>anonpq_revision
+  pqscope_version=>anonpq_version
+  pqscopeFindingId=>anonpqFindingId
+  pqscope_1=>anonpq_1
+  pqscope_=>anonpq_
+  pqscope=>anonpq
+  ```
+
+  Before submitting, point it at the latest commit and recheck it for leaks. It can't see
+  inside compressed files,
   so `paper/data/raw/` must stay free of names: the archives there carry no owner names, and
   `measure/rq3.sh` writes them that way.
 
