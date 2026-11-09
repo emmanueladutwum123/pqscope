@@ -49,12 +49,21 @@
     are withheld.
   - `make paper` builds both.
 
+- Rewrite related work after a literature search. It adds 20 references, each checked against
+  Crossref by DOI or against arXiv:
+  - crypto-misuse analyzers (CryptoLint, CrySL, CryptoGuard);
+  - recent inventory, binary and packet-inspection work;
+  - open-source PQC readiness (ASE 2026);
+  - concurrent post-quantum TLS measurements, including Wickramasinghe et al., accepted to
+    IMC 2026;
+  - government HTTPS measurement;
+  - post-quantum TLS cost studies;
+  - NCCoE and CISA guidance on discovery.
+
 Known limits of the draft:
 
 - The Generative AI appendix IMC requires is a placeholder for the author to complete.
 - CI checks the numbers but doesn't build the PDF, since tectonic isn't on the runners.
-- Related work covers the tools we compared and the two concurrent studies we could verify. A
-  wider literature search is still to do before submission.
 
 ## v0.12.0 (2026-11-08)
 

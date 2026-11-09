@@ -1,32 +1,71 @@
 \section{Related Work}
 \label{sec:related}
 
-\paragraph{Cryptographic inventory tools.} CBOMkit~\cite{cbomkit} produces
-CycloneDX CBOMs, from Java and Python source through its sonar-cryptography
-analyzer and from certificates, keys and configuration through CBOMkit-theia.
-cryptoscan-pqc~\cite{cryptoscanpqc} and pqc-migration-audit~\cite{pqcaudit}
-scan source code for quantum-vulnerable algorithms, and Semgrep's rule
-registry~\cite{semgrep} flags weak cryptography in several languages. Each
-covers one or two layers. \tool{} covers five, adds network probing, and
-reconciles layers; \S\ref{sec:rq1} compares all of them on one corpus.
+\paragraph{Finding cryptography in software.} Static analysis of
+cryptographic code began with misuse: CryptoLint found that most Android apps
+using cryptographic APIs misused them~\cite{egele2013}, and CrySL and
+CryptoGuard check Java code against usage rules at scale~\cite{kruger2021crysl,
+rahaman2019}, motivated in part by how hard developers find these
+APIs~\cite{nadi2016}. These tools ask whether cryptography is used
+correctly; an inventory asks what is used and where, including correct uses of
+algorithms a quantum computer breaks. The open-source inventory tools we
+compare in \S\ref{sec:rq1} (CBOMkit~\cite{cbomkit},
+cryptoscan-pqc~\cite{cryptoscanpqc}, pqc-migration-audit~\cite{pqcaudit} and
+Semgrep's rules~\cite{semgrep}) each cover one or two layers.
+Olewinski et al.\ survey open-source cryptographic asset discovery tools and
+find the landscape fragmented across categories~\cite{olewinski2026}; our
+corpus measures that fragmentation as recall per layer. Other work covers
+single layers in depth: Kestrel detects ML-KEM and ML-DSA implementations in
+stripped binaries from their constant tables~\cite{junaid2026}, and Cho et al.\
+flag quantum-vulnerable TLS from captured traffic~\cite{cho2026}. \tool{}'s
+contribution is the combination: five layers normalized to one finding type
+and reconciled, so that a gap between layers becomes a finding of its own.
+For dependencies we follow the lesson of vulnerability analysis that a
+library's presence is not its use~\cite{ponta2018}, and report dependency
+findings as capabilities.
 
-\paragraph{Measuring post-quantum TLS\@.} Concurrent measurements find similar
-key-exchange adoption on the wider web. Dubey and
-Varshney~\cite{dubey2026} report hybrid key exchange on about half of a
-cross-sector domain list and no post-quantum certificates. Loizou and
-Ghadafi~\cite{loizou2026} measure HTTPS and SMTP endpoints of UK
-organizations, and find, as we do for federal agencies, that the
-infrastructure provider predicts deployment better than the organization's
-sector, and no post-quantum certificate signatures. Our scan adds the U.S.\
-federal population that EO~14412 and M-26-15 govern, measured against the
-complete registry of federal domains, and pairs it with the code-level
-measurement of RQ3.
+\paragraph{Post-quantum readiness of open source.} Yuan et al.\ measure
+post-quantum support across eight package ecosystems and find it
+rare~\cite{yuan2026}. RQ3 asks the converse question for the most critical
+projects: how much quantum-vulnerable cryptography they carry, in which
+layer, and how exposed it is. Library-level surveys track which libraries
+offer the NIST algorithms~\cite{ahmed2025}, which is what \tool{}'s
+dependency layer encodes.
 
-\paragraph{Cost of post-quantum TLS\@.} The sizes of NIST's schemes follow from
-their specifications~\cite{fips203,fips204,fips205}. We contribute a
-reproducible harness that cross-checks sizes against OpenSSL and measures
-full handshakes under emulated delay and loss with the TLS stack that
-\tool{}'s probe is compared against.
+\paragraph{Measurements of post-quantum handshakes.} Wickramasinghe et
+al.~\cite{wickramasinghe2026} measure post-quantum TLS longitudinally across a
+million domains from eleven vantage points, find that deployment centers on a
+single hybrid construction driven by managed infrastructure providers, and see
+no meaningful latency cost. Our results agree on all three. Dubey and
+Varshney report hybrid key exchange on about half of a cross-sector domain list
+and no post-quantum certificates~\cite{dubey2026}. Loizou and Ghadafi measure
+UK organizations' HTTPS and mail endpoints and find, as we do, that the
+provider predicts deployment better than the organization's
+sector~\cite{loizou2026}. Haque et al.\ extend the measurement beyond HTTPS to
+directory, mail and remote-access protocols, where support is lower,
+mostly far lower~\cite{haque2026}. We differ in population and scope: the complete
+registry of federal domains that EO~14412 and M-26-15 govern, broken down by
+agency as well as provider, and paired with certificate and code-level
+measurements. Singanamalla et al.\ measured the long tail of government adoption of
+HTTPS itself~\cite{singanamalla2020}, and
+certificate measurement at Internet scale goes back to
+Durumeric et al.~\cite{durumeric2013https}.
+
+\paragraph{Cost of post-quantum handshakes.} Paquin et al.\ benchmark post-quantum
+key exchange and signatures in TLS under emulated network
+conditions~\cite{paquin2020}, Sikeridis et al.\ study post-quantum
+authentication in TLS~1.3~\cite{sikeridis2020}, and Kampanakis and
+Childs-Klein measure the effect on time to last byte of real
+connections~\cite{kampanakis2024}. The sizes of the NIST schemes follow from
+their specifications~\cite{fips203,fips204,fips205}. RQ4 repeats the
+measurement for the standardized hybrid group in a production TLS stack, the
+one our probe is checked against, and cross-checks every size against OpenSSL.
+
+\paragraph{Migration and crypto-agility.} A community workshop report frames
+migration and crypto-agility as research problems~\cite{ott2019}. NIST's NCCoE migration project~\cite{nccoe} and CISA's
+strategy for automated discovery and inventory tools~\cite{cisaacdi} make
+discovery the starting point for federal agencies, which is the task \tool{}
+automates.
 
 \paragraph{Measurement ethics.} Our scanning practice follows the guidance
 of the ZMap authors~\cite{zmap} and the Menlo Report~\cite{menlo}.
