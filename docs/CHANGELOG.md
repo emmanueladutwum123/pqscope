@@ -60,6 +60,14 @@
   - post-quantum TLS cost studies;
   - NCCoE and CISA guidance on discovery.
 
+- Add monthly repeats of the RQ2 scan:
+  - `measure/rq2-monthly.sh` writes `paper/data/rq2_trend/<YYYY-MM>/` from the baseline's
+    vantage point, and skips the run on any other network;
+  - `measure/rq2-monthly-install.sh` schedules it with launchd on the 8th of each month;
+  - `measure/rq2.sh` takes `RQ2_DATA` to write somewhere other than the baseline.
+
+  Snapshots are committed by hand after review.
+
 Known limits of the draft:
 
 - The Generative AI appendix IMC requires is a placeholder for the author to complete.

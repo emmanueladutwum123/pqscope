@@ -80,6 +80,26 @@ published as a complete one.
 - **No reverse DNS.** The scan's source address may not point back to the project. See the
   vantage recorded in `rq2_meta.csv`.
 
+### Monthly repeats
+
+The scan in `paper/data/rq2_*` is the baseline. Monthly repeats make it a trend:
+
+```sh
+measure/rq2-monthly-install.sh            # once, from the baseline's network
+measure/rq2-monthly-install.sh --remove   # to stop
+```
+
+The installer adds a launchd job for the current user. It runs `measure/rq2-monthly.sh` on the
+8th of each month at 12:48 local time, or at the next wake if the Mac was asleep. Each run
+writes `paper/data/rq2_trend/<YYYY-MM>/`, with the same tables and raw records as the baseline,
+the same rate and the same opt-out list. The script never commits or pushes: review each
+snapshot, then commit it.
+
+The vantage point is part of the measurement. The installer records the default gateway's
+hardware address, and a run on any other network is skipped with a notification, so every
+snapshot comes from the same connection. A month that already has a snapshot is skipped too.
+Progress and failures go to `measure/_out/monthly/monthly.log`, and a failed run keeps nothing.
+
 ## RQ3: quantum-vulnerable cryptography in critical open source
 
 > How prevalent is quantum-vulnerable crypto in the top-N critical open-source projects

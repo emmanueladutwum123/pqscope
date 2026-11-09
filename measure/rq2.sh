@@ -9,14 +9,16 @@
 # scan from, and keep the opt-out list (measure/exclude.txt) current.
 #
 # Usage: VANTAGE="description of where this runs" measure/rq2.sh [work-dir]
-# Settings: RATE (connections/s, default 10), VANTAGE.
+# Settings: RATE (connections/s, default 10), VANTAGE, RQ2_DATA (where the
+# tables and raw records go; default paper/data, the paper's baseline).
 set -euo pipefail
 
 WORK="${1:-measure/_out/rq2}"
 mkdir -p "$WORK"
 WORK="$(cd "$WORK" && pwd)"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-DATA="$ROOT/paper/data"
+DATA="${RQ2_DATA:-$ROOT/paper/data}"
+mkdir -p "$DATA"
 RATE="${RATE:-10}"
 VANTAGE="${VANTAGE:-unspecified}"
 
