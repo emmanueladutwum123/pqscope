@@ -1,0 +1,5 @@
+key,value
+findings_archive,paper/data/raw/rq3_findings.tar.gz
+findings_sha256,60731cd5d1975018cdb0045f18b8ac21e505e60a8f182bbc357b8a72b2340745
+pqscope_revision,v0.12.0-2-gcd7c6b1
+weights,internal/risk/weights.yaml

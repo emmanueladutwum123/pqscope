@@ -1,0 +1,6 @@
+config,projects,findings,pairs_ordered,reversed,reversed_share,tied,tied_share,split,top_changed,top_changed_share,tau_b_median,tau_b_projects
+all factors,72,13082,4529502,0,0.0000,0,0.0000,0,0,0.0000,1.0000,68
+without exposure,72,13082,4529502,309907,0.0684,421460,0.0930,3505,45,0.6250,0.7861,66
+without secrecy lifetime,72,13082,4529502,547482,0.1209,65161,0.0144,17922,28,0.3889,0.8970,68
+without quantum status,72,13082,4529502,743228,0.1641,200313,0.0442,6649,34,0.4722,0.5933,66
+without confidence,72,13082,4529502,38089,0.0084,55655,0.0123,16588,19,0.2639,0.9916,68

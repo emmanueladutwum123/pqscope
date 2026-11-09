@@ -738,6 +738,50 @@ def rq3(o):
         o.put(f"rqthree-alg-{slug(r['algorithm'])}-share", pct(int(r["projects"]) / len(scanned), 0))
 
 
+# ---------------------------------------------------------------- risk ablation
+
+FACTOR_LABEL = {
+    "without exposure": "exposure",
+    "without secrecy lifetime": "secrecy lifetime",
+    "without quantum status": "quantum status",
+    "without confidence": "confidence",
+}
+
+
+def riskabl(o):
+    rows = read("risk_ablation")
+    m = meta("risk_ablation_meta")
+    base = next(r for r in rows if r["config"] == "all factors")
+    if int(base["reversed"]) or int(base["tied"]) or int(base["top_changed"]):
+        raise ValueError("the full score differs from itself")
+    o.put("riskabl-projects", num(base["projects"]))
+    o.put("riskabl-findings", num(base["findings"]))
+    o.put("riskabl-pairs", num(base["pairs_ordered"]))
+    o.put("riskabl-revision", tex(m["pqscope_revision"]))
+    abl = [r for r in rows if r is not base]
+    table_rows = []
+    for r in abl:
+        k = slug(FACTOR_LABEL[r["config"]])
+        o.put(f"riskabl-{k}-reversed", pct(r["reversed_share"]))
+        o.put(f"riskabl-{k}-tied", pct(r["tied_share"]))
+        o.put(f"riskabl-{k}-top", num(r["top_changed"]))
+        o.put(f"riskabl-{k}-top-share", pct(r["top_changed_share"], 0))
+        o.put(f"riskabl-{k}-tau", dec(r["tau_b_median"]))
+        table_rows.append([FACTOR_LABEL[r["config"]], pct(r["reversed_share"]), pct(r["tied_share"]),
+                           f"{num(r['top_changed'])} ({pct(r['top_changed_share'], 0)})", dec(r["tau_b_median"])])
+    o.file("tab_risk_ablation.tex", table(
+        "lrrrr", ["Factor removed", "Reversed", "Tied", "Top changed", "Median $\\tau_b$"], table_rows))
+
+    # The text names which factor matters most and least; check it.
+    by = lambda col: [FACTOR_LABEL[r["config"]] for r in sorted(abl, key=lambda r: -float(r[col]))]
+    if by("reversed_share")[0] != "quantum status" or by("top_changed_share")[0] != "exposure":
+        raise ValueError("the factor that matters most changed; revise sections/rq3.tex")
+    if by("reversed_share")[-1] != "confidence" or by("top_changed_share")[-1] != "confidence":
+        raise ValueError("the factor that matters least changed; revise sections/rq3.tex")
+    if sorted(abl, key=lambda r: float(r["tau_b_median"]))[0]["config"] != "without quantum status":
+        raise ValueError("the lowest tau-b is no longer quantum status; revise sections/rq3.tex")
+
+
 # ---------------------------------------------------------------- RQ4
 
 PRIMS = [
@@ -990,6 +1034,7 @@ def generate(outdir):
     rq1(o)
     rq2(o)
     rq3(o)
+    riskabl(o)
     rq4(o)
     os.makedirs(outdir, exist_ok=True)
     with open(os.path.join(outdir, "numbers.tex"), "w", encoding="utf-8") as f:

@@ -75,6 +75,47 @@ configuration. The median
 project with any finding has \data{rqthree-median-findings}. We report
 shares of projects for this reason.
 
+\subsection{Ranking Findings for Migration}
+
+A project with hundreds of findings needs an order to migrate them in, which
+is what \tool{}'s risk score gives (\S\ref{sec:design}). Its four factors
+(exposure, secrecy lifetime, quantum status and confidence) carry weights we
+chose by judgment, so we ablate them on the RQ3 findings. Each factor in turn
+is set to one for every finding, the findings are re-scored, and each
+project's ranking is compared with the full score's. That covers the
+\data{riskabl-findings} findings of the \data{riskabl-projects} projects with
+at least two, and the \data{riskabl-pairs} pairs of findings within a
+project that the full score orders.
+
+\begin{table}[t]
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\input{generated/tab_risk_ablation}
+\caption{Risk-score ablation over the \data{riskabl-projects} RQ3 projects
+with at least two findings. Reversed and tied: share of the pairs the full
+score orders that the ablated score orders the other way or ties. Top set
+changed: projects whose highest-risk findings differ. $\tau_b$: Kendall's
+rank correlation with the full score, median over projects.}
+\label{tab:risk-ablation}
+\end{table}
+
+Table~\ref{tab:risk-ablation} gives the results. Every factor changes the
+ranking, in different ways. Quantum status shapes the overall order most:
+without it \data{riskabl-quantum-status-reversed} of ordered pairs reverse
+and the median $\tau_b$ falls to \data{riskabl-quantum-status-tau}, because
+hashes and symmetric ciphers then rank with RSA and elliptic curves.
+Exposure decides what comes first: without it the top-risk findings change in
+\data{riskabl-exposure-top} of \data{riskabl-projects} projects
+(\data{riskabl-exposure-top-share}), and \data{riskabl-exposure-tied} of
+pairs become ties. Secrecy lifetime reverses
+\data{riskabl-secrecy-lifetime-reversed} of pairs. Confidence matters least: \data{riskabl-confidence-reversed}
+of pairs reverse and the median $\tau_b$ stays at
+\data{riskabl-confidence-tau}. It still changes the top set in \data{riskabl-confidence-top} projects. The
+pair counts are pooled, so projects with many findings weigh most; the
+$\tau_b$ median and the top-set count weigh each project once. The ablation
+shows that each factor matters to the order, not that its weights are right:
+validating them would need migration priorities set by the projects
+themselves.
+
 \paragraph{Limits.} \tool{}'s rules match cryptographic APIs, libraries and
 configuration. A project that implements an algorithm itself shows few
 findings: the Linux kernel tree in the sample, \data{rqthree-kernel-repo},

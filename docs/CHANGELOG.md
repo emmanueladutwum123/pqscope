@@ -27,10 +27,20 @@
   Federal Register (91 FR 38483), M-26-15 on whitehouse.gov, the hybrid TLS group as RFC 10024,
   and the two concurrent measurement studies on arXiv.
 
+- Add the risk-score ablation the spec asks for: `pqscope measure risk-ablation` and
+  `make risk-ablation`, written to `paper/data/risk_ablation*.csv` and to section 6.3 of the
+  paper. It re-scores RQ3's 13,082 findings with each factor set to 1 in turn. Every factor
+  changes the ranking:
+  - Quantum status most overall: 16.4% of ordered pairs reverse, median tau-b 0.593.
+  - Exposure most at the top: the highest-risk findings change in 45 of 72 projects.
+  - Confidence least: 0.8% of pairs reverse, median tau-b 0.992.
+
+  The ablation shows each factor matters, not that its weights are right. See
+  [risk.md](risk.md#ablation).
+- `risk.Weights.FactorsOf` exposes the four factors, and `Score` is now their product.
+
 Known limits of the draft:
 
-- The risk score's weights are not yet ablated, which the spec asks for. The draft says so
-  under threats to validity.
 - No venue template is applied yet. The draft uses the plain two-column article
   class.
 - CI checks the numbers but doesn't build the PDF, since tectonic isn't on the runners.
