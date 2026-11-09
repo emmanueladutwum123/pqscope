@@ -1,7 +1,7 @@
 GOLANGCI_LINT_VERSION := v2.15.0
 STATICCHECK_VERSION := v0.8.2
 
-.PHONY: all build test integration eval eval-score bench paper-data paper-numbers paper-check paper fmt-check vet staticcheck golangci-lint lint clean
+.PHONY: all build test integration eval eval-score bench risk-ablation paper-data paper-numbers paper-check paper fmt-check vet staticcheck golangci-lint lint clean
 
 all: lint test build
 
@@ -38,7 +38,12 @@ bench:
 	bench/run.sh bench/out
 	go run ./cmd/pqscope bench --runs bench/out --out paper/data --revision "$$(git describe --always --dirty)"
 
-paper-data: eval bench
+# How much each risk factor changes the ranking of RQ3's findings. Reads the
+# published findings archive only; no scanning.
+risk-ablation:
+	go run ./cmd/pqscope measure risk-ablation --meta "pqscope_revision=$$(git describe --always --dirty)" --meta weights=internal/risk/weights.yaml
+
+paper-data: eval bench risk-ablation
 
 # The paper's numbers, tables and figures, generated from paper/data. The
 # sources hold no typed numbers; paper-check enforces that and that

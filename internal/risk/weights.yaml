@@ -4,7 +4,8 @@
 #
 # Each factor is in [0, 1], so risk is too. The score ranks findings for
 # migration; it is not a probability. The values are judgement calls,
-# documented in docs/risk.md, and the paper ablates them (milestone 10).
+# documented in docs/risk.md, and `make risk-ablation` measures how much each
+# factor changes the ranking.
 version: 1
 
 # How reachable the code or service is. A finding takes the first class that

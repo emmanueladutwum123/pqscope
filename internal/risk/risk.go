@@ -147,13 +147,29 @@ func containsFold(list []string, s string) bool {
 	return slices.ContainsFunc(list, func(x string) bool { return strings.EqualFold(x, s) })
 }
 
+// Factors are the four weights a finding's risk multiplies.
+type Factors struct {
+	Exposure, SecrecyLifetime, QuantumStatus, Confidence float64
+}
+
+// FactorsOf returns the factors of f's risk.
+func (w *Weights) FactorsOf(f model.Finding) Factors {
+	return Factors{
+		Exposure:        w.Exposure[w.ExposureOf(f)],
+		SecrecyLifetime: w.SecrecyLifetime[f.Asset.Primitive],
+		QuantumStatus:   w.QuantumStatus[f.Asset.Quantum],
+		Confidence:      f.Confidence,
+	}
+}
+
+// Product multiplies the factors, rounded to three decimals as Score is.
+func (x Factors) Product() float64 {
+	return math.Round(x.Exposure*x.SecrecyLifetime*x.QuantumStatus*x.Confidence*1000) / 1000
+}
+
 // Score returns a finding's risk in [0, 1], rounded to three decimals.
 func (w *Weights) Score(f model.Finding) float64 {
-	r := w.Exposure[w.ExposureOf(f)] *
-		w.SecrecyLifetime[f.Asset.Primitive] *
-		w.QuantumStatus[f.Asset.Quantum] *
-		f.Confidence
-	return math.Round(r*1000) / 1000
+	return w.FactorsOf(f).Product()
 }
 
 // Apply sets every finding's Risk.

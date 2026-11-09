@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
@@ -11,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/emmanueladutwum123/pqscope/internal/measure"
+	"github.com/emmanueladutwum123/pqscope/internal/risk"
 )
 
 func newMeasureCmd() *cobra.Command {
@@ -22,7 +25,7 @@ func newMeasureCmd() *cobra.Command {
 			"open-source projects). These subcommands read files only; the scripts do the\n" +
 			"probing and cloning. See docs/measurement.md.",
 	}
-	cmd.AddCommand(newRQ2TargetsCmd(), newRQ2Cmd(), newRQ3SelectCmd(), newRQ3Cmd())
+	cmd.AddCommand(newRQ2TargetsCmd(), newRQ2Cmd(), newRQ3SelectCmd(), newRQ3Cmd(), newRiskAblationCmd())
 	return cmd
 }
 
@@ -296,4 +299,64 @@ func newRQ3Cmd() *cobra.Command {
 		_ = cmd.MarkFlagRequired(req)
 	}
 	return cmd
+}
+
+func newRiskAblationCmd() *cobra.Command {
+	var findings, out string
+	var meta []string
+	cmd := &cobra.Command{
+		Use:   "risk-ablation",
+		Short: "Measure how each risk factor changes the ranking of RQ3's findings",
+		Long: "Re-score every finding in the RQ3 findings archive with one risk factor set\n" +
+			"to 1 at a time, compare each project's ranking with the full score's, and\n" +
+			"write risk_ablation.csv and risk_ablation_meta.csv. See docs/risk.md.",
+		Args: cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			extra, err := parseMeta(meta)
+			if err != nil {
+				return err
+			}
+			projects, err := measure.ReadFindingsArchive(findings)
+			if err != nil {
+				return err
+			}
+			w, err := risk.Default()
+			if err != nil {
+				return err
+			}
+			sum, err := fileSHA256(findings)
+			if err != nil {
+				return err
+			}
+			rows := measure.AblateRisk(projects, w)
+			meta := append([][2]string{{"findings_archive", findings}, {"findings_sha256", sum}}, extra...)
+			if err := measure.WriteRiskAblation(out, rows, meta); err != nil {
+				return err
+			}
+			for _, r := range rows {
+				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "%-26s reversed %d/%d tied %d top changed %d/%d tau-b %.3f\n",
+					r.Config, r.Reversed, r.Ordered, r.Tied, r.TopChanged, r.Projects, r.TauB)
+			}
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "wrote %s/risk_ablation*.csv\n", out)
+			return nil
+		},
+	}
+	f := cmd.Flags()
+	f.StringVar(&findings, "findings", "paper/data/raw/rq3_findings.tar.gz", "RQ3 findings `archive`")
+	f.StringVar(&out, "out", "paper/data", "output `dir`")
+	f.StringArrayVar(&meta, "meta", nil, "extra `key=value` for risk_ablation_meta.csv; repeatable")
+	return cmd
+}
+
+func fileSHA256(path string) (string, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer func() { _ = f.Close() }()
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(h.Sum(nil)), nil
 }

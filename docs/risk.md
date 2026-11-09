@@ -9,8 +9,8 @@ risk = exposure × secrecy_lifetime × quantum_status × confidence
 Every weight is in [`internal/risk/weights.yaml`](../internal/risk/weights.yaml), and the
 loader rejects a file that leaves any class, primitive or status without a weight in [0, 1].
 The score is an ordering, not a probability. The weights are judgement calls, documented here
-so they can be argued with. The paper's ablation (milestone 10) will measure how much each
-factor changes the ranking.
+so they can be argued with. [Ablation](#ablation) measures how much each one changes the
+ranking.
 
 ## Exposure
 
@@ -61,3 +61,28 @@ parameters could not be resolved.
 | `tls.CurveP256` in server code | 1.0 | 1.0 | 0.9 | 0.90 | 0.81 |
 | `rsa.GenerateKey(rand.Reader, 2048)` in `main.go` | 0.6 | 0.5 | 0.9 | 0.95 | 0.26 |
 | `md5.Sum` in `x_test.go` | 0.2 | 0.3 | 1.0 | 0.95 | 0.06 |
+
+## Ablation
+
+```sh
+make risk-ablation   # paper/data/risk_ablation.csv from paper/data/raw/rq3_findings.tar.gz
+```
+
+`pqscope measure risk-ablation` re-scores every finding of the RQ3 scan of critical open-source
+projects five ways: with all factors, then with each factor set to 1 for every finding. It
+compares each project's ranking with the full score's. Rankings are compared within projects,
+because a project migrates its own findings. Derived findings, and projects with fewer than two
+findings, are left out. For each scoring, `risk_ablation.csv` has:
+
+| Column | Meaning |
+|---|---|
+| `pairs_ordered` | Pairs of findings in the same project that the full score orders strictly, summed over projects |
+| `reversed`, `reversed_share` | Of those, the pairs this scoring puts the other way round |
+| `tied`, `tied_share` | Of those, the pairs this scoring can no longer tell apart |
+| `split` | Pairs the full score ties that this scoring orders |
+| `top_changed`, `top_changed_share` | Projects whose highest-risk findings (every finding at the top score) differ |
+| `tau_b_median`, `tau_b_projects` | Median Kendall's tau-b against the full score, over projects where it is defined |
+
+The pair counts are pooled, so projects with many findings weigh most. The tau-b median and the
+top-changed share count each project once. A factor whose removal changes little adds little to
+the ranking. That doesn't make it wrong, only redundant on this population.
