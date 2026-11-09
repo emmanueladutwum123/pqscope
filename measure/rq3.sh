@@ -117,5 +117,8 @@ awk -F'\t' '{ last[$1] = $0 } END { for (r in last) print last[r] }' "$WORK/scan
 	--meta "pqscope_revision=$REVISION"
 
 mkdir -p "$DATA/raw"
-tar -C "$WORK/findings" -czf "$DATA/raw/rq3_findings.tar.gz" $(cd "$WORK/findings" && ls ./*.json)
+# No owner names or macOS metadata in the archive: it is published, and an
+# account name in its headers would identify whoever ran the scan.
+tar --uid 0 --gid 0 --uname '' --gname '' --no-mac-metadata \
+	-C "$WORK/findings" -czf "$DATA/raw/rq3_findings.tar.gz" $(cd "$WORK/findings" && ls ./*.json)
 log "done: $DATA/rq3_*.csv, findings in $DATA/raw/rq3_findings.tar.gz"
