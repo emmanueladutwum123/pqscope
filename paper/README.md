@@ -17,7 +17,11 @@ appendices hold the sections IMC requires: Ethics, Open Science and Generative A
 
 - Write the Generative AI appendix (`sections/appendix.tex`). IMC requires it, and the
   placeholder says what it needs to cover.
-- Create the anonymized artifact repository, and put its link on the submission site.
+- Create the anonymized artifact repository with [Anonymous GitHub](https://anonymous.4open.science)
+  and put its link on the submission site. Terms to replace: `emmanueladutwum123`,
+  `emmanueladutwum`, `Emmanuel`, `Adutwum`, `pqscope`. It can't see inside compressed files,
+  so `paper/data/raw/` must stay free of names: the archives there carry no owner names, and
+  `measure/rq3.sh` writes them that way.
 
 ```sh
 make paper          # regenerate numbers, check them, build main.pdf and imc.pdf (needs tectonic)
