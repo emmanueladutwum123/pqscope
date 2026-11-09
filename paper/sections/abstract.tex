@@ -1,0 +1,29 @@
+\begin{abstract}
+NIST IR~8547 deprecates quantum-vulnerable public-key cryptography after
+2030 and disallows it after 2035, and U.S.\ federal agencies must now plan
+their migration. Planning starts with an inventory, yet the open-source tools
+that build one scan source code only. We present \tool{}, a scanner that finds
+cryptography in five layers (source code, configuration and key material,
+dependencies, binaries, and live TLS and SSH endpoints) and reconciles them,
+so that a system that declares post-quantum support but deploys classical key
+exchange is flagged. We use it to answer four questions.
+On a labeled corpus of \data{rqone-cases} cases, \tool{} reaches a file-level
+recall of \data{rqone-pqscope-file-r} at precision
+\data{rqone-pqscope-file-p}; the best of \data{rqone-competitors} open-source
+scanners reaches \data{rqone-best-competitor-r}, largely because
+\data{rqone-nonsource-share} of the labeled assets sit outside source code.
+Of the \data{rqtwo-ep-responding} federal \texttt{.gov} endpoints that spoke
+TLS on \data{rqtwo-date}, \data{rqtwo-ep-share} (95\% CI
+\data{rqtwo-ep-ci}) negotiated hybrid ML-KEM key exchange, and adoption
+follows the hosting provider far more than the agency: from
+\data{rqtwo-as13335-share} on Cloudflare to \data{rqtwo-as2635-share} on
+Automattic. Every leaf certificate was RSA or ECDSA. Among the
+\data{rqthree-scanned} most critical open-source projects we could scan,
+\data{rqthree-any-share} contain quantum-vulnerable cryptography and
+\data{rqthree-network-share} contain it in network-facing code. Hybrid key
+exchange costs \data{rqfour-ch-extra} bytes in the ClientHello and, at the
+median, \data{rqfour-netem-extra-min} to \data{rqfour-netem-extra-max} per
+handshake under emulated wide-area conditions, and none of the
+\data{rqfour-docker-handshakes} emulated handshakes failed. Code, data and every number in this paper are generated
+from released artifacts.
+\end{abstract}

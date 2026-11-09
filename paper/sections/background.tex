@@ -1,0 +1,37 @@
+\section{Background}
+\label{sec:background}
+
+\paragraph{Quantum-vulnerable cryptography.}
+Shor's algorithm~\cite{shor1997} solves integer factorization and discrete
+logarithms in polynomial time on a large fault-tolerant quantum computer,
+breaking RSA, DSA, finite-field and elliptic-curve Diffie-Hellman (including
+X25519 and X448), ECDSA and EdDSA at every key size. Grover's
+algorithm~\cite{grover1996} gives only a quadratic speed-up against symmetric
+ciphers and hashes, which larger keys absorb. Mosca's
+inequality~\cite{mosca2018} frames the urgency: if data must stay secret for
+$x$ years and migration takes $y$ years, migration must start $x + y$ years
+before a quantum computer arrives. Key exchange is the most urgent case,
+because an adversary can record encrypted traffic now and decrypt it later.
+
+\paragraph{Standards and deadlines.}
+NIST published ML-KEM (FIPS~203), ML-DSA (FIPS~204) and SLH-DSA (FIPS~205)
+in 2024~\cite{fips203,fips204,fips205}. IR~8547~\cite{ir8547}, final since
+October 2026, deprecates quantum-vulnerable public-key algorithms at all
+approved strengths after 2030 and disallows them after 2035. Strengths below
+112 bits and DSA signing are already disallowed~\cite{sp800131a,fips1865}.
+The NSA's CNSA~2.0 suite for national security systems is narrower: its TLS
+profile allows only ML-KEM-1024 and ML-DSA-87 for public-key
+operations~\cite{cnsa2tls}. For federal civilian agencies, EO~14412~\cite{eo14412}
+and M-26-15~\cite{omb2615} turn the transition into dated requirements,
+starting with discovery and inventory.
+
+\paragraph{Hybrid key exchange in TLS.}
+TLS~1.3~\cite{rfc8446} negotiates a key-exchange group in the ClientHello and
+ServerHello. The hybrid group X25519MLKEM768~\cite{ecdhemlkem} concatenates an
+X25519 share with an ML-KEM-768 share, so the connection is secure if either
+holds. Go's \texttt{crypto/tls} offers it by default since
+Go~1.24~\cite{go124}, and OpenSSL ships ML-KEM since version
+3.5~\cite{openssl35}. Because the client
+proposes and the server chooses, whether a connection is post-quantum is
+decided by the server's software and configuration, which is what \RQ{2}
+measures.

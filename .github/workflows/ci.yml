@@ -21,6 +21,13 @@ jobs:
         with:
           version: v2.15.0
 
+  paper:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Paper numbers match paper/data, and none is typed by hand
+        run: make paper-check
+
   integration:
     runs-on: ubuntu-latest
     steps:

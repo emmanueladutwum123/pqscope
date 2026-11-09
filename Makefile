@@ -1,7 +1,7 @@
 GOLANGCI_LINT_VERSION := v2.15.0
 STATICCHECK_VERSION := v0.8.2
 
-.PHONY: all build test integration eval eval-score bench paper-data fmt-check vet staticcheck golangci-lint lint clean
+.PHONY: all build test integration eval eval-score bench paper-data paper-numbers paper-check paper fmt-check vet staticcheck golangci-lint lint clean
 
 all: lint test build
 
@@ -40,6 +40,22 @@ bench:
 
 paper-data: eval bench
 
+# The paper's numbers, tables and figures, generated from paper/data. The
+# sources hold no typed numbers; paper-check enforces that and that
+# paper/generated/ matches the data.
+paper-numbers:
+	python3 paper/gen.py
+
+paper-check:
+	python3 paper/gen.py --check
+	python3 paper/check_numbers.py
+	python3 -m unittest discover -s paper -p 'test_*.py'
+
+# Builds paper/main.pdf. Needs tectonic (https://tectonic-typesetting.github.io),
+# which fetches the LaTeX packages it needs on first use.
+paper: paper-numbers paper-check
+	cd paper && tectonic -X compile main.tex
+
 fmt-check:
 	@unformatted="$$(gofmt -l .)"; \
 	if [ -n "$$unformatted" ]; then echo "gofmt needed:"; echo "$$unformatted"; exit 1; fi
@@ -57,4 +73,4 @@ golangci-lint:
 lint: fmt-check vet staticcheck golangci-lint
 
 clean:
-	rm -rf bin
+	rm -rf bin paper/main.pdf

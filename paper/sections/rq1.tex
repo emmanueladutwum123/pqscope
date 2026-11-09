@@ -1,0 +1,108 @@
+\section{RQ1: Multi-Layer versus Single-Layer Discovery}
+\label{sec:rq1}
+
+\subsection{Method}
+
+\paragraph{Corpus.} We built a ground-truth corpus of \data{rqone-cases}
+cases: \data{rqone-cases-source} source cases (Go \data{rqone-cases-go},
+Python \data{rqone-cases-python}, Java \data{rqone-cases-java}, C/C++
+\data{rqone-cases-c}, JavaScript/TypeScript \data{rqone-cases-js}),
+\data{rqone-cases-config} configuration and key-material cases,
+\data{rqone-cases-deps} dependency cases, \data{rqone-cases-binary} binaries
+and \data{rqone-cases-network} network endpoints served from containers. Each
+case carries labels for every cryptographic asset it contains, by file, line
+and algorithm family, \data{rqone-labels} in total. Beyond plain positives,
+\data{rqone-kind-hard-positive} cases are hard positives (aliased imports,
+wrappers, constants defined elsewhere, multi-line calls) and
+\data{rqone-kind-hard-negative} are hard negatives (cryptography in comments
+and strings, dead code, look-alike names). Labels record what the code does,
+not what any tool detects; cases that \tool{} misses stay in the corpus.
+
+\paragraph{Tools.} We compared \tool{} with every open-source scanner we could
+run: CBOMkit, both its source analyzer (sonar-cryptography) and its
+filesystem scanner (CBOMkit-theia)~\cite{cbomkit}, cryptoscan-pqc~\cite{cryptoscanpqc},
+pqc-migration-audit~\cite{pqcaudit} and Semgrep with its cryptography
+rules~\cite{semgrep}. Each runs once in a container pinned by digest and sees
+a copy of the corpus without labels. We also planned to include a scanner
+named Keylens but could not find one. Findings are mapped to algorithm families and
+scored at two granularities: \emph{file} (file and family; fair to tools that
+report no lines, and our headline) and \emph{line} (file, line and family). A
+tool that does not cover a layer scores misses there; that is the point of
+the question. An independent script recomputes every score from the
+per-item outcomes.
+
+\subsection{Results}
+
+\begin{table*}[t]
+\centering\small
+\input{generated/tab_rq1_tools}
+\caption{Precision (P), recall (R) and F1 on all \data{rqone-cases} corpus
+cases. File level matches file and algorithm family; line level also matches
+the line.}
+\label{tab:rq1-tools}
+\end{table*}
+
+\begin{table*}[t]
+\centering\small\setlength{\tabcolsep}{4pt}
+\input{generated/tab_rq1_layers}
+\caption{File-level recall by layer and source language. Only \tool{} probes
+network endpoints.}
+\label{tab:rq1-layers}
+\end{table*}
+
+Table~\ref{tab:rq1-tools} gives the overall scores. \tool{} finds
+\data{rqone-pqscope-file-tp} of \data{rqone-file-labels} file-level assets
+(recall \data{rqone-pqscope-file-r}) with \data{rqone-pqscope-file-fp} false
+positive (precision \data{rqone-pqscope-file-p}). The highest-recall
+alternative, \data{rqone-best-competitor}, reaches recall
+\data{rqone-best-competitor-r} at precision
+\data{rqone-best-competitor-p}, so \tool{} finds \data{rqone-recall-ratio} as
+many assets.
+
+Table~\ref{tab:rq1-layers} shows where the difference comes from. The other
+tools read source code, and \data{rqone-nonsource-share} of the labeled
+assets (\data{rqone-nonsource-labels}) are in configuration, dependencies,
+binaries and endpoints. The best competitor recall in those layers is
+\data{rqone-competitors-config-maxr} for configuration,
+\data{rqone-competitors-deps-maxr} for dependencies and
+\data{rqone-competitors-binary-maxr} for binaries; \tool{}'s are
+\data{rqone-pqscope-file-config-r}, \data{rqone-pqscope-file-deps-r} and
+\data{rqone-pqscope-file-binary-r}. Within source code the comparison is
+closer for the languages a competitor targets: on Java,
+\data{rqone-best-java-competitor} reaches \data{rqone-best-java-competitor-r},
+above \tool{}'s \data{rqone-pqscope-file-java-r}. Across languages \tool{}'s
+source recall ranges from \data{rqone-pqscope-lang-min-r}
+(\data{rqone-pqscope-lang-min}) to \data{rqone-pqscope-lang-max-r}
+(\data{rqone-pqscope-lang-max}). All \data{rqone-pqscope-misses} of its
+file-level misses are in hard-positive cases. Of these,
+\data{rqone-pqscope-misses-source} are in source code where the algorithm name
+is computed at run time or reached through indirection (string concatenation,
+template literals, computed properties, parameters, function pointers, a
+dynamic import, a type-only reference), which needs data-flow analysis that
+\tool{} does not do. The last is the cipher suite of an endpoint that
+answered with a HelloRetryRequest.
+
+\begin{table}[t]
+\centering\small
+\input{generated/tab_rq1_ablation}
+\caption{Layer ablation for \tool{} at file level. $\Delta$R is the recall
+lost, in percentage points, when one layer is turned off.}
+\label{tab:rq1-ablation}
+\end{table}
+
+\paragraph{Which layers contribute.} Table~\ref{tab:rq1-ablation} turns off
+one layer at a time. Source code matters most: without it recall falls by
+\data{rqone-abl-without-source-drop} points. Configuration and key material
+come next (\data{rqone-abl-without-config-drop} points), then dependencies
+(\data{rqone-abl-without-deps-drop}), binaries
+(\data{rqone-abl-without-binary-drop}) and the network
+(\data{rqone-abl-without-network-drop}). Every layer finds assets no other
+layer finds; none is redundant on this corpus.
+
+\paragraph{Caveats.} The corpus and \tool{}'s rules share an author, so
+\tool{}'s scores measure consistency with the labeling convention more than
+independent accuracy; the competitors' scores depend on that convention too,
+through the family mapping. The per-item outcomes are released so every
+match can be checked. The corpus layer mix is a design choice, and a
+source-heavy corpus would narrow the gap; the per-layer table lets readers
+reweight.

@@ -1,0 +1,91 @@
+\section{RQ3: Quantum-Vulnerable Cryptography in Critical Open Source}
+\label{sec:rq3}
+
+\subsection{Method}
+
+\paragraph{Projects.} The OpenSSF Criticality Score ranks open-source
+projects by signals of how much depends on them~\cite{criticality}. We used its
+latest published snapshot, \data{rqthree-snapshot}, pinned by commit and hash,
+and walked down the top \data{rqthree-candidates} GitHub repositories. Many
+top entries are copies of the same code base, mostly Linux kernel trees, so a
+repository whose root commit matches a higher-ranked one was skipped as a
+duplicate: \data{rqthree-duplicates} were, \data{rqthree-duplicates-kernel} of
+them kernel trees. The first \data{rqthree-projects} distinct code bases, down
+to rank \data{rqthree-last-rank}, are the sample. Repositories above
+\data{rqthree-cap-gb}\,GB were counted but not cloned:
+\data{rqthree-skipped-list}. One clone, \data{rqthree-failed-list}, failed
+twice. That leaves \data{rqthree-scanned} scanned projects.
+
+\paragraph{Scan.} Each project was cloned shallow at its default branch's head
+and scanned with \tool{}'s source, configuration, dependency and binary layers
+and reconciliation, with a \data{rqthree-timeout-min}-minute limit that no scan
+reached (median \data{rqthree-scan-median}). Nothing was built or run. A
+finding counts when its asset is quantum-vulnerable and it was found by a
+layer rather than derived; derived findings are reported separately. Each
+finding's exposure class comes from the risk engine: \emph{test} for test and
+example paths; otherwise \emph{network-facing} for configuration and
+key-material findings and for calls into TLS or SSH APIs; and
+\emph{internal} for the rest.
+
+\subsection{Results}
+
+\begin{table}[t]
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\input{generated/tab_rq3_summary}
+\caption{Scanned projects with at least one quantum-vulnerable finding
+($n$ of \data{rqthree-scanned}), with Wilson 95\% intervals, and the number
+of findings. ``Used'' excludes dependency findings, which show a capability,
+not a use.}
+\label{tab:rq3-summary}
+\end{table}
+
+\paragraph{Prevalence.} Table~\ref{tab:rq3-summary} summarizes the scan.
+\data{rqthree-any-n} of \data{rqthree-scanned} projects
+(\data{rqthree-any-share}, CI \data{rqthree-any-ci}) contain
+quantum-vulnerable cryptography in some layer, and
+\data{rqthree-used-n} (\data{rqthree-used-share}) in their own source,
+configuration or binaries, not only in dependencies. Configuration and key
+material is the most common layer (\data{rqthree-config-share}), ahead of
+source code (\data{rqthree-source-share}) and dependencies
+(\data{rqthree-deps-share}); vulnerable code in committed binaries is rare
+(\data{rqthree-binary-share}).
+
+\paragraph{Exposure.} \data{rqthree-network-n} projects
+(\data{rqthree-network-share}, CI \data{rqthree-network-ci}) have
+quantum-vulnerable cryptography in network-facing code or configuration.
+Test and example code is more common: \data{rqthree-test-share} of projects
+have quantum-vulnerable findings there.
+
+\paragraph{Algorithms.} RSA is the most widespread algorithm, in
+\data{rqthree-alg-rsa-share} of scanned projects, followed by ECDSA
+(\data{rqthree-alg-ecdsa-share}) and EdDSA (\data{rqthree-alg-eddsa-share});
+Table~\ref{tab:rq3-algorithms} in the appendix lists all.
+
+\paragraph{Reconciliation.} \data{rqthree-derived-stale-n} projects pin a
+library version too old to offer post-quantum algorithms, and
+\data{rqthree-derived-bws-n} ship binaries with cryptography their source
+scan does not show. The other two derived types did not occur.
+Declared-PQC-deployed-classical needs a probed endpoint, and RQ3 probes none.
+
+\paragraph{Counts are concentrated.} Findings are not a measure of
+prevalence. Five projects (\data{rqthree-top5-list}) account for
+\data{rqthree-top5-share} of all quantum-vulnerable findings,
+\data{rqthree-top5-config-share} of them certificates, keys and
+configuration. The median
+project with any finding has \data{rqthree-median-findings}. We report
+shares of projects for this reason.
+
+\paragraph{Limits.} \tool{}'s rules match cryptographic APIs, libraries and
+configuration. A project that implements an algorithm itself shows few
+findings: the Linux kernel tree in the sample, \data{rqthree-kernel-repo},
+has \data{rqthree-kernel-findings}. Source rules cover Go, Python, Java, C/C++
+and JavaScript/TypeScript; \data{rqthree-uncovered} scanned projects have a
+primary language outside them (\data{rqthree-uncovered-top} and
+\data{rqthree-uncovered-others} others) and are scanned in
+the other layers only. Among the \data{rqthree-covered} in covered languages,
+\data{rqthree-covered-source-share} have vulnerable source findings. The
+network-facing class is a path and API heuristic, not reachability: it misses
+cryptography reached from a network handler through other calls and includes
+TLS configuration that no deployment uses. Finally, one shallow commit per
+project is scanned on a case-insensitive file system, which drops one path of
+each pair differing only in case.

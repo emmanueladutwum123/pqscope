@@ -1,0 +1,35 @@
+\section{Additional Tables}
+
+\begin{table}[h]
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\input{generated/tab_rq2_agencies}
+\caption{Hybrid adoption for agencies with at least \data{rqtwo-agency-min}
+TLS endpoints, with Wilson 95\% intervals.}
+\label{tab:rq2-agencies}
+\end{table}
+
+\begin{table}[h]
+\centering\small
+\input{generated/tab_rq3_algorithms}
+\caption{Quantum-vulnerable algorithms in the \data{rqthree-scanned} scanned
+projects: projects with at least one finding, and findings.}
+\label{tab:rq3-algorithms}
+\end{table}
+
+\section{Reproducing This Paper}
+
+Every number, table and figure is generated from the files in
+\texttt{paper/data} by \texttt{paper/gen.py}, and a check fails the build if
+any digit is typed into the paper's sources. The data come from these runs:
+\begin{itemize}
+\item RQ1: \texttt{make eval}, with competitors pinned by image digest.
+\item RQ2: \texttt{measure/rq2.sh}, at \tool{} revision
+  \texttt{\data{rqtwo-revision}}, CISA list commit
+  \texttt{\data{rqtwo-dotgov-commit}}, on \data{rqtwo-date}.
+\item RQ3: \texttt{measure/rq3.sh}, at revision
+  \texttt{\data{rqthree-revision}}, Criticality Score snapshot
+  \data{rqthree-snapshot} from commit
+  \texttt{\data{rqthree-criticality-commit}}.
+\item RQ4: \texttt{make bench}, at revision \texttt{\data{rqfour-revision}},
+  on \data{rqfour-date}.
+\end{itemize}

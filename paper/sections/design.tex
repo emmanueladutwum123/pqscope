@@ -1,0 +1,79 @@
+\section{Design of \tool{}}
+\label{sec:design}
+
+\tool{} is a single Go binary. Each discovery layer turns its input into the
+same record, a \emph{finding}: an asset (primitive, canonical algorithm,
+parameters, classical security bits and quantum status), a location (layer,
+path or \texttt{host:port}, line, symbol), evidence, a confidence and the rule
+that matched. Everything downstream of discovery consumes findings only.
+
+\subsection{Discovery layers}
+
+\paragraph{Source.} Tree-sitter parses Go, Python, Java, C/C++ and
+JavaScript/TypeScript. Detection rules are data: YAML rule packs hold
+tree-sitter queries with the asset they imply, where to read a key size or
+curve, and a confidence. A small per-language frontend resolves imports and
+aliases, so \texttt{import rsa as r} or a Go import alias still matches, and
+reads literal or constant parameters. When a parameter cannot be resolved
+statically, the finding records it as unknown at lower confidence.
+
+\paragraph{Configuration and key material.} Parsers read nginx, Apache,
+\texttt{sshd\_config}, \texttt{openssl.cnf} and Kubernetes TLS settings for
+group, cipher and host-key lists, and PEM or DER certificates, keys and CSRs
+for the exact algorithm and size. Private keys are reduced to algorithm, size
+and fingerprint; a test asserts that no key bytes reach any output.
+
+\paragraph{Dependencies.} Lockfile and manifest parsers for Go, Python, npm,
+Maven and Cargo map cryptographic libraries and versions to capabilities, such
+as whether a library version implements ML-KEM, from a cited capability table.
+
+\paragraph{Binaries.} ELF, PE and Mach-O import tables reveal calls into
+cryptographic libraries; Go build information yields module versions, which
+feed the dependency layer; and constant signatures (curve parameters, OIDs)
+serve as a lower-confidence fallback for stripped binaries.
+
+\paragraph{Network.} A hand-built TLS~1.3 ClientHello offers a configurable
+list of groups (by default X25519MLKEM768, X25519 and P-256, with key shares
+for the first two) and records the group the ServerHello or
+HelloRetryRequest selects, then closes. A separate standard handshake records
+the certificate chain. An SSH probe reads the server's banner and KEXINIT to
+record offered key-exchange and host-key algorithms. Responsible-scanning
+limits are enforced in code: a global rate limit, one connection per host at a
+time, bounded timeouts and retries, an exclusion list, and nothing sent beyond
+the handshake.
+
+\subsection{Reconciliation}
+
+Findings for the same component, meaning the same directory tree, binary or
+endpoint, are linked across layers. The reconciler then emits four kinds of
+derived finding:
+\begin{itemize}
+\item \emph{declared-PQC-deployed-classical}: source or dependencies support
+  post-quantum key exchange, but the component's endpoint negotiates a
+  classical group;
+\item \emph{config-overrides-library}: the library supports a hybrid group,
+  but configuration pins classical groups;
+\item \emph{binary-without-source}: a shipped binary contains cryptography the
+  source scan does not show;
+\item \emph{stale-dependency}: a pinned library version too old to offer
+  post-quantum algorithms.
+\end{itemize}
+Confidence is fused: an algorithm observed by two layers is raised, and an
+endpoint that contradicts its own configuration is flagged for review.
+Dependencies count toward neither, because a library's presence says what is
+available, not what is used.
+
+\subsection{Policy, risk and outputs}
+
+Policies are versioned YAML files that map every algorithm and strength in the
+knowledge base to a status (\emph{compliant}, \emph{deprecated-2030},
+\emph{disallowed-2035}, \emph{disallowed-now} or \emph{broken-now}), each rule
+citing the section of its source. We ship IR~8547 and CNSA~2.0. A risk score
+orders findings for migration as the product of exposure (network-facing,
+internal, or test code), secrecy lifetime by primitive (key exchange highest,
+following the harvest-now-decrypt-later argument), quantum status and
+confidence. Exposure is a path and API heuristic; \tool{} does no call-graph
+analysis. Outputs are a terminal summary, a self-contained HTML report,
+CycloneDX~1.6 CBOM~\cite{cyclonedx} and SARIF~2.1.0~\cite{sarif}. A policy
+command exits non-zero when any asset reaches a chosen status, which a
+GitHub Action uses to gate builds and upload results to code scanning.

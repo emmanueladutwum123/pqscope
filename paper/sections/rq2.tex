@@ -1,0 +1,131 @@
+\section{RQ2: Hybrid Key Exchange on Federal \texttt{.gov}}
+\label{sec:rq2}
+
+\subsection{Method}
+
+\paragraph{Targets.} CISA publishes the list of registered federal
+\texttt{.gov} domains with their branch and agency~\cite{dotgovdata}. We took
+all \data{rqtwo-domains} domains at commit \texttt{\data{rqtwo-dotgov-commit}}
+and probed the two names a visitor types, the apex and \texttt{www.}, on port
+443: \data{rqtwo-endpoints} endpoints. The list holds registered domains, so
+services on other names (\texttt{login.}, \texttt{api.}, agency subdomains)
+are outside the sample.
+
+\paragraph{Probe.} On \data{rqtwo-date}, between \data{rqtwo-scan-start} and
+\data{rqtwo-scan-end} UTC, \tool{} sent each endpoint its TLS~1.3 ClientHello,
+offering X25519MLKEM768, X25519 and P-256 with key shares for the first two as
+Go's default client does, and read the ServerHello. It then made a
+standard \texttt{crypto/tls} handshake for the certificate chain and TLS
+version. The global rate was \data{rqtwo-rate} connections per second from a
+single vantage point, a consumer Internet connection, with the limits of
+\S\ref{sec:design}.
+
+\paragraph{Classification.} An endpoint is \emph{hybrid} if the ServerHello
+or HelloRetryRequest selected a hybrid group, \emph{classical} if it selected a
+classical group, and \emph{TLS~1.2 or lower} if there was no TLS~1.3
+ServerHello but the standard handshake succeeded at a lower version. The
+remaining endpoints did not resolve, did not accept a TCP connection, or
+failed both handshakes. Adoption is the share of hybrid endpoints among those
+that speak TLS, with a Wilson 95\% interval~\cite{wilson1927}. A domain takes
+the better status of its two endpoints. Each endpoint's autonomous system (AS)
+comes from the address probed, mapped with the iptoasn table dated
+\data{rqtwo-asn-date}~\cite{iptoasn}.
+
+\paragraph{Cross-check.} Both clients offer X25519MLKEM768, so on the
+\data{rqtwo-xcheck-both} endpoints where both reached a group, the
+independent \texttt{crypto/tls} handshake checks the hand-built probe. They
+agree on hybrid versus classical for \data{rqtwo-xcheck-class} of them and on
+the exact group for \data{rqtwo-xcheck-group}; the other
+\data{rqtwo-xcheck-unoffered} servers picked P-384 or P-521, which only
+\texttt{crypto/tls} offered.
+
+\subsection{Results}
+
+Of the \data{rqtwo-endpoints} endpoints, \data{rqtwo-ep-unresolvable} did not
+resolve in DNS, \data{rqtwo-ep-unreachable} refused or dropped TCP connections
+on port 443, and \data{rqtwo-ep-tls-error} accepted a connection but completed
+no handshake, leaving \data{rqtwo-ep-responding} that speak TLS.
+
+\paragraph{Adoption.} \data{rqtwo-ep-hybrid} of the
+\data{rqtwo-ep-responding} TLS endpoints negotiated a hybrid group: an
+adoption of \data{rqtwo-ep-share} (95\% CI \data{rqtwo-ep-ci}). At the domain
+level, \data{rqtwo-dom-hybrid} of \data{rqtwo-dom-responding} domains
+(\data{rqtwo-dom-share}, CI \data{rqtwo-dom-ci}) have at least one hybrid
+endpoint. Every hybrid endpoint chose \data{rqtwo-hybrid-groups}, and
+\data{rqtwo-hello-retry} reached it through a HelloRetryRequest. No endpoint
+chose a pure post-quantum group. Of the rest, \data{rqtwo-ep-classical}
+(\data{rqtwo-ep-classical-share} of TLS endpoints) speak TLS~1.3 but chose a
+classical group, and \data{rqtwo-ep-tls1-2-or-lower}
+(\data{rqtwo-ep-tlstwelve-share}) do not speak TLS~1.3 at all, so they cannot
+negotiate a hybrid group without a software upgrade. Among endpoints that
+speak TLS~1.3, adoption is \data{rqtwo-ep-hybrid-of-tlsthirteen}.
+
+By branch, adoption is \data{rqtwo-ep-exec-share} for the executive branch
+(\data{rqtwo-ep-exec-responding} TLS endpoints),
+\data{rqtwo-ep-leg-share} for the legislative
+(\data{rqtwo-ep-leg-responding}) and \data{rqtwo-ep-jud-share} for the
+judicial (\data{rqtwo-ep-jud-responding}).
+
+\begin{figure}[t]
+\centering
+\input{generated/fig_rq2_asn}
+\caption{Hybrid adoption among TLS endpoints in the
+\data{rqtwo-asn-topk} autonomous systems hosting the most, with Wilson
+95\% intervals.}
+\label{fig:rq2-asn}
+\end{figure}
+
+\begin{table*}[t]
+\centering\small
+\input{generated/tab_rq2_asn}
+\caption{TLS endpoints by autonomous system: those that negotiated a hybrid
+group (Hyb.), a classical TLS~1.3 group (Cl.) or no TLS~1.3 ($\le$1.2), for
+the \data{rqtwo-asn-topk} ASes hosting the most, which hold
+\data{rqtwo-asn-topk-cover} of TLS endpoints.}
+\label{tab:rq2-asn}
+\end{table*}
+
+\paragraph{The provider decides.} Figure~\ref{fig:rq2-asn} and
+Table~\ref{tab:rq2-asn} break adoption down by AS. Endpoints are
+concentrated: the two largest ASes, Akamai and Cloudflare, hold
+\data{rqtwo-top2-cover} of TLS endpoints and \data{rqtwo-top2-hybrid-cover}
+of hybrid ones. Adoption there is \data{rqtwo-as20940-share} (Akamai) and
+\data{rqtwo-as13335-share} (Cloudflare), and Fastly's
+\data{rqtwo-as54113-n} endpoints are all hybrid. Large clouds sit in the
+middle and differ by service: \data{rqtwo-as16509-share} on Amazon's main AS
+but \data{rqtwo-as14618-share} on its AMAZON-AES AS and
+\data{rqtwo-as8987-share} on GovCloud; \data{rqtwo-as8075-share} on Microsoft.
+At the other end, none of the \data{rqtwo-as2635-n} endpoints hosted by
+Automattic, the \data{rqtwo-as16524-n} on MetTel or the
+\data{rqtwo-as13506-n} on the Treasury's own network negotiated a hybrid
+group; on the Treasury's network \data{rqtwo-as13506-tlstwelve} of them do
+not speak TLS~1.3.
+
+To test whether the provider or the agency better predicts the outcome, we
+apply one rule to both groupings: among groups with at least
+\data{rqtwo-uniform-min} TLS endpoints, what share of endpoints sit in a
+group that is nearly uniform, with adoption at most \data{rqtwo-uniform-lo}
+or at least \data{rqtwo-uniform-hi}? For ASes it is
+\data{rqtwo-uniform-as-share} of endpoints (\data{rqtwo-uniform-as-groups}
+ASes); for agencies, \data{rqtwo-uniform-agency-share}
+(\data{rqtwo-uniform-agency-groups} agencies). Agencies are mixtures of
+providers; providers are mostly all-or-nothing. Adoption among agencies with
+at least \data{rqtwo-agency-min} TLS endpoints
+(Table~\ref{tab:rq2-agencies} in the appendix) ranges from
+\data{rqtwo-agency-min-share} to \data{rqtwo-agency-max}.
+
+\paragraph{Certificates.} Post-quantum key exchange protects confidentiality
+only; authentication is still classical everywhere. Of the
+\data{rqtwo-cert-endpoints} TLS endpoints whose leaf certificate we recorded,
+\data{rqtwo-cert-rsa-share} use RSA keys (\data{rqtwo-cert-rsa2048-share}
+RSA-2048) and \data{rqtwo-cert-ecdsa-share} ECDSA keys; no other key type
+appears.
+
+\paragraph{Limits.} One vantage point and one moment: CDNs answer from the
+edge nearest the scanner, and results may differ by location and over time.
+The probe connects to the first resolved address, so a name served by two
+providers is measured at one. A server that supports a hybrid group but
+prefers X25519 when both are offered counts as classical, which is what a
+browser would negotiate with it. We do not measure server software, which
+would require an HTTP request beyond the handshake; the AS identifies the
+hosting provider, not the software.

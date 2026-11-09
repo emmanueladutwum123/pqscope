@@ -1,0 +1,35 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{Inventories need more than source code.} The federal migration
+starts with discovery, and both M-26-15 and IR~8547 assume an inventory that
+reflects what is deployed. RQ1 shows how much a source-only inventory misses
+on a corpus that spreads assets across layers, and RQ3 shows the same pattern
+in the field: configuration and key material is the layer where the most
+critical projects most often carry quantum-vulnerable cryptography, and it
+holds most of the findings. An inventory that reads only code misses that
+layer entirely.
+
+\paragraph{Hosting decides key exchange; authentication has not started.}
+For key exchange the federal web is past half-way, but RQ2 suggests the
+agencies did not get there one by one: endpoints behind Cloudflare, Akamai
+and Fastly are nearly all hybrid, and endpoints on agency-run networks or on
+some hosting platforms are nearly all classical. The quickest gains are
+therefore at a handful of providers and at the \data{rqtwo-ep-tls1-2-or-lower}
+endpoints that still lack TLS~1.3. Certificates are another matter. Every
+leaf certificate we saw is RSA or ECDSA, and IR~8547's 2035 deadline applies
+to signatures too. Their migration depends on post-quantum certificates being
+issued and accepted, which no measured endpoint shows yet.
+
+\paragraph{Threats to validity.} The RQ1 corpus was labeled by the author of
+\tool{}'s rules; we release per-item outcomes and the competitors' raw output
+so others can re-label. The risk score's weights are judgment calls, and this
+draft does not yet ablate them. RQ2 is one vantage point at one moment, and
+RQ3 one commit per project with a heuristic exposure model. RQ4 runs on one
+machine with emulated links.
+
+\paragraph{Future work.} Repeating the RQ2 scan monthly would turn the
+snapshot into a trend. Data-flow analysis would recover the hard positives
+\tool{} misses and give the exposure class real reachability. Probing the
+endpoints that open-source projects deploy would let RQ3 measure the
+declared-versus-deployed gap directly.

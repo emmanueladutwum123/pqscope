@@ -1,6 +1,7 @@
 # pqscope
 
-A multi-layer post-quantum cryptography readiness scanner, in development.
+A multi-layer post-quantum cryptography readiness scanner, and the measurement study built
+on it.
 
 NIST IR 8547 deprecates quantum-vulnerable public-key cryptography after 2030 and
 disallows it after 2035. pqscope is being built to find that cryptography across source,
@@ -9,7 +10,8 @@ layers to expose gaps between what a system declares and what it actually deploy
 
 ## Status
 
-Milestone 12 of 13. All five discovery layers work, and their findings are reconciled:
+Milestone 13 of 13: the paper draft is in [`paper/`](#paper). All five discovery layers work,
+and their findings are reconciled:
 
 - **source:** Go, Python, Java, C/C++ and JavaScript/TypeScript code;
 - **config:** nginx, Apache, sshd, openssl.cnf, Kubernetes, and certificates and keys;
@@ -117,6 +119,14 @@ hosting provider. `measure/rq3.sh` scans the top 100 distinct projects by OpenSS
 Score for quantum-vulnerable cryptography, by layer and exposure. Both publish their raw
 evidence with the tables. See [docs/measurement.md](docs/measurement.md), and
 [docs/scanning.md](docs/scanning.md) for what the probes send and how to opt out.
+
+## Paper
+
+[`paper/`](paper/) holds the draft, *Declared vs. Deployed: A Multi-Layer Measurement of
+Post-Quantum Readiness in U.S. Federal and Critical Open-Source Infrastructure*. Every number,
+table and figure in it is generated from `paper/data` by `paper/gen.py`, and CI fails if a
+number is typed into the LaTeX or the generated files fall out of date. `make paper` builds the
+PDF with [tectonic](https://tectonic-typesetting.github.io). See [paper/README.md](paper/README.md).
 
 ## Dependencies and configuration
 

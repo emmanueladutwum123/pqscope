@@ -1,0 +1,73 @@
+\section{Introduction}
+
+A cryptographically relevant quantum computer would break RSA, finite-field
+and elliptic-curve Diffie-Hellman, ECDSA and EdDSA through Shor's
+algorithm~\cite{shor1997}. Traffic recorded today can be decrypted once such a
+machine exists, so key exchange must move first~\cite{mosca2018}. NIST has
+standardized ML-KEM, ML-DSA and SLH-DSA~\cite{fips203,fips204,fips205}, and
+its transition report, NIST IR~8547~\cite{ir8547}, deprecates every
+quantum-vulnerable public-key family after 2030 and disallows it after 2035.
+In the United States the schedule is now an obligation: Executive
+Order~14412~\cite{eo14412} sets federal migration deadlines, and OMB memorandum
+M-26-15~\cite{omb2615} asks each agency for a migration plan aligned with
+IR~8547.
+
+Every such plan begins with an inventory. The cryptography an organization
+runs is spread across layers that no single view captures: calls in source
+code, key sizes and group lists in configuration files, certificates on disk,
+libraries pulled in by lockfiles, code compiled into shipped binaries, and,
+finally, what a server actually negotiates with a client. The open-source tools
+available to build an inventory read one of these layers, almost always
+source code. A source scanner that sees a post-quantum library import cannot
+tell whether the deployed endpoint uses it.
+
+We built \tool{} to close that gap and used it to measure where the migration
+stands. \tool{} discovers cryptographic assets in five layers and normalizes
+them to one finding type. A reconciliation step links findings for the same
+component across layers and raises derived findings, the most important of
+which is the \emph{declared-versus-deployed gap}: code or dependencies that
+support post-quantum key exchange in front of an endpoint that negotiates
+only classical groups. Findings are evaluated against IR~8547 and CNSA~2.0
+policies, ranked by a risk score and exported as a CycloneDX cryptographic
+bill of materials (CBOM)~\cite{cyclonedx} and SARIF~\cite{sarif}.
+
+We answer four research questions.
+\begin{itemize}
+\item \RQ{1} (tool): Does multi-layer discovery with reconciliation beat
+  single-layer source scanners on precision and recall, and which layers
+  contribute most?
+\item \RQ{2} (federal web): What fraction of public federal \texttt{.gov} TLS
+  endpoints negotiate hybrid post-quantum key exchange, by agency and by
+  hosting provider?
+\item \RQ{3} (open source): How prevalent is quantum-vulnerable cryptography in
+  the most critical open-source projects, by layer, and how often does it sit
+  in network-facing code?
+\item \RQ{4} (cost): What does migration cost in bytes and latency, and does
+  that cost explain non-adoption?
+\end{itemize}
+
+\paragraph{Contributions.}
+\begin{itemize}
+\item \tool{}, an open-source five-layer scanner with cross-layer
+  reconciliation, policy evaluation and a GitHub Action, released under the
+  Apache~2.0 license (\S\ref{sec:design}).
+\item A labeled corpus of \data{rqone-cases} cases across five layers and
+  \data{rqone-languages} language families, and a harness that runs
+  \data{rqone-competitors} open-source scanners in pinned containers. \tool{}
+  reaches recall \data{rqone-pqscope-file-r} against
+  \data{rqone-best-competitor-r} for the best alternative
+  (\S\ref{sec:rq1}).
+\item A scan of all \data{rqtwo-endpoints} apex and \texttt{www} endpoints of
+  the \data{rqtwo-domains} federal \texttt{.gov} domains: hybrid adoption is
+  \data{rqtwo-ep-share} of TLS-speaking endpoints and is largely decided by
+  the hosting provider (\S\ref{sec:rq2}).
+\item A scan of the \data{rqthree-projects} most critical distinct open-source
+  code bases by OpenSSF Criticality Score: \data{rqthree-any-share} of those
+  scanned contain quantum-vulnerable cryptography (\S\ref{sec:rq3}).
+\item Benchmarks of every NIST post-quantum parameter set we cover against
+  their classical counterparts, and of full TLS~1.3 handshakes under emulated
+  delay and loss, with sizes cross-checked against OpenSSL
+  (\S\ref{sec:rq4}).
+\end{itemize}
+Every number in this paper is generated from the released data files by a
+script; none is typed by hand.

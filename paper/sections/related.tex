@@ -1,0 +1,32 @@
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{Cryptographic inventory tools.} CBOMkit~\cite{cbomkit} produces
+CycloneDX CBOMs, from Java and Python source through its sonar-cryptography
+analyzer and from certificates, keys and configuration through CBOMkit-theia.
+cryptoscan-pqc~\cite{cryptoscanpqc} and pqc-migration-audit~\cite{pqcaudit}
+scan source code for quantum-vulnerable algorithms, and Semgrep's rule
+registry~\cite{semgrep} flags weak cryptography in several languages. Each
+covers one or two layers. \tool{} covers five, adds network probing, and
+reconciles layers; \S\ref{sec:rq1} compares all of them on one corpus.
+
+\paragraph{Measuring post-quantum TLS.} Concurrent measurements find similar
+key-exchange adoption on the wider web. Dubey and
+Varshney~\cite{dubey2026} report hybrid key exchange on about half of a
+cross-sector domain list and no post-quantum certificates. Loizou and
+Ghadafi~\cite{loizou2026} measure HTTPS and SMTP endpoints of UK
+organizations, and find, as we do for federal agencies, that the
+infrastructure provider predicts deployment better than the organization's
+sector, and no post-quantum certificate signatures. Our scan adds the U.S.\
+federal population that EO~14412 and M-26-15 govern, measured against the
+complete registry of federal domains, and pairs it with the code-level
+measurement of RQ3.
+
+\paragraph{Cost of post-quantum TLS.} The sizes of NIST's schemes follow from
+their specifications~\cite{fips203,fips204,fips205}. We contribute a
+reproducible harness that cross-checks sizes against OpenSSL and measures
+full handshakes under emulated delay and loss with the TLS stack that
+\tool{}'s probe is compared against.
+
+\paragraph{Measurement ethics.} Our scanning practice follows the guidance
+of the ZMap authors~\cite{zmap} and the Menlo Report~\cite{menlo}.

@@ -3,3 +3,5 @@
 eval/out/
 bench/out/
 measure/_out/
+paper/main.pdf
+__pycache__/

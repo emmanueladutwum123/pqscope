@@ -2,6 +2,43 @@
 
 ## Unreleased
 
+### Milestone 13: paper draft
+
+- Add the paper draft in `paper/`: LaTeX sources in `main.tex` and `sections/`, references in
+  `refs.bib`. It covers the design, RQ1 to RQ4, discussion, related work and ethics.
+- Add `paper/gen.py`. It reads `paper/data` (and the raw RQ2 records) and writes every number
+  as a `\data{key}` macro, plus every table and figure, into `paper/generated/`. Standard
+  library only, like `eval/score.py`. Figures are pgfplots, so no plotting library is needed.
+  Where the text makes a claim about the data ("every miss is a hard positive", "no handshake
+  failed", "one size cap"), the generator stops if the data stop supporting it.
+- Add `paper/check_numbers.py`, which fails on any digit typed into the paper's prose apart
+  from named standards, algorithms and policy dates, and `paper/test_paper.py`.
+- Add `make paper-numbers`, `make paper-check` and `make paper` (PDF via tectonic), and a
+  `paper` CI job that runs `paper-check`.
+- New derived numbers, computed by the generator rather than measured again:
+  - RQ2: probe against `crypto/tls`. Both see a group on 1,615 endpoints; they agree on hybrid
+    versus classical for all 1,615 and on the exact group for 1,601. The other 14 servers
+    chose P-384 or P-521, which only `crypto/tls` offers. The two record group names
+    differently (IANA versus Go), which the comparison normalizes.
+  - RQ2: provider versus agency. Among groups with at least 10 TLS endpoints, 62.4% of
+    endpoints sit in a nearly uniform AS (at most 10% or at least 90% hybrid), against 14.9%
+    in a nearly uniform agency.
+- Every reference was checked against its primary source. Executive Order 14412 against the
+  Federal Register (91 FR 38483), M-26-15 on whitehouse.gov, the hybrid TLS group as RFC 10024,
+  and the two concurrent measurement studies on arXiv.
+
+Known limits of the draft:
+
+- The risk score's weights are not yet ablated, which the spec asks for. The draft says so
+  under threats to validity.
+- No venue template is applied yet. The draft uses the plain two-column article
+  class.
+- CI checks the numbers but doesn't build the PDF, since tectonic isn't on the runners.
+- Related work covers the tools we compared and the two concurrent studies we could verify. A
+  wider literature search is still to do before submission.
+
+## v0.12.0 (2026-11-08)
+
 ### Milestone 12: measurement runs and the GitHub Action
 
 - Add the GitHub Action (`action.yml` at the repository root, where the Marketplace requires

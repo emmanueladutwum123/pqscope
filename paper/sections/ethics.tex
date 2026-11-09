@@ -1,0 +1,17 @@
+\section{Ethics}
+\label{sec:ethics}
+
+The RQ2 probes are the unauthenticated handshakes a browser starts. Each
+endpoint received the probe's ClientHello and one standard handshake, each
+retried a bounded number of times on failure, and no application data. The global rate was
+\data{rqtwo-rate} connections per second and at most one connection per host
+was open at a time, both enforced in code. Nothing was exploited and no
+credentials were tried. The project's documentation describes exactly what a
+probe sends and how to opt out; the opt-out list is honoured by every run and
+held \data{rqtwo-exclude} entries at the time of the scan. We report results
+in aggregate and will report notable findings about federal systems through
+CISA. The scanning source address has no reverse DNS record pointing to the
+project, which we note as a shortcoming of this run. RQ3 clones public
+repositories and runs none of their code. These practices follow the
+recommendations of the ZMap authors~\cite{zmap} and the Menlo
+Report~\cite{menlo}.

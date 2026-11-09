@@ -1,0 +1,128 @@
+\section{RQ4: The Cost of Migration}
+\label{sec:rq4}
+
+\subsection{Method}
+
+\paragraph{Primitives.} We timed key generation, encapsulation and
+decapsulation (or signing and verification) for the classical and
+post-quantum schemes in Table~\ref{tab:rq4-primitives}, using Go's standard
+library and CIRCL~\cite{circl} (\data{rqfour-circl}). X25519 and P-256 are
+measured in KEM roles: encapsulation is the responder's work (parse the peer
+key, generate an ephemeral key, derive the secret) and decapsulation the
+initiator's. The hybrid is composed from Go's ML-KEM and X25519 as
+\texttt{crypto/tls} composes it. Every call is timed individually; we report
+the median (p50) of at least \data{rqfour-prim-min-n} calls. Before timing,
+each scheme must round-trip: a decapsulation must recover the secret and a
+signature must verify. The machine is an \data{rqfour-cpu} with
+\data{rqfour-mem-gb}\,GB of memory, running \data{rqfour-kernel} and
+Go~\data{rqfour-go}.
+
+\paragraph{Sizes.} Public keys, ciphertexts and signatures are measured from
+each implementation's output and compared with two independent sources: the
+knowledge base's sizes and OpenSSL~3.5's output for the same parameter set.
+
+\paragraph{Handshakes.} A Go TLS~1.3 server with an ECDSA P-256 certificate
+and session resumption off serves three clients: one offering only X25519,
+one offering only X25519MLKEM768, and Go's default client, which sends key
+shares for both. We record the ClientHello and ServerHello sizes from the
+record headers, the bytes each side sends, and the time from an established
+TCP connection to a usable TLS connection. On the host, each client makes
+\data{rqfour-host-n} handshakes over loopback. In a Linux container
+(\data{rqfour-docker-kernel}) we shape the loopback interface with
+\texttt{netem} into \data{rqfour-profiles} profiles: plain loopback, an MTU
+of \data{rqfour-mtu} bytes, added round-trip times of \data{rqfour-rtt-list}\,ms,
+and \data{rqfour-loss-rtt}\,ms with \data{rqfour-loss-pct} packet loss.
+
+\subsection{Results}
+
+\begin{table}[t]
+\centering\small
+\input{generated/tab_rq4_sizes}
+\caption{Sizes in bytes on the wire. For X25519 and P-256 the ciphertext is
+the ephemeral public key. ECDSA signatures vary in length (DER); the maximum
+is shown.}
+\label{tab:rq4-sizes}
+\end{table}
+
+\paragraph{Bytes.} Table~\ref{tab:rq4-sizes} gives the sizes. The hybrid key
+share is \data{rqfour-size-x25519mlkem768-pk} bytes against
+\data{rqfour-size-x25519-pk} for X25519, and its ciphertext
+\data{rqfour-size-x25519mlkem768-ct}. All \data{rqfour-sizes-rows} measured
+sizes agree with the knowledge base and, where OpenSSL can produce them
+(\data{rqfour-sizes-openssl}), with OpenSSL, except the variable-length ECDSA
+signature, which is not compared. On the wire, the hybrid ClientHello is
+\data{rqfour-ch-hybrid} bytes against \data{rqfour-ch-classical}
+(\data{rqfour-ch-ratio}), and Go's default ClientHello, which carries both key
+shares, \data{rqfour-ch-default}. Even the hybrid ClientHello fits in one TCP
+segment at an MTU of \data{rqfour-mtu} (\data{rqfour-mss} bytes of payload).
+The ServerHello grows from \data{rqfour-sh-classical} to
+\data{rqfour-sh-hybrid} bytes. Altogether a hybrid handshake moves
+\data{rqfour-handshake-bytes-extra} more bytes. Post-quantum signatures would
+cost more: an ML-DSA-65 signature is \data{rqfour-size-ml-dsa-65-sig} bytes
+against \data{rqfour-size-rsa-2048-sig} for RSA-2048, before counting the
+public key in each certificate of the chain.
+
+\begin{table}[t]
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\input{generated/tab_rq4_primitives}
+\caption{Median time per operation on the host (\data{rqfour-cpu}).
+For signature schemes the columns are keygen, sign and verify.}
+\label{tab:rq4-primitives}
+\end{table}
+
+\paragraph{Computation.} Table~\ref{tab:rq4-primitives} gives the operation
+medians. Key exchange is cheap on both sides. Hybrid encapsulation takes
+\data{rqfour-x25519mlkem768-go-stdlib-encap-p50}, \data{rqfour-hybrid-encap-vs-x25519}
+X25519's, and a full hybrid exchange (keygen, encapsulation and
+decapsulation) adds \data{rqfour-hybrid-kex-extra} of computation per
+handshake. Signatures differ more. ML-DSA-65 signs in
+\data{rqfour-ml-dsa-65-circl-sign-p50}, \data{rqfour-mldsa65-sign-vs-ecdsa}
+ECDSA P-256 but RSA-2048 takes \data{rqfour-rsa2048-sign-vs-mldsa65} as long
+as ML-DSA-65; ML-DSA-65 verification is
+\data{rqfour-mldsa65-verify-vs-rsa2048} RSA-2048's. SLH-DSA-128s is the
+outlier: \data{rqfour-slh-dsa-128s-circl-sign-p50} per signature,
+\data{rqfour-slhs-sign-vs-mldsa65} ML-DSA-65.
+
+\begin{table*}[t]
+\centering\small
+\input{generated/tab_rq4_tls}
+\caption{Full TLS~1.3 handshake time in the Linux container under each
+\texttt{netem} profile, from established TCP connection to usable TLS
+connection: medians for the X25519-only, hybrid-only and Go default
+clients, the hybrid's extra median time over X25519, and p99.}
+\label{tab:rq4-tls}
+\end{table*}
+
+\begin{figure}[t]
+\centering
+\input{generated/fig_rq4_extra}
+\caption{Extra median handshake time of X25519MLKEM768 over X25519, per
+\texttt{netem} profile.}
+\label{fig:rq4-extra}
+\end{figure}
+
+\paragraph{Latency.} Table~\ref{tab:rq4-tls} and Figure~\ref{fig:rq4-extra}
+give the handshake results. On loopback the hybrid handshake's median is
+\data{rqfour-loopback-extra} longer than the classical one
+(\data{rqfour-loopback-extra-rel}), of the same order as the extra
+computation (\data{rqfour-hybrid-kex-extra}). With
+added delay the extra median is \data{rqfour-netem-extra-min} to
+\data{rqfour-netem-extra-max}, and it does not grow with the round-trip time:
+it is \data{rqfour-rtt150ms-extra} at \data{rqfour-rtt150ms-rtt}\,ms, or
+\data{rqfour-rtt150ms-extra-rel} of the handshake. We have not isolated why
+the extra time is larger with emulated delay than on plain loopback. Under
+packet loss the tail is dominated by retransmissions for both clients.
+None of the \data{rqfour-docker-handshakes} handshakes in the container
+failed, and none of the host's.
+
+\paragraph{Does cost explain non-adoption?} Our measurements suggest not.
+At wide-area round-trip times the hybrid key exchange adds at most
+\data{rqfour-netem-extra-max} at the median and
+\data{rqfour-handshake-bytes-extra} bytes, and the hybrid ClientHello still
+fits in a single segment. Go's default client already sends it, and RQ2 shows that
+whether a federal endpoint negotiates it depends mostly on who hosts it.
+Cost would matter more for post-quantum certificates: an ML-DSA-65 signature
+is \data{rqfour-mldsa65-sig-vs-rsa2048} the size of an RSA-2048 one, and no
+federal endpoint we measured uses one.
+These results describe one machine and emulated links; middleboxes that
+mishandle large ClientHellos are not represented.
