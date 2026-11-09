@@ -56,10 +56,11 @@ paper-check:
 	python3 paper/check_numbers.py
 	python3 -m unittest discover -s paper -p 'test_*.py'
 
-# Builds paper/main.pdf. Needs tectonic (https://tectonic-typesetting.github.io),
+# Builds paper/main.pdf, the named preprint, and paper/imc.pdf, the anonymous
+# IMC submission. Needs tectonic (https://tectonic-typesetting.github.io),
 # which fetches the LaTeX packages it needs on first use.
 paper: paper-numbers paper-check
-	cd paper && tectonic -X compile main.tex
+	cd paper && tectonic -X compile main.tex && tectonic -X compile imc.tex
 
 fmt-check:
 	@unformatted="$$(gofmt -l .)"; \
@@ -78,4 +79,4 @@ golangci-lint:
 lint: fmt-check vet staticcheck golangci-lint
 
 clean:
-	rm -rf bin paper/main.pdf
+	rm -rf bin paper/main.pdf paper/imc.pdf

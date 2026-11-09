@@ -1,31 +1,18 @@
+% The named preprint (arXiv). imc.tex is the anonymous IMC submission; both
+% share sections/ and generated/.
 \documentclass[10pt,twocolumn]{article}
 
 \usepackage[margin=0.75in,columnsep=0.25in]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usepackage{textcomp}
 \usepackage{microtype}
-\usepackage{booktabs}
-\usepackage{graphicx}
-\usepackage{xcolor}
-\usepackage{pgfplots}
-\pgfplotsset{compat=1.18}
 \usepackage[numbers,sort&compress]{natbib}
 \usepackage[hidelinks]{hyperref}
-\usepackage{xurl}
-
-% Every measured number comes from paper/data through paper/gen.py. Write
-% \data{key}; an unknown key stops the build. paper/check_numbers.py fails on
-% digits typed into these sources.
-\makeatletter
-\newcommand{\data}[1]{%
-  \ifcsname pqd@#1\endcsname\csname pqd@#1\endcsname
-  \else\errmessage{paper: no value for data key '#1' (run python3 paper/gen.py)}\fi}
-\makeatother
-\input{generated/numbers}
 
 \newcommand{\tool}{\textsf{pqscope}}
-\newcommand{\RQ}[1]{\textbf{RQ#1}}
+\newcommand{\artifactlink}{\url{https://github.com/emmanueladutwum123/pqscope}}
+\newcommand{\rev}[1]{\texttt{#1}}
+\input{common}
 
 \title{Declared vs.\ Deployed: A Multi-Layer Measurement of Post-Quantum
 Readiness in U.S.\ Federal and Critical Open-Source Infrastructure}
@@ -36,17 +23,7 @@ Readiness in U.S.\ Federal and Critical Open-Source Infrastructure}
 \maketitle
 
 \input{sections/abstract}
-\input{sections/introduction}
-\input{sections/background}
-\input{sections/design}
-\input{sections/rq1}
-\input{sections/rq2}
-\input{sections/rq3}
-\input{sections/rq4}
-\input{sections/discussion}
-\input{sections/related}
-\input{sections/ethics}
-\input{sections/conclusion}
+\input{sections/body}
 
 \bibliographystyle{plainnat}
 \bibliography{refs}

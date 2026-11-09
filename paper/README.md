@@ -3,8 +3,24 @@
 *Declared vs. Deployed: A Multi-Layer Measurement of Post-Quantum Readiness in U.S. Federal and
 Critical Open-Source Infrastructure.* Draft.
 
+Two builds share every section and generated number:
+
+| File | What it is |
+|---|---|
+| `main.tex` → `main.pdf` | The named preprint, for arXiv |
+| `imc.tex` → `imc.pdf` | The anonymous submission to ACM IMC 2027, Cycle 2 (abstract 31 March 2027, paper 7 April 2027). It uses the format IMC requires: `acmart` with `sigconf,anonymous,nonacm`, 10pt, letter paper, numbered pages, at most 13 pages before the references. It hides the author, the repository link and the revision hashes, and calls the tool AnonPQ. |
+
+`common.tex` holds the shared preamble, and `sections/body.tex` the page-limited body. The
+appendices hold the sections IMC requires: Ethics, Open Science and Generative AI.
+
+**Before submitting:**
+
+- Write the Generative AI appendix (`sections/appendix.tex`). IMC requires it, and the
+  placeholder says what it needs to cover.
+- Create the anonymized artifact repository, and put its link on the submission site.
+
 ```sh
-make paper          # regenerate numbers, check them, build paper/main.pdf (needs tectonic)
+make paper          # regenerate numbers, check them, build main.pdf and imc.pdf (needs tectonic)
 make paper-check    # what CI runs: generated files current, no typed numbers, tests
 ```
 

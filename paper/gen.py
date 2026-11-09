@@ -160,7 +160,7 @@ def table(colspec, header, rows, note=None):
 # ---------------------------------------------------------------- RQ1
 
 TOOL_LABEL = {
-    "pqscope": "pqscope",
+    "pqscope": "\\tool{}",
     "cbomkit-action": "CBOMkit (action)",
     "cbomkit-theia": "CBOMkit-theia",
     "cryptoscan-pqc": "cryptoscan-pqc",

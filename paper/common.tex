@@ -1,0 +1,25 @@
+% Shared by main.tex (the named preprint) and imc.tex (the anonymous IMC
+% submission). Each defines \tool and \artifactlink before \input{common}.
+\usepackage{textcomp}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{xurl}
+
+% Every measured number comes from paper/data through paper/gen.py. Write
+% \data{key}; an unknown key stops the build. paper/check_numbers.py fails on
+% digits typed into these sources.
+\makeatletter
+\newcommand{\data}[1]{%
+  \ifcsname pqd@#1\endcsname\csname pqd@#1\endcsname
+  \else\errmessage{paper: no value for data key '#1' (run python3 paper/gen.py)}\fi}
+\makeatother
+\input{generated/numbers}
+
+\newcommand{\RQ}[1]{\textbf{RQ#1}}
+
+% Long unbreakable names (X25519MLKEM768, repository paths) would otherwise
+% overflow narrow columns.
+\setlength{\emergencystretch}{3em}

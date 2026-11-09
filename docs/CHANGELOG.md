@@ -39,10 +39,19 @@
   [risk.md](risk.md#ablation).
 - `risk.Weights.FactorsOf` exposes the four factors, and `Score` is now their product.
 
+- Target ACM IMC 2027, Cycle 2 (abstract 31 March 2027, paper 7 April 2027), chosen over IMC
+  Cycle 1 and PAM 2027, whose deadlines were days away.
+  - Add `paper/imc.tex`, the anonymous submission in IMC's required format (`acmart`,
+    `sigconf,anonymous,nonacm`, letter paper, numbered pages). It shares every section with
+    the preprint, `main.tex`.
+  - Ethics, Open Science and Generative AI are now appendices, as IMC requires.
+  - The tool is called AnonPQ in the submission, and the repository link and revision hashes
+    are withheld.
+  - `make paper` builds both.
+
 Known limits of the draft:
 
-- No venue template is applied yet. The draft uses the plain two-column article
-  class.
+- The Generative AI appendix IMC requires is a placeholder for the author to complete.
 - CI checks the numbers but doesn't build the PDF, since tectonic isn't on the runners.
 - Related work covers the tools we compared and the two concurrent studies we could verify. A
   wider literature search is still to do before submission.

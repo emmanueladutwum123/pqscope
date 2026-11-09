@@ -1,0 +1,32 @@
+% The anonymous submission to ACM IMC 2027 (Cycle 2), in the format its
+% submission instructions require: acmart, sigconf, 10pt, letter paper,
+% anonymous, nonacm, numbered pages. At most 13 pages before the references;
+% the appendices must include Ethics, Open Science and Generative AI.
+\documentclass[10pt,sigconf,letterpaper,anonymous,nonacm]{acmart}
+\settopmatter{printfolios=true,printacmref=false}
+
+% Double-blind: no author names, no repository link, and the tool under a
+% neutral name, since its real one leads to the author.
+\newcommand{\tool}{\textsf{AnonPQ}}
+\newcommand{\artifactlink}{an anonymized repository, linked for reviewers on the submission site}
+\newcommand{\rev}[1]{withheld for review}
+\input{common}
+
+\begin{document}
+
+\title{Declared vs.\ Deployed: A Multi-Layer Measurement of Post-Quantum
+Readiness in U.S.\ Federal and Critical Open-Source Infrastructure}
+\author{Anonymous Author(s)}
+
+\input{sections/abstract}
+\maketitle
+
+\input{sections/body}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{refs}
+
+\appendix
+\input{sections/appendix}
+
+\end{document}

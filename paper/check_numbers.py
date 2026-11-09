@@ -54,7 +54,9 @@ def strip(text):
 def check(path):
     with open(path, encoding="utf-8") as f:
         raw = f.read()
-    if os.path.basename(path) == "main.tex":
+    if os.path.dirname(os.path.abspath(path)) == HERE and "\\begin{document}" not in raw:
+        return []  # a shared preamble (common.tex): layout, not prose
+    if "\\begin{document}" in raw:
         # The preamble is layout, not prose.
         raw = raw[raw.index("\\begin{document}"):]
     problems = []
@@ -69,7 +71,7 @@ def check(path):
 
 
 def main():
-    files = [os.path.join(HERE, "main.tex")] + sorted(glob.glob(os.path.join(HERE, "sections", "*.tex")))
+    files = sorted(glob.glob(os.path.join(HERE, "*.tex"))) + sorted(glob.glob(os.path.join(HERE, "sections", "*.tex")))
     problems = []
     for path in files:
         problems += check(path)

@@ -1,3 +1,38 @@
+% Appendices, shared by main.tex and imc.tex. IMC requires the Ethics, Open
+% Science and Generative AI sections.
+\input{sections/ethics}
+
+\section{Open Science}
+
+Every artifact behind this paper is public: \tool{}'s source under the
+Apache~2.0 license, the labeled corpus and the evaluation harness with every
+competitor pinned by image digest, the measurement and benchmark scripts, the
+raw measurement data (every probe record of RQ2 and every finding of RQ3),
+and this paper's generator, at \artifactlink. Every number, table and figure is generated from the files in
+\texttt{paper/data} by \texttt{paper/gen.py}, and a check fails the build if
+any digit is typed into the paper's sources. The data come from these runs:
+\begin{itemize}
+\item RQ1: \texttt{make eval}, with competitors pinned by image digest.
+\item RQ2: \texttt{measure/rq2.sh}, at \tool{} revision
+  \rev{\data{rqtwo-revision}}, CISA list commit
+  \texttt{\data{rqtwo-dotgov-commit}}, on \data{rqtwo-date}.
+\item RQ3: \texttt{measure/rq3.sh}, at revision
+  \rev{\data{rqthree-revision}}, Criticality Score snapshot
+  \data{rqthree-snapshot} from commit
+  \texttt{\data{rqthree-criticality-commit}}.
+\item RQ4: \texttt{make bench}, at revision \rev{\data{rqfour-revision}},
+  on \data{rqfour-date}.
+\item Risk-score ablation: \texttt{make risk-ablation}, at revision
+  \rev{\data{riskabl-revision}}, from the RQ3 findings.
+\end{itemize}
+
+\section{Generative AI}
+
+\textbf{[To be completed by the author before submission: state which
+generative AI tools were used in this work, for what (for example writing
+code, analysis scripts, or drafting and editing text), and how their output
+was checked.]}
+
 \section{Additional Tables}
 
 \begin{table}[h]
@@ -15,21 +50,3 @@ TLS endpoints, with Wilson 95\% intervals.}
 projects: projects with at least one finding, and findings.}
 \label{tab:rq3-algorithms}
 \end{table}
-
-\section{Reproducing This Paper}
-
-Every number, table and figure is generated from the files in
-\texttt{paper/data} by \texttt{paper/gen.py}, and a check fails the build if
-any digit is typed into the paper's sources. The data come from these runs:
-\begin{itemize}
-\item RQ1: \texttt{make eval}, with competitors pinned by image digest.
-\item RQ2: \texttt{measure/rq2.sh}, at \tool{} revision
-  \texttt{\data{rqtwo-revision}}, CISA list commit
-  \texttt{\data{rqtwo-dotgov-commit}}, on \data{rqtwo-date}.
-\item RQ3: \texttt{measure/rq3.sh}, at revision
-  \texttt{\data{rqthree-revision}}, Criticality Score snapshot
-  \data{rqthree-snapshot} from commit
-  \texttt{\data{rqthree-criticality-commit}}.
-\item RQ4: \texttt{make bench}, at revision \texttt{\data{rqfour-revision}},
-  on \data{rqfour-date}.
-\end{itemize}
