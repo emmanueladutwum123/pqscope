@@ -8,7 +8,7 @@ deps,precision_exact_algorithm,48,50,0.9600,0.8654,0.9890,1273
 binary,precision,15,15,1.0000,0.7961,1.0000,15
 binary,precision_exact_algorithm,15,15,1.0000,0.7961,1.0000,15
 all,precision_weighted_by_layer,,165,0.9898,,,7596
-all,unconfirmed_labels,165,165,,,,
+all,undecided_labels,0,165,,,,
 deps,rsa_pke_from_signature_only_libraries,39,1273,0.0306,,,
 projects,any_layer_status_changed_by_rsa_pke_errors,0,97,,,,
 deps,findings_from_go_toolchain_directive,742,1273,0.5829,,,

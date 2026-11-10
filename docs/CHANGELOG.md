@@ -79,14 +79,15 @@
   - 58% of dependency findings come from Go toolchain directives, and 4 projects count as
     having vulnerable dependencies only for that reason.
 
-  The paper reports this in section 6. It shows a red notice until the author confirms every
-  label.
+  A second AI annotator, working blind, labeled every finding again. On correctness the two
+  agree on all 165, including the same 4 false positives. On the algorithm family they agree
+  on 163 (98.8%; kappa 0.50, low only because wrong families are rare). The author decided the
+  2 disagreements, and the rule that a binary linking a crypto package counts even when only
+  key parsing survived linking. The paper reports this in section 6.
 
 Known limits of the draft:
 
 - The Generative AI appendix IMC requires is a placeholder for the author to complete.
-- The audit's labels were proposed by an AI assistant and await the author's confirmation
-  (`confirmed_by` in `paper/data/rq3_audit.csv`).
 - pqscope's library table credits rustls and ring with RSA key transport. Both offer RSA for
   signatures only. Fixing it needs capabilities per primitive, not per algorithm family.
 - CI checks the numbers but doesn't build the PDF, since tectonic isn't on the runners.

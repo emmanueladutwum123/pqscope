@@ -217,7 +217,7 @@ def report():
     total = sum(pop.values())
     rows.append(["all", "precision_weighted_by_layer", "", sum(1 for _ in labels), f"{weighted / total:.4f}", "", "", total])
     k = sum(r["quantum_vulnerable_correct"] == "yes" for r in labels)
-    rows.append(["all", "unconfirmed_labels", sum(1 for r in labels if not r["confirmed_by"]), len(labels), "", "", "", ""])
+    rows.append(["all", "undecided_labels", sum(1 for r in labels if not r["decided_by"].strip()), len(labels), "", "", "", ""])
 
     # Population checks for the error classes the audit found.
     projects = {}
@@ -273,12 +273,69 @@ section{{border:1px solid #ccc;border-left:6px solid #2a7;border-radius:6px;padd
 section.bad{{border-left-color:#c33}} h2{{font-size:15px;margin:.2em 0}} pre{{background:#f5f5f5;padding:.5em;overflow-x:auto;font-size:12px}}</style>
 <h1>RQ3 audit: {len(labels)} findings to confirm</h1>
 <p>For each card, open the link, check the proposed label, and fix it in paper/data/rq3_audit.csv if you disagree.
-When you have checked a row, put your name in its confirmed_by column.</p>
+The final labels, and who decided each, are in paper/data/rq3_audit.csv.</p>
 {''.join(cards)}"""
     dest = os.path.join(OUT, "review.html")
     with open(dest, "w", encoding="utf-8") as f:
         f.write(page)
     print(os.path.relpath(dest, ROOT))
+
+
+def kappa(pairs):
+    """Cohen's kappa for two annotators' yes/no labels."""
+    n = len(pairs)
+    po = sum(a == b for a, b in pairs) / n
+    pa, pb = sum(a == "yes" for a, _ in pairs) / n, sum(b == "yes" for _, b in pairs) / n
+    pe = pa * pb + (1 - pa) * (1 - pb)
+    return po, (po - pe) / (1 - pe) if pe < 1 else float("nan")
+
+
+def compare():
+    """Agreement between the two annotators, and the disagreements to adjudicate."""
+    import html
+    with open(os.path.join(DATA, "rq3_audit_first.csv"), newline="", encoding="utf-8") as f:
+        first = {r["audit_id"]: r for r in csv.DictReader(f)}
+    with open(os.path.join(DATA, "rq3_audit_second.csv"), newline="", encoding="utf-8") as f:
+        second = {r["audit_id"]: r for r in csv.DictReader(f)}
+    if set(first) != set(second):
+        raise SystemExit(f"annotations differ in findings: missing {sorted(set(first) - set(second))[:10]}, "
+                         f"extra {sorted(set(second) - set(first))[:10]}")
+    rows = [["question", "items", "agree", "agreement", "kappa", "first_no", "second_no"]]
+    disagreements = []
+    for q in ("quantum_vulnerable_correct", "algorithm_correct"):
+        pairs = [(first[i][q].strip().lower(), second[i][q].strip().lower()) for i in first]
+        bad = [v for p in pairs for v in p if v not in ("yes", "no")]
+        if bad:
+            raise SystemExit(f"{q}: values other than yes/no: {sorted(set(bad))}")
+        po, k = kappa(pairs)
+        rows.append([q, len(pairs), sum(a == b for a, b in pairs), f"{po:.4f}", f"{k:.4f}",
+                     sum(a == "no" for a, _ in pairs), sum(b == "no" for _, b in pairs)])
+        disagreements += [(i, q) for i in first if first[i][q].strip().lower() != second[i][q].strip().lower()]
+    with open(os.path.join(DATA, "rq3_audit_agreement.csv"), "w", newline="", encoding="utf-8") as f:
+        csv.writer(f).writerows(rows)
+    for r in rows:
+        print("\t".join(str(x) for x in r))
+    with open(SAMPLE, newline="", encoding="utf-8") as f:
+        sample = {r["audit_id"]: r for r in csv.DictReader(f)}
+    cards = []
+    for i, q in disagreements:
+        s = sample[i]
+        cards.append(f"""<section><h2>{i} &middot; {html.escape(s['layer'])} &middot; {html.escape(q)}</h2>
+<p><b>{html.escape(s['algorithm'])} {html.escape(s['params'])} {html.escape(s['primitive'])}</b> in
+<a href="{html.escape(s['url'])}" target="_blank">{html.escape(s['repo'])}/{html.escape(s['path'])}</a></p>
+<p>Scanner said: {html.escape(s['evidence'])}</p>
+<p><b>Annotator 1:</b> {html.escape(first[i][q])} &mdash; {html.escape(first[i]['reason'])}</p>
+<p><b>Annotator 2:</b> {html.escape(second[i][q])} &mdash; {html.escape(second[i]['reason'])}</p></section>""")
+    page = f"""<!doctype html><meta charset="utf-8"><title>Audit disagreements</title>
+<style>body{{font:14px/1.45 -apple-system,sans-serif;max-width:900px;margin:2em auto;padding:0 1em}}
+section{{border:1px solid #ccc;border-left:6px solid #d90;border-radius:6px;padding:.6em 1em;margin:1em 0}} h2{{font-size:15px}}</style>
+<h1>{len(disagreements)} disagreements to decide</h1>
+<p>Open each link and decide which annotator is right. The final labels, and who decided each,
+are in paper/data/rq3_audit.csv; the two annotations stay as they were.</p>{''.join(cards)}"""
+    dest = os.path.join(OUT, "disagreements.html")
+    with open(dest, "w", encoding="utf-8") as f:
+        f.write(page)
+    print(f"{len(disagreements)} disagreements -> {os.path.relpath(dest, ROOT)}")
 
 
 def fetch():
@@ -318,4 +375,4 @@ def fetch():
 
 
 if __name__ == "__main__":
-    {"sample": sample, "fetch": fetch, "verify": verify, "report": report, "sheet": sheet}[sys.argv[1] if len(sys.argv) > 1 else "sample"]()
+    {"sample": sample, "fetch": fetch, "verify": verify, "report": report, "sheet": sheet, "compare": compare}[sys.argv[1] if len(sys.argv) > 1 else "sample"]()

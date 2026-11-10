@@ -177,7 +177,8 @@ intervals.
 python3 measure/rq3_audit.py sample   # paper/data/rq3_audit_sample.csv (seeded, stratified by layer)
 python3 measure/rq3_audit.py fetch    # evidence for each finding, in measure/_out/audit/
 python3 measure/rq3_audit.py verify   # OpenSSL's reading of each config finding's certificate or key
-python3 measure/rq3_audit.py sheet    # measure/_out/audit/review.html, for confirming labels
+python3 measure/rq3_audit.py sheet    # measure/_out/audit/review.html, every finding with its evidence
+python3 measure/rq3_audit.py compare  # agreement of the two annotations, and the disagreements
 python3 measure/rq3_audit.py report   # paper/data/rq3_audit_summary.csv
 ```
 
@@ -188,10 +189,14 @@ The audit estimates precision on real code:
   20261110).
 - **Evidence:** for each one, `fetch` downloads the file at the scanned commit. `verify` reads
   the exact certificate or key at the reported line with OpenSSL, not with pqscope's parser.
-- **Labels:** `paper/data/rq3_audit.csv` records two answers per finding: is there
-  quantum-vulnerable cryptography at that location, and is the algorithm named correctly. It
-  also has a category, a reason, who proposed the label, and who confirmed it. While any label
-  is unconfirmed, the paper prints a red notice beside the audit's numbers.
+- **Labels:** each finding gets two answers: is there quantum-vulnerable cryptography at that
+  location, and is the algorithm family named correctly. Two annotators labeled independently,
+  both AI assistants: `rq3_audit_first.csv` comes from the one that gathered the evidence, and
+  `rq3_audit_second.csv` from a second that never saw the first's labels.
+  `rq3_audit_agreement.csv` has their agreement and Cohen's kappa. The final labels are in
+  `rq3_audit.csv`, and `decided_by` says how each was settled: by agreement, or by the author
+  for disagreements and for the rule on binaries. While any label is undecided, the paper prints
+  a red notice beside the audit's numbers.
 - **Results:** `report` writes per-layer precision with Wilson intervals, precision weighted by
   layer size, and the effect of each error class across the whole scan.
 

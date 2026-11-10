@@ -84,8 +84,18 @@ dependencies, and all \data{rqthree-audit-binary-n} binary findings,
 file was fetched from the project's repository at the scanned commit; every
 certificate and key was read again with OpenSSL rather than with \tool{}'s
 parser, and every binary was checked for the symbols or packages the finding
-names. Each label was then reviewed by hand. A finding is correct if the
-location really holds quantum-vulnerable cryptography of the reported kind.
+names. A finding is correct if the location really holds quantum-vulnerable
+cryptography of the reported kind, and we asked separately whether the
+algorithm family is named correctly. Two annotators labeled every finding
+independently, both AI assistants: one that also gathered the evidence, and a
+second that worked blind to the first's labels. They agreed on correctness for
+all \data{rqthree-audit-n} findings, including the same
+\data{rqthree-audit-first-no} false positives, and on the algorithm family for
+\data{rqthree-audit-agree-alg} (\data{rqthree-audit-agree-alg-share}; Cohen's
+$\kappa$ is \data{rqthree-audit-kappa-alg}, low only because incorrect families
+are rare). The author decided the \data{rqthree-audit-disagree} remaining
+cases, and the rule that a binary linking a cryptographic package counts even
+when, as in one Go binary, only its key-parsing code survived linking.
 
 Precision is \data{rqthree-audit-config-p} for configuration and key material
 (\data{rqthree-audit-config-k} of \data{rqthree-audit-config-n}, 95\% CI

@@ -774,12 +774,24 @@ def rq3_audit(o):
     o.put("rqthree-audit-hybrid", num(cats.get("hybrid-component", 0)))
     o.put("rqthree-audit-wrongfamily", num(cats.get("wrong-family", 0)))
     o.put("rqthree-audit-capwrong", num(cats.get("capability-wrong", 0)))
-    unconfirmed = sum(1 for r in labels if not r["confirmed_by"].strip())
-    # Visible in the PDF until every label is confirmed by hand.
-    o.put("rqthree-audit-status", "" if unconfirmed == 0 else
-          " \\textcolor{red}{\\textbf{[audit labels pending author confirmation]}}")
-    if unconfirmed:
-        print(f"warning: {unconfirmed} audit labels in paper/data/rq3_audit.csv are not yet confirmed", file=sys.stderr)
+    undecided = sum(1 for r in labels if not r["decided_by"].strip())
+    # Visible in the PDF until every label has a final decision.
+    o.put("rqthree-audit-status", "" if undecided == 0 else
+          " \\textcolor{red}{\\textbf{[audit labels pending a final decision]}}")
+    if undecided:
+        print(f"warning: {undecided} audit labels in paper/data/rq3_audit.csv have no final decision", file=sys.stderr)
+    agreement = {r["question"]: r for r in read("rq3_audit_agreement")}
+    q1, q2 = agreement["quantum_vulnerable_correct"], agreement["algorithm_correct"]
+    if q1["agree"] != q1["items"]:
+        raise ValueError("the annotators now disagree on correctness; revise sections/rq3.tex")
+    o.put("rqthree-audit-agree-alg", num(q2["agree"]))
+    o.put("rqthree-audit-agree-alg-share", pct(q2["agreement"]))
+    o.put("rqthree-audit-kappa-alg", dec(q2["kappa"], 2))
+    o.put("rqthree-audit-disagree", num(int(q2["items"]) - int(q2["agree"])))
+    o.put("rqthree-audit-first-no", num(q1["first_no"]))
+    adjudicated = sum(1 for r in labels if r["decided_by"].startswith("author, adjudicating"))
+    if adjudicated != int(q2["items"]) - int(q2["agree"]):
+        raise ValueError("adjudicated labels and disagreements differ; revise sections/rq3.tex")
 
 
 # ---------------------------------------------------------------- risk ablation
