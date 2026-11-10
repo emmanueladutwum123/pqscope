@@ -1,0 +1,11 @@
+key,value
+registry_source,https://raw.githubusercontent.com/github/government.github.com/f8acaec52db0631fea775feeaa6a829cd2e2781f/_data/governments.yml
+organizations,164
+organizations_unlistable,2
+organizations_unlistable_names,USDA-ERS;USGS-WiM
+organizations_without_public_repos,14
+repositories_listed,10263
+listed_utc_date,2026-11-10
+link_rule,repository homepage host equals an RQ2 endpoint host
+strong_link_rule,"CNAME file names the host, or the repository name contains the whole domain"
+current_rule,"not archived, not a fork, endpoint speaks TLS"

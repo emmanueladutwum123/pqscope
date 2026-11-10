@@ -1,0 +1,85 @@
+\section{RQ5: Declared versus Deployed on Federal Systems}
+\label{sec:fed}
+
+RQ2 measured what federal endpoints negotiate and RQ3 what open-source code
+contains. Neither shows both sides of one system. Federal agencies publish much
+of their code, which lets us put the two side by side for the same service.
+
+\subsection{Method}
+
+\paragraph{Linking code to endpoints.} GitHub maintains a public registry of
+government accounts; we took the \data{fed-orgs} organizations listed under
+U.S.\ Federal (registry commit \texttt{\data{fed-registry-commit}}) and listed
+their public repositories on \data{fed-date}: \data{fed-repos} repositories
+(\data{fed-orgs-unlistable} organizations could not be listed). A repository
+is linked to an endpoint when its homepage field names exactly one of the hosts
+probed in RQ2. That gives \data{fed-links} repositories for
+\data{fed-link-endpoints} endpoints, of which \data{fed-current} for
+\data{fed-current-endpoints} endpoints are current: not archived, not a fork,
+and linked to an endpoint that speaks TLS.
+
+A homepage field often names the agency's site for code that has nothing to do
+with running it, so we separate the links. A link is \emph{strong} when the
+repository is the site's own source, shown by a GitHub Pages \texttt{CNAME}
+file naming the host or by a repository name that contains the whole domain;
+\data{fed-strong} links are strong and \data{fed-weak} weak. The rule is
+conservative: site repositories named differently count as weak.
+
+\paragraph{Reconciling.} Each repository was cloned and scanned as in RQ3, with
+the endpoint's RQ2 records merged into the same component (\S\ref{sec:design}),
+so that reconciliation can compare what the code declares with what the
+endpoint negotiates. No endpoint was probed again.
+\data{fed-scanned} repositories were scanned; \data{fed-clonefail} failed to
+clone.
+
+\subsection{Results}
+
+\begin{table*}[t]
+\centering\small
+\input{generated/tab_fed_strong}
+\caption{The \data{fed-strong-scanned} strong links: repositories that are a
+federal site's source, the group the site negotiated in RQ2, its hosting AS,
+and the post-quantum (PQ) and quantum-vulnerable (Vuln.) findings in the
+repository.}
+\label{tab:fed-strong}
+\end{table*}
+
+\paragraph{The gap runs the other way.} \tool{} was built to catch code that
+declares post-quantum support in front of an endpoint that deploys classical
+key exchange. On federal systems that never happens: no repository produced a
+declared-PQC-deployed-classical finding, and none produced a
+configuration-overrides-library finding. Only \data{fed-declares} of the
+\data{fed-scanned} repositories declares post-quantum capability at all,
+\data{fed-declares-list}, through its cryptography library. Yet
+\data{fed-hybrid-endpoints} of the \data{fed-endpoints} linked endpoints
+(\data{fed-hybrid-endpoints-share}) negotiate a hybrid group, behind
+\data{fed-hybrid-repos} of the repositories. Deployment is ahead of
+declaration.
+
+\paragraph{Protection comes from the platform.} \data{fed-nocrypto} of the
+\data{fed-scanned} repositories (\data{fed-nocrypto-share}) contain no
+public-key cryptography that \tool{} detects, post-quantum or vulnerable; only
+\data{fed-vulnerable-repos} contain any quantum-vulnerable findings. Every
+hybrid endpoint is served from one of \data{fed-hybrid-providers} providers:
+\data{fed-hybrid-provider-list}. Table~\ref{tab:fed-strong} shows the pattern
+for the strong links. The Consumer Financial Protection Bureau's site, the
+Justice Department's FOIA portal and the U.S.\ Digital Service's site all
+negotiate X25519MLKEM768, and their source contains no public-key cryptography
+that \tool{} detects. Their addresses belong to content-delivery networks,
+which terminate TLS in front of the application. The one strong
+link that negotiates a classical group, \texttt{councils.gov}, is hosted by a
+telecommunications carrier, and its source is equally silent.
+
+\paragraph{What follows for inventories.} M-26-15 asks agencies to inventory
+their cryptography, and a natural first step is the code they maintain. For
+public web services that step finds nothing to migrate and cannot tell
+whether the service is quantum-safe: in our sample the answer depends on a
+platform the code never mentions. Measuring the deployed endpoint, as the
+network layer does, is the only one of \tool{}'s layers that answers it.
+
+\paragraph{Limits.} The strong sample is small, \data{fed-strong} pairs, and
+the weak links include repositories that only mention the agency's site. The
+homepage field is self-reported; repositories that build a site without naming
+it are missed. Applications behind these sites may use cryptography in services
+whose code is not public. The endpoint data are RQ2's, from one vantage point
+on \data{rqtwo-date}.

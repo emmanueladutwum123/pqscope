@@ -9,6 +9,7 @@ Every file here is generated. Never edit one by hand: rerun the target that writ
 | `rq2_trend/<YYYY-MM>/` | `measure/rq2-monthly.sh` (monthly, see [docs/measurement.md](../../docs/measurement.md#monthly-repeats)) | RQ2 repeated monthly from the same vantage point, for the trend |
 | `rq3_*.csv`, `raw/rq3_findings.tar.gz` | `measure/rq3.sh`, see [docs/measurement.md](../../docs/measurement.md) | RQ3: quantum-vulnerable cryptography in critical open source |
 | `rq3_audit*.csv` | `measure/rq3_audit.py`, see [docs/measurement.md](../../docs/measurement.md#audit-of-rq3s-findings) | RQ3: precision of a stratified sample of findings, from two independent annotations and the author's decisions |
+| `fed_*.csv`, `raw/fed_findings.tar.gz` | `measure/fed_link.py`, `measure/fed_scan.py`, see [docs/measurement.md](../../docs/measurement.md#rq5-declared-versus-deployed-on-federal-systems) | RQ5: federal repositories against the endpoints they serve |
 | `risk_ablation*.csv` | `make risk-ablation`, see [docs/risk.md](../../docs/risk.md#ablation) | Risk score: how much each factor changes the ranking of RQ3's findings |
 | `rq4_*.csv` | `make bench`, see [docs/bench.md](../../docs/bench.md) | RQ4: migration cost in bytes and latency |
 

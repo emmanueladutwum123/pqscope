@@ -18,7 +18,13 @@ TLS on \data{rqtwo-date}, \data{rqtwo-ep-share} (95\% CI
 studies of the wider web found, adoption follows the hosting provider; for
 federal endpoints it does so far more than it follows the agency: from
 \data{rqtwo-as13335-share} on Cloudflare to \data{rqtwo-as2635-share} on
-Automattic. Every leaf certificate was RSA or ECDSA. Among the
+Automattic. Every leaf certificate was RSA or ECDSA. Comparing \data{fed-scanned} public
+federal repositories with the endpoints they serve, we find the
+declared-versus-deployed gap running the other way: no code declares
+post-quantum support in front of a classical endpoint, but
+\data{fed-hybrid-endpoints-share} of those endpoints negotiate hybrid key
+exchange that their code never mentions, supplied by the hosting platform.
+Among the
 \data{rqthree-scanned} most critical open-source projects we could scan,
 \data{rqthree-any-share} contain quantum-vulnerable cryptography and
 \data{rqthree-network-share} contain it in network-facing code. Hybrid key

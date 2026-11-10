@@ -794,6 +794,88 @@ def rq3_audit(o):
         raise ValueError("adjudicated labels and disagreements differ; revise sections/rq3.tex")
 
 
+# ---------------------------------------------------------------- RQ5: declared vs deployed
+
+def fed(o):
+    m = meta("fed_meta")
+    links = read("fed_links")
+    current = read("fed_links_current")
+    pairs = read("fed_pairs")
+    o.put("fed-orgs", num(m["organizations"]))
+    o.put("fed-orgs-unlistable", num(m["organizations_unlistable"]))
+    o.put("fed-repos", num(m["repositories_listed"]))
+    o.put("fed-date", m["listed_utc_date"])
+    o.put("fed-registry-commit", short_commit(m["registry_source"]))
+    o.put("fed-links", num(len(links)))
+    o.put("fed-link-endpoints", num(len({r["host"] for r in links})))
+    o.put("fed-current", num(len(current)))
+    o.put("fed-current-endpoints", num(len({r["host"] for r in current})))
+    strong = [r for r in current if r["link"] == "strong"]
+    o.put("fed-strong", num(len(strong)))
+    o.put("fed-weak", num(len(current) - len(strong)))
+
+    scanned = [r for r in pairs if r["scan_status"] == "scanned"]
+    o.put("fed-scanned", num(len(scanned)))
+    o.put("fed-clonefail", num(sum(1 for r in pairs if r["scan_status"] == "clone failed")))
+    if len(scanned) + sum(1 for r in pairs if r["scan_status"] == "clone failed") != len(pairs):
+        raise ValueError("a federal scan neither succeeded nor failed to clone; revise sections/fed.tex")
+
+    def pq(r):
+        return int(r["declares_pq_source"]) + int(r["declares_pq_deps"]) + int(r["declares_pq_config"])
+
+    def vuln(r):
+        return int(r["vulnerable_findings"])
+
+    none = [r for r in scanned if pq(r) == 0 and vuln(r) == 0]
+    o.put("fed-nocrypto", num(len(none)))
+    o.put("fed-nocrypto-share", pct(len(none) / len(scanned), 0))
+    declaring = [r for r in scanned if pq(r) > 0]
+    o.put("fed-declares", num(len(declaring)))
+    o.put("fed-declares-list", ", ".join(f"\\texttt{{{tex(r['repo'])}}}" for r in declaring) or "none")
+    o.put("fed-vulnerable-repos", num(sum(1 for r in scanned if vuln(r) > 0)))
+    dpdc = sum(int(r["derived_declared_pqc_deployed_classical"]) for r in scanned)
+    cfg = sum(int(r["derived_config_overrides_library"]) for r in scanned)
+    if dpdc or cfg:
+        raise ValueError("a declared-PQC-deployed-classical or config-overrides finding appeared; revise sections/fed.tex")
+
+    endpoints = {r["host"]: r for r in scanned}
+    hybrid = {h: r for h, r in endpoints.items() if r["status"] == "hybrid"}
+    o.put("fed-endpoints", num(len(endpoints)))
+    o.put("fed-hybrid-endpoints", num(len(hybrid)))
+    o.put("fed-hybrid-endpoints-share", pct(len(hybrid) / len(endpoints), 0))
+    o.put("fed-hybrid-repos", num(sum(1 for r in scanned if r["status"] == "hybrid")))
+    providers = {}
+    for r in hybrid.values():
+        name = AS_LABEL.get(r["asn"], r["as_description"].split(" - ")[-1].split(",")[0].replace("Akamai International B.V.", "Akamai").strip())
+        name = re.sub(r"^AKAMAI-ASN1 ", "", name)
+        providers[name] = providers.get(name, 0) + 1
+    o.put("fed-hybrid-providers", num(len(providers)))
+    o.put("fed-hybrid-provider-list", ", ".join(tex(p) for p in sorted(providers, key=lambda p: (-providers[p], p))))
+    if len(providers) != 4:
+        raise ValueError("hybrid federal endpoints are no longer on four providers; revise sections/fed.tex")
+    o.put("fed-hybrid-nocrypto", num(sum(1 for r in scanned if r["status"] == "hybrid" and pq(r) == 0 and vuln(r) == 0)))
+    other = {h: r for h, r in endpoints.items() if r["status"] != "hybrid"}
+    o.put("fed-other-endpoints", num(len(other)))
+
+    rows = []
+    for r in sorted((r for r in scanned if r["link"] == "strong"), key=lambda r: (r["status"] != "classical", r["host"])):
+        name = AS_LABEL.get(r["asn"]) or r["as_description"].split(" - ")[-1].split(",")[0]
+        name = re.sub(r"^AKAMAI-ASN1 ", "", name).replace(" International B.V.", "")
+        rows.append([f"\\texttt{{{tex(r['repo'])}}}", tex(r["host"]), tex(r["status"]), tex(name),
+                     num(pq(r)), num(vuln(r))])
+    o.put("fed-strong-scanned", num(len(rows)))
+    # The text names these cases; stop if the data stop matching.
+    named = {r["repo"]: r for r in scanned}
+    for repo in ("cfpb/consumerfinance.gov", "usdoj/foia.gov", "usds/website"):
+        r = named[repo]
+        if r["status"] != "hybrid" or pq(r) or vuln(r):
+            raise ValueError(f"{repo} no longer hybrid without crypto in its source; revise sections/fed.tex")
+    r = named["GSA/councils.gov"]
+    if r["status"] != "classical" or pq(r) or vuln(r):
+        raise ValueError("councils.gov no longer classical without crypto in its source; revise sections/fed.tex")
+    o.file("tab_fed_strong.tex", table("llllrr", ["Repository", "Site", "Deployed", "Hosting AS", "PQ", "Vuln."], rows))
+
+
 # ---------------------------------------------------------------- risk ablation
 
 FACTOR_LABEL = {
@@ -1091,6 +1173,7 @@ def generate(outdir):
     rq2(o)
     rq3(o)
     riskabl(o)
+    fed(o)
     rq4(o)
     os.makedirs(outdir, exist_ok=True)
     with open(os.path.join(outdir, "numbers.tex"), "w", encoding="utf-8") as f:

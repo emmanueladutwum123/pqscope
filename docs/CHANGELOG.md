@@ -85,6 +85,19 @@
   2 disagreements, and the rule that a binary linking a crypto package counts even when only
   key parsing survived linking. The paper reports this in section 6.
 
+- Add RQ5, declared versus deployed on federal systems, which answers the reviewer question of
+  whether the paper measures its title.
+  - Data: GitHub's registry of U.S. federal organizations (164) gives 10,263 public
+    repositories. 107 current repositories name a measured .gov site as their homepage; 8 of
+    those links are strong (the repository is the site's source). Each was scanned with its
+    site's RQ2 records merged.
+  - Result: the gap runs the other way. No repository declares post-quantum support in front
+    of a classical endpoint, and only 1 declares post-quantum capability at all. Yet 36 of 44
+    sites (82%) negotiate hybrid key exchange, all through 4 hosting providers, and 92% of
+    the repositories contain no public-key cryptography.
+  - Paper: a new section, plus a new contribution and new sentences in the abstract,
+    introduction, discussion and conclusion. The title is unchanged.
+
 Known limits of the draft:
 
 - The Generative AI appendix IMC requires is a placeholder for the author to complete.

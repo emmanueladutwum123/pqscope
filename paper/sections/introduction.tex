@@ -44,6 +44,9 @@ We answer four research questions.
   in network-facing code?
 \item \RQ{4} (cost): What does migration cost in bytes and latency, and does
   that cost explain non-adoption?
+\item \RQ{5} (declared vs.\ deployed): For federal services whose code is
+  public, does the cryptography the code declares match what the deployed
+  endpoint negotiates?
 \end{itemize}
 
 \paragraph{Contributions.}
@@ -66,6 +69,14 @@ We answer four research questions.
 \item A scan of the \data{rqthree-projects} most critical distinct open-source
   code bases by OpenSSF Criticality Score: \data{rqthree-any-share} of those
   scanned contain quantum-vulnerable cryptography (\S\ref{sec:rq3}).
+\item A comparison of declared and deployed cryptography for the
+  \data{fed-scanned} public federal repositories linked to measured endpoints.
+  The gap \tool{} was built to find, post-quantum code in front of a classical
+  endpoint, never occurs; the reverse is the rule. \data{fed-hybrid-endpoints-share}
+  of the linked endpoints negotiate a hybrid group, all through
+  \data{fed-hybrid-providers} hosting providers, while
+  \data{fed-nocrypto-share} of the repositories contain no public-key
+  cryptography at all (\S\ref{sec:fed}).
 \item Benchmarks of every NIST post-quantum parameter set we cover against
   their classical counterparts, and of full TLS~1.3 handshakes under emulated
   delay and loss, with sizes cross-checked against OpenSSL

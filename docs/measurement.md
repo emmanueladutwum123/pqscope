@@ -200,6 +200,41 @@ The audit estimates precision on real code:
 - **Results:** `report` writes per-layer precision with Wilson intervals, precision weighted by
   layer size, and the effect of each error class across the whole scan.
 
+## RQ5: declared versus deployed on federal systems
+
+> For federal services whose code is public, does the cryptography the code declares match what
+> the deployed endpoint negotiates?
+
+```sh
+python3 measure/fed_link.py orgs       # U.S. federal organizations in GitHub's government registry
+python3 measure/fed_link.py repos      # their public repositories (gh API)
+python3 measure/fed_link.py link       # paper/data/fed_links.csv: homepage host = an RQ2 endpoint
+python3 measure/fed_link.py strength   # paper/data/fed_links_current.csv: current links, strong or weak
+python3 measure/fed_link.py meta       # paper/data/fed_meta.csv
+python3 measure/fed_scan.py scan       # clone and scan each repository with its endpoint's RQ2 records
+python3 measure/fed_scan.py analyze    # paper/data/fed_pairs.csv and raw/fed_findings.tar.gz
+```
+
+**Links.** The organizations are those GitHub's public registry of government accounts lists under
+U.S. Federal, at a pinned commit. A repository is linked to an endpoint when its homepage field
+names that endpoint's host. Current links leave out archived repositories, forks, and endpoints
+that don't speak TLS.
+
+A link is strong when the repository is the site's own source: a GitHub Pages `CNAME` file names
+the host, or the repository name contains the whole domain. Every other link is weak. The rule
+is conservative, so site repositories named differently count as weak.
+
+**Scan.** As in RQ3: a shallow clone at the default branch, scanned and deleted, nothing built or
+run. The endpoint's findings from RQ2's raw records are merged with `--with`, so reconciliation
+compares code and deployment within one component. Nothing is probed again.
+
+**Limits.**
+
+- The homepage field is self-reported.
+- Repositories that build a site without naming it are missed.
+- The strong sample is small.
+- The deployed side is RQ2's single vantage and date.
+
 ## Ethics
 
 The RQ2 probes are standard, unauthenticated handshakes, the same a browser starts, sent at a

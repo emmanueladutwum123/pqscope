@@ -10,6 +10,14 @@ critical projects most often carry quantum-vulnerable cryptography, and it
 holds most of the findings. An inventory that reads only code misses that
 layer entirely.
 
+\paragraph{Code inventories cannot see deployed key exchange.} RQ5 sharpens
+the point for the services agencies run. The public code behind federal sites
+rarely contains any cryptography, and the key exchange their visitors get is
+chosen by the platform that hosts them. An inventory built from code would
+report these services as having nothing to migrate whether or not they are
+quantum-safe. For M-26-15, the endpoint and the hosting contract belong in the
+inventory alongside the code.
+
 \paragraph{Hosting decides key exchange; authentication has not started.}
 For key exchange the federal web is past half-way, but RQ2 suggests the
 agencies did not get there one by one, consistent with what concurrent work
