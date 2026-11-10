@@ -68,9 +68,27 @@
 
   Snapshots are committed by hand after review.
 
+- Audit RQ3's findings for precision on real code, the reviewer question RQ1's
+  self-labeled corpus can't answer. `measure/rq3_audit.py` samples 165 findings (50 each from
+  source, config and deps, plus all 15 binary ones), fetches each file at the scanned commit,
+  and reads every certificate and key again with OpenSSL. Proposed labels:
+  - precision is 96% for source, 100% for config, 96% for deps and 100% for binaries, or 99%
+    weighted by layer size;
+  - error classes: classical halves of hybrid schemes (2), and RSA key transport credited to
+    rustls, which only does RSA signatures (2; 39 findings scan-wide, no project changes);
+  - 58% of dependency findings come from Go toolchain directives, and 4 projects count as
+    having vulnerable dependencies only for that reason.
+
+  The paper reports this in section 6. It shows a red notice until the author confirms every
+  label.
+
 Known limits of the draft:
 
 - The Generative AI appendix IMC requires is a placeholder for the author to complete.
+- The audit's labels were proposed by an AI assistant and await the author's confirmation
+  (`confirmed_by` in `paper/data/rq3_audit.csv`).
+- pqscope's library table credits rustls and ring with RSA key transport. Both offer RSA for
+  signatures only. Fixing it needs capabilities per primitive, not per algorithm family.
 - CI checks the numbers but doesn't build the PDF, since tectonic isn't on the runners.
 
 ## v0.12.0 (2026-11-08)

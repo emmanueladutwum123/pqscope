@@ -730,12 +730,56 @@ def rq3(o):
         o.put("rqthree-kernel-repo", f"\\texttt{{{tex(kernel['repo'])}}}")
         o.put("rqthree-kernel-findings", num(vuln(kernel)))
 
+    rq3_audit(o)
+
     rows = [[tex(r["algorithm"]), num(r["projects"]), pct(int(r["projects"]) / len(scanned), 0), num(r["findings"])]
             for r in algorithms]
     o.file("tab_rq3_algorithms.tex", table("lrrr", ["Algorithm", "Projects", "Share", "Findings"], rows))
     for r in algorithms:
         o.put(f"rqthree-alg-{slug(r['algorithm'])}-projects", num(r["projects"]))
         o.put(f"rqthree-alg-{slug(r['algorithm'])}-share", pct(int(r["projects"]) / len(scanned), 0))
+
+
+def rq3_audit(o):
+    """The manual audit of a stratified sample of RQ3's findings."""
+    summary = read("rq3_audit_summary")
+    labels = read("rq3_audit")
+
+    def get(scope, metric):
+        return next(r for r in summary if r["scope"] == scope and r["metric"] == metric)
+
+    o.put("rqthree-audit-n", num(len(labels)))
+    o.put("rqthree-audit-per-layer", num(max(int(get(l, "precision")["n"]) for l in ("source", "config", "deps"))))
+    for layer in ("source", "config", "deps", "binary"):
+        r = get(layer, "precision")
+        o.put(f"rqthree-audit-{layer}-k", num(r["k"]))
+        o.put(f"rqthree-audit-{layer}-n", num(r["n"]))
+        o.put(f"rqthree-audit-{layer}-p", pct(r["share"]))
+        o.put(f"rqthree-audit-{layer}-ci", pct_ci(r["ci95_low"], r["ci95_high"]))
+        o.put(f"rqthree-audit-{layer}-pop", num(r["population"]))
+    if get("binary", "precision")["n"] != get("binary", "precision")["population"]:
+        raise ValueError("the text says every binary finding was audited; revise sections/rq3.tex")
+    o.put("rqthree-audit-weighted", pct(get("all", "precision_weighted_by_layer")["share"]))
+    r = get("deps", "rsa_pke_from_signature_only_libraries")
+    o.put("rqthree-audit-rsapke", num(r["k"]))
+    o.put("rqthree-audit-rsapke-share", pct(r["share"]))
+    if int(get("projects", "any_layer_status_changed_by_rsa_pke_errors")["k"]):
+        raise ValueError("the RSA pke error now changes a project's status; revise sections/rq3.tex")
+    r = get("deps", "findings_from_go_toolchain_directive")
+    o.put("rqthree-audit-gostd-share", pct(r["share"], 0))
+    o.put("rqthree-audit-gostd-only", num(get("projects", "deps_vulnerable_only_via_go_toolchain")["k"]))
+    cats = {}
+    for r in labels:
+        cats[r["category"]] = cats.get(r["category"], 0) + 1
+    o.put("rqthree-audit-hybrid", num(cats.get("hybrid-component", 0)))
+    o.put("rqthree-audit-wrongfamily", num(cats.get("wrong-family", 0)))
+    o.put("rqthree-audit-capwrong", num(cats.get("capability-wrong", 0)))
+    unconfirmed = sum(1 for r in labels if not r["confirmed_by"].strip())
+    # Visible in the PDF until every label is confirmed by hand.
+    o.put("rqthree-audit-status", "" if unconfirmed == 0 else
+          " \\textcolor{red}{\\textbf{[audit labels pending author confirmation]}}")
+    if unconfirmed:
+        print(f"warning: {unconfirmed} audit labels in paper/data/rq3_audit.csv are not yet confirmed", file=sys.stderr)
 
 
 # ---------------------------------------------------------------- risk ablation

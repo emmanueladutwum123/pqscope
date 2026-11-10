@@ -8,6 +8,7 @@ Every file here is generated. Never edit one by hand: rerun the target that writ
 | `rq2_*.csv`, `raw/rq2_net.jsonl.gz` | `measure/rq2.sh`, see [docs/measurement.md](../../docs/measurement.md) | RQ2: hybrid key exchange on federal .gov |
 | `rq2_trend/<YYYY-MM>/` | `measure/rq2-monthly.sh` (monthly, see [docs/measurement.md](../../docs/measurement.md#monthly-repeats)) | RQ2 repeated monthly from the same vantage point, for the trend |
 | `rq3_*.csv`, `raw/rq3_findings.tar.gz` | `measure/rq3.sh`, see [docs/measurement.md](../../docs/measurement.md) | RQ3: quantum-vulnerable cryptography in critical open source |
+| `rq3_audit*.csv` | `measure/rq3_audit.py`, see [docs/measurement.md](../../docs/measurement.md#audit-of-rq3s-findings) | RQ3: precision of a stratified sample of findings, checked by hand |
 | `risk_ablation*.csv` | `make risk-ablation`, see [docs/risk.md](../../docs/risk.md#ablation) | Risk score: how much each factor changes the ranking of RQ3's findings |
 | `rq4_*.csv` | `make bench`, see [docs/bench.md](../../docs/bench.md) | RQ4: migration cost in bytes and latency |
 

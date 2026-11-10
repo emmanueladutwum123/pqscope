@@ -171,6 +171,30 @@ intervals.
 - **Same author for rules and measurement.** See RQ1 for the scanner's measured precision and
   recall on the labeled corpus.
 
+### Audit of RQ3's findings
+
+```sh
+python3 measure/rq3_audit.py sample   # paper/data/rq3_audit_sample.csv (seeded, stratified by layer)
+python3 measure/rq3_audit.py fetch    # evidence for each finding, in measure/_out/audit/
+python3 measure/rq3_audit.py verify   # OpenSSL's reading of each config finding's certificate or key
+python3 measure/rq3_audit.py sheet    # measure/_out/audit/review.html, for confirming labels
+python3 measure/rq3_audit.py report   # paper/data/rq3_audit_summary.csv
+```
+
+The audit estimates precision on real code:
+
+- **Sample:** 50 random quantum-vulnerable findings from each of source, config and deps, and
+  every binary finding. Within a layer every finding is equally likely to be picked (seed
+  20261110).
+- **Evidence:** for each one, `fetch` downloads the file at the scanned commit. `verify` reads
+  the exact certificate or key at the reported line with OpenSSL, not with pqscope's parser.
+- **Labels:** `paper/data/rq3_audit.csv` records two answers per finding: is there
+  quantum-vulnerable cryptography at that location, and is the algorithm named correctly. It
+  also has a category, a reason, who proposed the label, and who confirmed it. While any label
+  is unconfirmed, the paper prints a red notice beside the audit's numbers.
+- **Results:** `report` writes per-layer precision with Wilson intervals, precision weighted by
+  layer size, and the effect of each error class across the whole scan.
+
 ## Ethics
 
 The RQ2 probes are standard, unauthenticated handshakes, the same a browser starts, sent at a

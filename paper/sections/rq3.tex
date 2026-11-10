@@ -75,6 +75,42 @@ configuration. The median
 project with any finding has \data{rqthree-median-findings}. We report
 shares of projects for this reason.
 
+\paragraph{Are the findings right?} The prevalence figures are only as good as
+\tool{}'s precision on real code, which the corpus of RQ1 cannot show. We
+therefore audited a random sample of the RQ3 findings, stratified by layer:
+\data{rqthree-audit-per-layer} each from source code, configuration and
+dependencies, and all \data{rqthree-audit-binary-n} binary findings,
+\data{rqthree-audit-n} in total\data{rqthree-audit-status}. For each finding the
+file was fetched from the project's repository at the scanned commit; every
+certificate and key was read again with OpenSSL rather than with \tool{}'s
+parser, and every binary was checked for the symbols or packages the finding
+names. Each label was then reviewed by hand. A finding is correct if the
+location really holds quantum-vulnerable cryptography of the reported kind.
+
+Precision is \data{rqthree-audit-config-p} for configuration and key material
+(\data{rqthree-audit-config-k} of \data{rqthree-audit-config-n}, 95\% CI
+\data{rqthree-audit-config-ci}), \data{rqthree-audit-source-p} for source code
+(CI \data{rqthree-audit-source-ci}), \data{rqthree-audit-deps-p} for
+dependencies (CI \data{rqthree-audit-deps-ci}) and
+\data{rqthree-audit-binary-p} for binaries; weighted by the size of each layer,
+\data{rqthree-audit-weighted} of all findings are correct. The errors fall into
+two classes. \data{rqthree-audit-hybrid} source findings flag the classical
+half of a hybrid post-quantum scheme, which is not itself quantum-vulnerable.
+\data{rqthree-audit-capwrong} dependency findings credit a TLS library with RSA
+key transport that it does not offer; across the whole scan this error affects
+\data{rqthree-audit-rsapke} findings (\data{rqthree-audit-rsapke-share} of
+dependency findings) and changes no project's prevalence. In
+\data{rqthree-audit-wrongfamily} further case the cryptography is
+quantum-vulnerable but \tool{} names the wrong family, ECDSA for an elliptic-curve
+key used for key agreement.
+
+The audit also qualifies the dependency layer.
+\data{rqthree-audit-gostd-share} of its findings come from a Go module's
+toolchain directive, which implies the Go standard library and is therefore
+true of every Go module; \data{rqthree-audit-gostd-only} projects count as
+having quantum-vulnerable dependencies only for that reason. We report the
+dependency layer as capability, as before, and not as use.
+
 \subsection{Ranking Findings for Migration}
 
 A project with hundreds of findings needs an order to migrate them in, which
