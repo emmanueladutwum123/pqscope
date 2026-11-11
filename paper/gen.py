@@ -166,6 +166,7 @@ TOOL_LABEL = {
     "cryptoscan-pqc": "cryptoscan-pqc",
     "pqc-audit": "pqc-migration-audit",
     "semgrep": "Semgrep",
+    "keylens": "Keylens",
 }
 
 LANG_LABEL = {"go": "Go", "python": "Python", "java": "Java", "c": "C/C++", "js": "JS/TS"}
@@ -216,6 +217,18 @@ def rq1(o):
         "rqone-recall-ratio",
         ratio(row("pqscope", "file")["recall"], row(best, "file")["recall"]),
     )
+    # A fair comparison: source code only, the layer every competitor claims.
+    src = row("pqscope", "file", "source")
+    o.put("rqone-src-pqscope-p", dec(src["precision"]))
+    o.put("rqone-src-pqscope-r", dec(src["recall"]))
+    o.put("rqone-src-pqscope-f", dec(src["f1"]))
+    best_src = max(competitors, key=lambda t: float(row(t, "file", "source")["f1"]))
+    bs = row(best_src, "file", "source")
+    o.put("rqone-src-best", TOOL_LABEL[best_src])
+    o.put("rqone-src-best-p", dec(bs["precision"]))
+    o.put("rqone-src-best-r", dec(bs["recall"]))
+    o.put("rqone-src-best-f", dec(bs["f1"]))
+    o.put("rqone-src-labels", num(int(src["tp"]) + int(src["fn"])))
     best_java = max(competitors, key=lambda t: float(row(t, "file", "source", "java")["recall"]))
     o.put("rqone-best-java-competitor", TOOL_LABEL[best_java])
     o.put("rqone-best-java-competitor-r", dec(row(best_java, "file", "source", "java")["recall"]))
@@ -322,6 +335,14 @@ def rq1(o):
             o.put(f"rqone-abl-{k}-r", dec(r["recall"]))
             o.put(f"rqone-abl-{k}-drop", f"{100 * drop:.1f}")
             o.put(f"rqone-abl-{k}-fn", num(r["fn"]))
+    # Two rows can match by coincidence: say why, and check it.
+    nb = next(r for r in ablation if r["config"] == "without binary")
+    nn = next(r for r in ablation if r["config"] == "without network")
+    if (nb["tp"], nb["fn"]) == (nn["tp"], nn["fn"]):
+        b_tp, n_tp = int(row("pqscope", "file", "binary")["tp"]), int(row("pqscope", "file", "network")["tp"])
+        if b_tp != n_tp:
+            raise ValueError("ablation rows match for another reason; revise sections/rq1.tex")
+        o.put("rqone-abl-same-tp", num(b_tp))
     o.file(
         "tab_rq1_ablation.tex",
         table("lrrrr", ["Configuration", "P", "R", "F1", "$\\Delta$R (pp)"], rows),
@@ -522,6 +543,18 @@ def rq2(o):
         o.put(f"rqtwo-uniform-{name}-endpoints", num(covered))
         o.put(f"rqtwo-uniform-{name}-share", pct(uniform / covered))
 
+    g = {r["statistic"]: r for r in read("rq2_grouping")}
+    for stat, k in (("I(Y;AS)", "as"), ("I(Y;agency)", "agency"),
+                    ("I(Y;AS|agency)", "as-given-agency"), ("I(Y;agency|AS)", "agency-given-as")):
+        o.put(f"rqtwo-info-{k}", pct(g[stat]["excess_share_of_entropy"], 0))
+        o.put(f"rqtwo-info-{k}-p", dec(g[stat]["p_value"], 4))
+    worst_p = max(float(g[s]["p_value"]) for s in ("I(Y;AS)", "I(Y;agency)", "I(Y;AS|agency)", "I(Y;agency|AS)"))
+    o.put("rqtwo-info-maxp", dec(worst_p, 4))
+    if worst_p > 0.01:
+        raise ValueError("a grouping effect is no longer significant; revise sections/rq2.tex")
+    if not (float(g["I(Y;AS|agency)"]["excess_bits"]) > float(g["I(Y;agency|AS)"]["excess_bits"])):
+        raise ValueError("the provider no longer dominates; revise sections/rq2.tex")
+
     agshares = [float(r["hybrid_share"]) for r in big]
     o.put("rqtwo-agency-max", pct(max(agshares)))
     o.put("rqtwo-agency-min-share", pct(min(agshares)))
@@ -657,6 +690,14 @@ def rq3(o):
         o.put(f"rqthree-{k}-share", pct(r["share"]))
         o.put(f"rqthree-{k}-ci", pct_ci(r["ci95_low"], r["ci95_high"]))
         o.put(f"rqthree-{k}-findings", num(r["findings"]))
+    for metric, k in (("vulnerable:exposure:network-source-only", "network-src"),
+                      ("vulnerable:layer:deps-excluding-go-toolchain", "deps-nogo")):
+        r = s(metric)
+        o.put(f"rqthree-{k}-n", num(r["projects_with"]))
+        o.put(f"rqthree-{k}-share", pct(r["share"]))
+        o.put(f"rqthree-{k}-ci", pct_ci(r["ci95_low"], r["ci95_high"]))
+    if s("vulnerable:exposure:network-source-only")["projects_with"] != "1":
+        raise ValueError("the text says one project; revise the exposure paragraph in sections/rq3.tex")
     if any(int(s(m_)["projects_scanned"]) != len(scanned) for m_ in keys):
         raise ValueError("rq3_summary and rq3_projects disagree on the scanned count")
 

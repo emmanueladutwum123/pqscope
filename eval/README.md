@@ -29,10 +29,11 @@ below. `eval/run.sh network` runs only pqscope, against servers built from `alpi
 | cryptoscan-pqc | source | PyPI `cryptoscan-pqc==0.1.1` in `python:3.12-slim@sha256:5e2bdb1b…` | CycloneDX CBOM |
 | pqc-audit | source | `danieleschmidt/pqc-migration-audit@2b11fc59` (its CLI is `pqc-audit`) | JSON report, read by keys |
 | Semgrep | source (weak-crypto rules) | `semgrep/semgrep:1.184.0@sha256:cc1b6826…`, rules from `semgrep/semgrep-rules@16b9e6d4` limited to crypto rules for Go, Python, Java, JavaScript and C | Semgrep JSON |
-| Keylens | — | not found: no crypto scanner by that name exists (GitHub search, 2026-11-08) | — |
+| Keylens | Python and JavaScript source, lockfiles | `qelens/cbom@8d75d874`, built from its Dockerfile (`keylens/cbom` redirects to `qelens/cbom`) | default JSON, read by keys |
 
-The spec named Keylens and pqc-audit. Keylens is listed as unavailable. For pqc-audit, the closest
-match is pqc-migration-audit, whose command is `pqc-audit`.
+The spec named Keylens and pqc-audit. A search on 2026-11-08 missed Keylens because its organization
+had been renamed. It is `qelens/cbom` (KeyLens CLI tools). For pqc-audit, the closest match is
+pqc-migration-audit, whose command is `pqc-audit`.
 
 ## Scoring
 

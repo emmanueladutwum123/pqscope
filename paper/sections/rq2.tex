@@ -106,16 +106,19 @@ group; on the Treasury's network \data{rqtwo-as13506-tlstwelve} of them do
 not speak TLS~1.3.
 
 What the federal population adds is the agency, the unit that M-26-15 holds
-responsible for migration. To test whether the provider or the agency better
-predicts the outcome, we
-apply one rule to both groupings: among groups with at least
-\data{rqtwo-uniform-min} TLS endpoints, what share of endpoints sit in a
-group that is nearly uniform, with adoption at most \data{rqtwo-uniform-lo}
-or at least \data{rqtwo-uniform-hi}? For ASes it is
-\data{rqtwo-uniform-as-share} of endpoints (\data{rqtwo-uniform-as-groups}
-ASes); for agencies, \data{rqtwo-uniform-agency-share}
-(\data{rqtwo-uniform-agency-groups} agencies). Agencies are mixtures of
-providers; providers are mostly all-or-nothing. Adoption among agencies with
+responsible for migration. Agencies choose their providers, so the two
+groupings are confounded, and we measure each one's effect with the other held
+fixed. For each grouping we compute the information it carries about whether
+an endpoint is hybrid, as a share of the outcome's entropy, minus the same
+statistic with the grouping's labels shuffled, which removes the advantage of
+groupings with many small groups. The provider explains
+\data{rqtwo-info-as} of the outcome and the agency \data{rqtwo-info-agency}.
+Held within each agency, the provider still explains
+\data{rqtwo-info-as-given-agency}; held within each provider, the agency adds
+\data{rqtwo-info-agency-given-as}. All four effects are significant against
+the shuffles ($p \le \data{rqtwo-info-maxp}$). The provider matters most even
+among one agency's endpoints, but the agency still matters: on the same
+provider, adoption differs by agency. Adoption among agencies with
 at least \data{rqtwo-agency-min} TLS endpoints
 (Table~\ref{tab:rq2-agencies} in the appendix) ranges from
 \data{rqtwo-agency-min-share} to \data{rqtwo-agency-max}.

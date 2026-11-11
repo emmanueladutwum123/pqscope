@@ -22,65 +22,65 @@ source code. A source scanner that sees a post-quantum library import cannot
 tell whether the deployed endpoint uses it.
 
 We built \tool{} to close that gap and used it to measure where the migration
-stands. \tool{} discovers cryptographic assets in five layers and normalizes
-them to one finding type. A reconciliation step links findings for the same
-component across layers and raises derived findings, the most important of
-which is the \emph{declared-versus-deployed gap}: code or dependencies that
-support post-quantum key exchange in front of an endpoint that negotiates
-only classical groups. Findings are evaluated against IR~8547 and CNSA~2.0
-policies, ranked by a risk score and exported as a CycloneDX cryptographic
-bill of materials (CBOM)~\cite{cyclonedx} and SARIF~\cite{sarif}.
+stands. \tool{} looks for cryptography in five layers and records everything it
+finds in one format. It then links findings that belong to the same system and
+reports where the layers disagree. The case it was designed for is the
+\emph{declared-versus-deployed gap}: code or dependencies that support
+post-quantum key exchange in front of an endpoint that still negotiates only
+classical groups. Findings are checked against the IR~8547 and CNSA~2.0
+schedules, ranked by a risk score, and exported as a CycloneDX cryptographic
+bill of materials (CBOM)~\cite{cyclonedx} and as SARIF~\cite{sarif}.
 
-We answer four research questions.
+We ask five questions.
 \begin{itemize}
-\item \RQ{1} (tool): Does multi-layer discovery with reconciliation beat
-  single-layer source scanners on precision and recall, and which layers
-  contribute most?
-\item \RQ{2} (federal web): What fraction of public federal \texttt{.gov} TLS
-  endpoints negotiate hybrid post-quantum key exchange, by agency and by
-  hosting provider?
-\item \RQ{3} (open source): How prevalent is quantum-vulnerable cryptography in
-  the most critical open-source projects, by layer, and how often does it sit
-  in network-facing code?
-\item \RQ{4} (cost): What does migration cost in bytes and latency, and does
-  that cost explain non-adoption?
+\item \RQ{1} (tool): Does scanning several layers and comparing them find more
+  than a source-code scanner does, and which layers matter most?
+\item \RQ{2} (federal web): What share of public federal \texttt{.gov} TLS
+  endpoints negotiate hybrid post-quantum key exchange, and does that depend
+  more on the agency or on the hosting provider?
+\item \RQ{3} (open source): How common is quantum-vulnerable cryptography in
+  the most critical open-source projects, and in which layers does it appear?
+\item \RQ{4} (cost): What does hybrid key exchange add in bytes and
+  computation?
 \item \RQ{5} (declared vs.\ deployed): For federal services whose code is
-  public, does the cryptography the code declares match what the deployed
-  endpoint negotiates?
+  public, does what the code declares match what the deployed endpoint
+  negotiates?
 \end{itemize}
 
 \paragraph{Contributions.}
 \begin{itemize}
-\item \tool{}, an open-source five-layer scanner with cross-layer
+\item \tool{}, an open-source scanner covering five layers, with cross-layer
   reconciliation, policy evaluation and a GitHub Action, released under the
   Apache~2.0 license (\S\ref{sec:design}).
 \item A labeled corpus of \data{rqone-cases} cases across five layers and
   \data{rqone-languages} language families, and a harness that runs
-  \data{rqone-competitors} open-source scanners in pinned containers. \tool{}
-  reaches recall \data{rqone-pqscope-file-r} against
-  \data{rqone-best-competitor-r} for the best alternative
+  \data{rqone-competitors} other open-source scanners in pinned containers.
+  \tool{} finds \data{rqone-pqscope-file-r} of the labeled assets against
+  \data{rqone-best-competitor-r} for the best alternative; restricted to source
+  code the margin is smaller, and one competitor does better on Java
   (\S\ref{sec:rq1}).
 \item A scan of all \data{rqtwo-endpoints} apex and \texttt{www} endpoints of
-  the \data{rqtwo-domains} federal \texttt{.gov} domains: hybrid adoption is
-  \data{rqtwo-ep-share} of TLS-speaking endpoints. It confirms, for the
-  population U.S.\ policy governs, that the hosting provider drives
-  adoption~\cite{wickramasinghe2026,loizou2026}, and shows that the provider
-  predicts it far better than the agency (\S\ref{sec:rq2}).
+  the \data{rqtwo-domains} federal \texttt{.gov} domains, in which
+  \data{rqtwo-ep-share} of TLS endpoints negotiate a hybrid group. It confirms
+  for the federal population what studies of the wider web
+  found~\cite{wickramasinghe2026,loizou2026}, that hosting drives adoption, and
+  measures how much the agency adds once the provider is known
+  (\S\ref{sec:rq2}).
 \item A scan of the \data{rqthree-projects} most critical distinct open-source
-  code bases by OpenSSF Criticality Score: \data{rqthree-any-share} of those
-  scanned contain quantum-vulnerable cryptography (\S\ref{sec:rq3}).
-\item A comparison of declared and deployed cryptography for the
-  \data{fed-scanned} public federal repositories linked to measured endpoints.
-  The gap \tool{} was built to find, post-quantum code in front of a classical
-  endpoint, never occurs; the reverse is the rule. \data{fed-hybrid-endpoints-share}
-  of the linked endpoints negotiate a hybrid group, all through
-  \data{fed-hybrid-providers} hosting providers, while
-  \data{fed-nocrypto-share} of the repositories contain no public-key
-  cryptography at all (\S\ref{sec:fed}).
-\item Benchmarks of every NIST post-quantum parameter set we cover against
-  their classical counterparts, and of full TLS~1.3 handshakes under emulated
-  delay and loss, with sizes cross-checked against OpenSSL
+  code bases by OpenSSF Criticality Score, in which \data{rqthree-any-share} of
+  those scanned carry quantum-vulnerable cryptography, with an audit of a
+  sample of findings that puts \tool{}'s precision on this code at \data{rqthree-audit-weighted}
+  (\S\ref{sec:rq3}).
+\item Benchmarks of the NIST post-quantum parameter sets against their
+  classical counterparts, with every size cross-checked against OpenSSL
   (\S\ref{sec:rq4}).
+\item A comparison of declared and deployed cryptography for
+  \data{fed-scanned} public federal repositories and the endpoints they serve.
+  The gap \tool{} was built to find never occurs; the reverse is common.
+  \data{fed-hybrid-endpoints-share} of the endpoints negotiate a hybrid group,
+  all of them through \data{fed-hybrid-providers} hosting providers, while
+  \data{fed-nocrypto-share} of the repositories contain no public-key
+  cryptography that \tool{} detects (\S\ref{sec:fed}).
 \end{itemize}
-Every number in this paper is generated from the released data files by a
-script; none is typed by hand.
+Every number in the paper is generated by a script from the released data;
+none is typed by hand.

@@ -83,46 +83,19 @@ as ML-DSA-65; ML-DSA-65 verification is
 outlier: \data{rqfour-slh-dsa-128s-circl-sign-p50} per signature,
 \data{rqfour-slhs-sign-vs-mldsa65} ML-DSA-65.
 
-\begin{table*}[t]
-\centering\small
-\input{generated/tab_rq4_tls}
-\caption{Full TLS~1.3 handshake time in the Linux container under each
-\texttt{netem} profile, from established TCP connection to usable TLS
-connection: medians for the X25519-only, hybrid-only and Go default
-clients, the hybrid's extra median time over X25519, and p99.}
-\label{tab:rq4-tls}
-\end{table*}
+\paragraph{Latency.} On loopback, with no network emulated, the hybrid
+handshake's median is \data{rqfour-loopback-extra} longer than the classical
+one, about the extra computation (\data{rqfour-hybrid-kex-extra}). We also
+timed handshakes over emulated links (Appendix~\ref{app:netem}). There the
+extra median ranges from \data{rqfour-netem-extra-min} to
+\data{rqfour-netem-extra-max} and does not grow with the round-trip time. We
+have not explained that pattern; we suspect the emulation itself, which ran
+inside a virtual machine, and draw no conclusion from it. Measurements on real
+networks find no meaningful latency cost~\cite{wickramasinghe2026,kampanakis2024}.
+None of the \data{rqfour-docker-handshakes} emulated handshakes failed.
 
-\begin{figure}[t]
-\centering
-\input{generated/fig_rq4_extra}
-\caption{Extra median handshake time of X25519MLKEM768 over X25519, per
-\texttt{netem} profile.}
-\label{fig:rq4-extra}
-\end{figure}
-
-\paragraph{Latency.} Table~\ref{tab:rq4-tls} and Figure~\ref{fig:rq4-extra}
-give the handshake results. On loopback the hybrid handshake's median is
-\data{rqfour-loopback-extra} longer than the classical one
-(\data{rqfour-loopback-extra-rel}), of the same order as the extra
-computation (\data{rqfour-hybrid-kex-extra}). With
-added delay the extra median is \data{rqfour-netem-extra-min} to
-\data{rqfour-netem-extra-max}, and it does not grow with the round-trip time:
-it is \data{rqfour-rtt150ms-extra} at \data{rqfour-rtt150ms-rtt}\,ms, or
-\data{rqfour-rtt150ms-extra-rel} of the handshake. We have not isolated why
-the extra time is larger with emulated delay than on plain loopback. Under
-packet loss the tail is dominated by retransmissions for both clients.
-None of the \data{rqfour-docker-handshakes} handshakes in the container
-failed, and none of the host's.
-
-\paragraph{Does cost explain non-adoption?} Our measurements suggest not.
-At wide-area round-trip times the hybrid key exchange adds at most
-\data{rqfour-netem-extra-max} at the median and
-\data{rqfour-handshake-bytes-extra} bytes, and the hybrid ClientHello still
-fits in a single segment. Go's default client already sends it, and RQ2 shows that
-whether a federal endpoint negotiates it depends mostly on who hosts it.
-Cost would matter more for post-quantum certificates: an ML-DSA-65 signature
-is \data{rqfour-mldsa65-sig-vs-rsa2048} the size of an RSA-2048 one, and no
-federal endpoint we measured uses one.
-These results describe one machine and emulated links; middleboxes that
-mishandle large ClientHellos are not represented.
+The larger cost is still ahead. An ML-DSA-65 signature is
+\data{rqfour-mldsa65-sig-vs-rsa2048} the size of an RSA-2048 one, and every
+certificate in a chain carries a key and a signature; no federal endpoint we
+measured uses a post-quantum certificate yet. Our measurements come from one
+machine and do not include middleboxes that mishandle large ClientHellos.

@@ -80,6 +80,18 @@ published as a complete one.
 - **No reverse DNS.** The scan's source address may not point back to the project. See the
   vantage recorded in `rq2_meta.csv`.
 
+### Provider versus agency
+
+```sh
+python3 measure/rq2_grouping.py   # paper/data/rq2_grouping.csv
+```
+
+Over TLS-speaking endpoints, the outcome is whether an endpoint is hybrid. For the autonomous
+system and for the agency, the script reports the information each carries about the outcome,
+and what each adds once the other is known: I(Y;AS|agency) and I(Y;agency|AS). Each statistic is
+compared with 2,000 shuffles of the grouping's labels, within strata for the conditional ones.
+The shuffles remove the advantage that groupings with many small groups have.
+
 ### Monthly repeats
 
 The scan in `paper/data/rq2_*` is the baseline. Monthly repeats make it a trend:

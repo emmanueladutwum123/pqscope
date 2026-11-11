@@ -98,6 +98,31 @@
   - Paper: a new section, plus a new contribution and new sentences in the abstract,
     introduction, discussion and conclusion. The title is unchanged.
 
+- Respond to an external review of the draft:
+  - Keylens exists: it is `qelens/cbom`, renamed from `keylens/cbom`. It is now in the RQ1
+    harness, pinned to a commit, and its results enter the paper when `make eval` runs.
+  - RQ1 gains a source-code-only comparison: F1 0.980 for pqscope against 0.495 for
+    cryptoscan-pqc. The abstract and introduction now say that CBOMkit does better on Java.
+  - The ablation caption explains why the binary and network rows match: each layer has
+    exactly 20 true positives. The build checks this.
+  - RQ2's provider-versus-agency "uniformity" rule is replaced by conditional mutual
+    information with a permutation baseline (`measure/rq2_grouping.py`). The provider
+    explains 56% of the outcome and the agency 24%. With the agency fixed the provider adds
+    47%; with the provider fixed the agency adds 18%.
+  - RQ3 reports stricter exposure counts. Counted from source code alone, network-facing
+    exposure is 1 project (1.0%), not 22.7%; almost all of that figure is certificates and
+    keys. Dependencies without the Go toolchain directive are 22.7%, not 26.8%. The abstract
+    no longer says "network-facing code".
+  - RQ4 is narrowed to bytes and computation. The emulated-link latency, whose extra time
+    doesn't scale with round-trip time and isn't explained, moves to an appendix that says
+    so. The paper no longer claims to explain non-adoption.
+  - The abstract and introduction now say five questions, not four, and both are rewritten
+    for clarity.
+  - Not changed: RFC 10024 was already cited. The suggested Brazil study and Schaumann's
+    work could not be found as primary sources.
+  - Still open: human annotation of the audit, an actual report to CISA, a scanning server
+    with reverse DNS and an information page, and the Generative AI appendix.
+
 Known limits of the draft:
 
 - The Generative AI appendix IMC requires is a placeholder for the author to complete.

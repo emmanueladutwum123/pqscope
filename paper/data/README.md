@@ -7,6 +7,7 @@ Every file here is generated. Never edit one by hand: rerun the target that writ
 | `rq1_*.csv` | `make eval` (or `make eval-score`), see [eval/README.md](../../eval/README.md) | RQ1: multi-layer versus single-layer detection, and layer ablation |
 | `rq2_*.csv`, `raw/rq2_net.jsonl.gz` | `measure/rq2.sh`, see [docs/measurement.md](../../docs/measurement.md) | RQ2: hybrid key exchange on federal .gov |
 | `rq2_trend/<YYYY-MM>/` | `measure/rq2-monthly.sh` (monthly, see [docs/measurement.md](../../docs/measurement.md#monthly-repeats)) | RQ2 repeated monthly from the same vantage point, for the trend |
+| `rq2_grouping.csv` | `measure/rq2_grouping.py`, see [docs/measurement.md](../../docs/measurement.md#provider-versus-agency) | RQ2: how much provider and agency each explain |
 | `rq3_*.csv`, `raw/rq3_findings.tar.gz` | `measure/rq3.sh`, see [docs/measurement.md](../../docs/measurement.md) | RQ3: quantum-vulnerable cryptography in critical open source |
 | `rq3_audit*.csv` | `measure/rq3_audit.py`, see [docs/measurement.md](../../docs/measurement.md#audit-of-rq3s-findings) | RQ3: precision of a stratified sample of findings, from two independent annotations and the author's decisions |
 | `fed_*.csv`, `raw/fed_findings.tar.gz` | `measure/fed_link.py`, `measure/fed_scan.py`, see [docs/measurement.md](../../docs/measurement.md#rq5-declared-versus-deployed-on-federal-systems) | RQ5: federal repositories against the endpoints they serve |

@@ -40,7 +40,7 @@ var competitors = []struct {
 	{"cryptoscan-pqc", parseCBOMDir},
 	{"semgrep", parseSemgrep},
 	{"pqc-audit", parseGenericJSON},
-	{"keylens", func(string) ([]rawFinding, error) { return nil, nil }},
+	{"keylens", parseGenericJSON},
 }
 
 // rawFinding is a tool's finding before it is assigned to a case.

@@ -30,6 +30,9 @@ SEMGREP_RULES_COMMIT="16b9e6d45f10649f6a531ec4838ed9924372c3bc"
 PYTHON_IMAGE="python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b"
 CRYPTOSCAN_VERSION="0.1.1"
 PQC_AUDIT_COMMIT="2b11fc59b0ce8701650a602db51c170953ae0c9e"
+# Keylens: qelens/cbom (the keylens/cbom repository redirects there), built from
+# its own Dockerfile at a pinned commit.
+KEYLENS_COMMIT="8d75d87477a5a38ed43b37d8afa4e970fa4e3746"
 NETWORK_TIMEOUT=120
 
 log() { printf '%s\n' "$*" >&2; }
@@ -51,7 +54,7 @@ if ! docker info >/dev/null 2>&1; then
 		tool_json "$t" "" "" unavailable "Docker not available"
 	done
 	tool_json pqscope-network "" "" unavailable "Docker not available"
-	tool_json keylens "" "" unavailable "No crypto scanner named Keylens could be found (GitHub search, 2026-11-08)"
+	tool_json keylens "" "" unavailable "Docker not available"
 	exit 0
 fi
 
@@ -132,7 +135,15 @@ run_tool pqc-audit "${PQC_AUDIT_COMMIT:0:8}" "github:danieleschmidt/pqc-migratio
 	docker run --rm -v "$CORPUS:/src:ro" -v "$OUT/pqc-audit:/out" "$PYTHON_IMAGE" \
 	sh -c "pip install -q --disable-pip-version-check https://github.com/danieleschmidt/pqc-migration-audit/archive/$PQC_AUDIT_COMMIT.tar.gz && pqc-audit /src --output /out/report.json --format json"
 
-tool_json keylens "" "" unavailable "No crypto scanner named Keylens could be found (GitHub search, 2026-11-08)"
+# Keylens (qelens/cbom): Python and JavaScript source and lockfiles. Its default
+# JSON lists file_path, line_number and algorithm for each asset.
+KEYLENS_IMAGE="pqscope-eval/keylens:${KEYLENS_COMMIT:0:12}"
+if docker build -q -t "$KEYLENS_IMAGE" "https://github.com/qelens/cbom.git#$KEYLENS_COMMIT" >/dev/null 2>"$OUT/keylens-build.log"; then
+	run_tool keylens "${KEYLENS_COMMIT:0:8}" "github:qelens/cbom@$KEYLENS_COMMIT (built from its Dockerfile)" findings.json \
+		sh -c "docker run --rm -v '$CORPUS:/src:ro' '$KEYLENS_IMAGE' scan --path /src > '$OUT/keylens/findings.json'"
+else
+	tool_json keylens "${KEYLENS_COMMIT:0:8}" "github:qelens/cbom@$KEYLENS_COMMIT" failed "image build failed (see keylens-build.log)"
+fi
 }
 
 network() {

@@ -47,14 +47,22 @@ quantum-vulnerable cryptography in some layer, and
 configuration or binaries, not only in dependencies. Configuration and key
 material is the most common layer (\data{rqthree-config-share}), ahead of
 source code (\data{rqthree-source-share}) and dependencies
-(\data{rqthree-deps-share}); vulnerable code in committed binaries is rare
-(\data{rqthree-binary-share}).
+(\data{rqthree-deps-share}, or \data{rqthree-deps-nogo-share} without the
+Go toolchain directive that every Go module carries; see the audit below);
+vulnerable code in committed binaries is rare (\data{rqthree-binary-share}).
 
 \paragraph{Exposure.} \data{rqthree-network-n} projects
 (\data{rqthree-network-share}, CI \data{rqthree-network-ci}) have
-quantum-vulnerable cryptography in network-facing code or configuration.
-Test and example code is more common: \data{rqthree-test-share} of projects
-have quantum-vulnerable findings there.
+quantum-vulnerable cryptography that the risk engine classes as network-facing.
+That figure leans on a default: every certificate, key and TLS setting outside
+test paths counts as network-facing. Counting source code alone, only
+\data{rqthree-network-src-n} project (\data{rqthree-network-src-share}, CI
+\data{rqthree-network-src-ci}) calls a TLS or SSH API with a quantum-vulnerable
+algorithm, and that count is itself a floor, since \tool{} recognizes TLS and
+SSH APIs mainly in Go and Python. Code-level exposure is therefore the weakest
+of our estimates; certificates and keys in the repository are the exposure we
+can show. Test and example code is more common: \data{rqthree-test-share} of
+projects have quantum-vulnerable findings there.
 
 \paragraph{Algorithms.} RSA is the most widespread algorithm, in
 \data{rqthree-alg-rsa-share} of scanned projects, followed by ECDSA

@@ -23,8 +23,7 @@ run: CBOMkit, both its source analyzer (sonar-cryptography) and its
 filesystem scanner (CBOMkit-theia)~\cite{cbomkit}, cryptoscan-pqc~\cite{cryptoscanpqc},
 pqc-migration-audit~\cite{pqcaudit} and Semgrep with its cryptography
 rules~\cite{semgrep}. Each runs once in a container pinned by digest and sees
-a copy of the corpus without labels. We also planned to include a scanner
-named Keylens but could not find one. Findings are mapped to algorithm families and
+a copy of the corpus without labels. Findings are mapped to algorithm families and
 scored at two granularities: \emph{file} (file and family; fair to tools that
 report no lines, and our headline) and \emph{line} (file, line and family). A
 tool that does not cover a layer scores misses there; that is the point of
@@ -59,6 +58,14 @@ alternative, \data{rqone-best-competitor}, reaches recall
 \data{rqone-best-competitor-p}, so \tool{} finds \data{rqone-recall-ratio} as
 many assets.
 
+The comparison favors \tool{} by design, since the other tools do not claim
+to read every layer. On source code alone, which they all read, \tool{}
+reaches precision \data{rqone-src-pqscope-p} and recall
+\data{rqone-src-pqscope-r} (F1 \data{rqone-src-pqscope-f}) over
+\data{rqone-src-labels} labeled assets, against \data{rqone-src-best-p} and
+\data{rqone-src-best-r} (F1 \data{rqone-src-best-f}) for the strongest
+alternative there, \data{rqone-src-best}.
+
 Table~\ref{tab:rq1-layers} shows where the difference comes from. The other
 tools read source code, and \data{rqone-nonsource-share} of the labeled
 assets (\data{rqone-nonsource-labels}) are in configuration, dependencies,
@@ -86,7 +93,9 @@ answered with a HelloRetryRequest.
 \centering\small
 \input{generated/tab_rq1_ablation}
 \caption{Layer ablation for \tool{} at file level. $\Delta$R is the recall
-lost, in percentage points, when one layer is turned off.}
+lost, in percentage points, when one layer is turned off. The binary and
+network rows match because each layer contributes exactly
+\data{rqone-abl-same-tp} correctly found assets.}
 \label{tab:rq1-ablation}
 \end{table}
 

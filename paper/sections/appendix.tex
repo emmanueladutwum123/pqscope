@@ -37,9 +37,39 @@ generative AI tools were used in this work, for what (for example writing
 code, analysis scripts, or drafting and editing text), and how their output
 was checked.]}
 
+\section{Emulated-Link Handshakes}
+\label{app:netem}
+
+Table~\ref{tab:rq4-tls} and Figure~\ref{fig:rq4-extra} give the handshake
+timings under emulated delay and loss that \S\ref{sec:rq4} sets aside. The
+links were emulated with \texttt{netem} on the loopback interface of a Linux
+container running in a virtual machine on the host of
+Table~\ref{tab:rq4-primitives}. The hybrid's extra median time does not scale
+with the added round-trip time, and we have not found the cause, so these
+numbers should not be read as wide-area costs.
+
+\begin{table*}[t]
+\centering\small
+\input{generated/tab_rq4_tls}
+\caption{Full TLS~1.3 handshake time in the Linux container under each
+\texttt{netem} profile, from established TCP connection to usable TLS
+connection: medians for the X25519-only, hybrid-only and Go default
+clients, the hybrid's extra median time over X25519, and p99.}
+\label{tab:rq4-tls}
+\end{table*}
+
+\begin{figure}[t]
+\centering
+\input{generated/fig_rq4_extra}
+\caption{Extra median handshake time of X25519MLKEM768 over X25519, per
+\texttt{netem} profile.}
+\label{fig:rq4-extra}
+\end{figure}
+
+\clearpage
 \section{Additional Tables}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering\footnotesize\setlength{\tabcolsep}{4pt}
 \input{generated/tab_rq2_agencies}
 \caption{Hybrid adoption for agencies with at least \data{rqtwo-agency-min}
@@ -47,7 +77,7 @@ TLS endpoints, with Wilson 95\% intervals.}
 \label{tab:rq2-agencies}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering\small
 \input{generated/tab_rq3_algorithms}
 \caption{Quantum-vulnerable algorithms in the \data{rqthree-scanned} scanned

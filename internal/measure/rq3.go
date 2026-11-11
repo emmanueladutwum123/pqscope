@@ -153,6 +153,12 @@ type ProjectRow struct {
 	ByExposure map[string]int
 	Derived    map[string]int // derived findings by type
 	Algorithms map[string]int // vulnerable findings by algorithm
+	// Stricter counts, for the paper's sensitivity check: network-facing
+	// findings in source code only (config counts as network-facing by
+	// default), and dependency findings other than the Go toolchain
+	// directive, which every Go module has.
+	NetworkSource    int
+	DepsNotToolchain int
 }
 
 // vulnerable reports whether f is a quantum-vulnerable asset found directly
@@ -193,8 +199,15 @@ func AnalyzeRQ3(sel []Selection, scans map[string]ScanStatus, dir string) ([]Pro
 					row.Derived[f.Derived]++
 				case vulnerable(f):
 					row.ByLayer[f.Location.Layer]++
-					row.ByExposure[w.ExposureOf(f)]++
+					exp := w.ExposureOf(f)
+					row.ByExposure[exp]++
 					row.Algorithms[f.Asset.Algorithm]++
+					if exp == risk.ExposureNetwork && f.Location.Layer == model.LayerSource {
+						row.NetworkSource++
+					}
+					if f.Location.Layer == model.LayerDeps && f.RuleID != "deps.go-stdlib" {
+						row.DepsNotToolchain++
+					}
 				}
 			}
 		}
@@ -264,6 +277,8 @@ func RQ3Summary(rows []ProjectRow) [][]string {
 	for _, e := range rq3Exposures {
 		add("vulnerable:exposure:"+e, func(r ProjectRow) int { return r.ByExposure[e] })
 	}
+	add("vulnerable:exposure:network-source-only", func(r ProjectRow) int { return r.NetworkSource })
+	add("vulnerable:layer:deps-excluding-go-toolchain", func(r ProjectRow) int { return r.DepsNotToolchain })
 	types := map[string]bool{}
 	for _, r := range scanned {
 		for t := range r.Derived {
